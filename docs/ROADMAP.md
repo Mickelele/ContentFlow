@@ -93,6 +93,7 @@ Kod gotowy 2026-11-09 · migracja `20261110150000_push_sync.sql` · czeka na kon
 - ✅ **PWA:** manifest, ikony, service worker, instalacja na telefonie i komputerze
 - ✅ **Powiadomienia push** o wydarzeniach (Web Push) — także przy zamkniętej aplikacji; włączane per urządzenie w Ustawieniach
 - ✅ **Przypomnienia na Slacka** z serwera (opcja workspace'u), jedno na wydarzenie
+- ✅ **Tablica Kanban zadań** (jak w Jirze): Do zrobienia / W trakcie / Ukończone, przeciąganie między kolumnami i w kolumnie, szybkie dodawanie, przełącznik Tablica/Lista
 - ✅ **Synchronizacja na żywo** (Supabase Realtime): kalendarz, „Dziś” i zadania odświeżają się po zmianie na innym urządzeniu
 - ⚙️ Wymaga: migracji, harmonogramu `pg_cron` w Supabase, kluczy VAPID i `CRON_SECRET` w Vercelu, Google Calendar API (`docs/KONFIGURACJA.md`)
 - ➡️ Praca offline z kolejką zmian (`NFR`, spec. 3.3) przeniesiona do „Później”

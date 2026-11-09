@@ -109,7 +109,7 @@ export function TaskDialog({
     const q = id
       ? supabase.from("tasks").update(row).eq("id", id)
       : supabase.from("tasks").insert({ ...row, position: Date.now() % 2147483647 });
-    const { data, error } = await q.select("id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, completed_at").single();
+    const { data, error } = await q.select("id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, board_position, completed_at").single();
     setBusy(false);
     if (error || !data) return setError("Nie udało się zapisać zadania. Spróbuj ponownie.");
     onSaved({ ...data, checklist_total: items.length, checklist_done: items.filter((i) => i.done).length } as Task);

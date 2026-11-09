@@ -17,6 +17,7 @@ export type Task = {
   due_all_day: boolean;
   planned_on: string | null;
   position: number;
+  board_position: number | null;
   completed_at: string | null;
   checklist_total: number;
   checklist_done: number;
@@ -42,7 +43,7 @@ export const PRIORITIES: Record<TaskPriority, { label: string; rank: number }> =
 };
 
 export const TASK_SELECT =
-  "id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, completed_at, checklist_items(done)";
+  "id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, board_position, completed_at, checklist_items(done)";
 
 type Row = Omit<Task, "checklist_total" | "checklist_done"> & { checklist_items: { done: boolean }[] | null };
 

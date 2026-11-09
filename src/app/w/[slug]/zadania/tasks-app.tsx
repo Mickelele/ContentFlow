@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus, Sun, Upload } from "lucide-react";
+import { Columns3, List, Plus, Sun, Upload } from "lucide-react";
 import { Button, PageHeader, cx, inputClass } from "@/components/ui";
 import { QuickAdd } from "@/components/tasks/quick-add";
 import { TaskDialog, type TaskDraft } from "@/components/tasks/task-dialog";
+import { TaskBoard } from "@/components/tasks/task-board";
 import { TaskRow } from "@/components/tasks/task-row";
 import { createClient } from "@/lib/supabase/client";
 import { useRealtime } from "@/lib/use-realtime";
@@ -64,6 +65,21 @@ export function TasksApp({
   const [dialogKey, setDialogKey] = useState(0);
   const [trelloOpen, setTrelloOpen] = useState(false);
   const [trelloKey, setTrelloKey] = useState(0);
+  // Widok: tablica Kanban (domyślnie) albo lista według terminów; zapamiętany w przeglądarce.
+  const [view, setView] = useState<"board" | "list">(() => {
+    try {
+      return localStorage.getItem("cf-tasks-view") === "list" ? "list" : "board";
+    } catch {
+      return "board";
+    }
+  });
+  const [boardKey, setBoardKey] = useState(0);
+  const changeView = (v: "board" | "list") => {
+    setView(v);
+    try {
+      localStorage.setItem("cf-tasks-view", v);
+    } catch {}
+  };
   const today = todayKey();
   const wsClients = clients.filter((c) => c.workspace_id === workspace.id);
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients]);
@@ -185,10 +201,10 @@ export function TasksApp({
   );
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className={cx("mx-auto", view === "board" ? "max-w-6xl" : "max-w-3xl")}>
       <PageHeader
         title="Zadania"
-        description={`Wszystko do zrobienia w ${workspace.name}. Słoneczko dodaje zadanie do planu dnia.`}
+        description={view === "board" ? `Tablica zadań w ${workspace.name}. Przeciągnij kartę, żeby zmienić status lub kolejność.` : `Wszystko do zrobienia w ${workspace.name}. Słoneczko dodaje zadanie do planu dnia.`}
         actions={
           <>
           <Button variant="secondary" onClick={() => (setTrelloKey((k) => k + 1), setTrelloOpen(true))}>
@@ -204,6 +220,29 @@ export function TasksApp({
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="flex rounded-lg bg-surface-2 p-0.5" role="group" aria-label="Widok">
+          {(
+            [
+              ["board", "Tablica", Columns3],
+              ["list", "Lista", List],
+            ] as const
+          ).map(([k, label, Icon]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={view === k}
+              onClick={() => changeView(k)}
+              className={cx(
+                "inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm",
+                view === k ? "bg-surface font-medium shadow-[0_1px_2px_rgb(0_0_0/0.08)]" : "text-ink-2 hover:text-ink",
+              )}
+            >
+              <Icon className="size-4" aria-hidden="true" />
+              {label}
+            </button>
+          ))}
+        </div>
+        {view === "list" ? (
         <div className="flex rounded-lg bg-surface-2 p-0.5" role="tablist" aria-label="Rodzaj zadań">
           {(
             [
@@ -223,6 +262,7 @@ export function TasksApp({
             </button>
           ))}
         </div>
+        ) : null}
         {wsClients.length > 0 ? (
           <select
             aria-label="Filtruj według klienta"
@@ -240,7 +280,7 @@ export function TasksApp({
         ) : null}
       </div>
 
-      {tab === "active" ? <QuickAdd onAdd={quickAdd} className="mb-6" /> : null}
+      {view === "list" && tab === "active" ? <QuickAdd onAdd={quickAdd} className="mb-6" /> : null}
 
       {error ? (
         <p role="alert" className="mb-4 rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">
@@ -248,7 +288,16 @@ export function TasksApp({
         </p>
       ) : null}
 
-      {tasks === null ? (
+      {view === "board" ? (
+        <TaskBoard
+          workspaceId={workspace.id}
+          clients={clients}
+          clientFilter={clientFilter}
+          refreshKey={boardKey}
+          onOpen={(t) => open(t)}
+          onError={setError}
+        />
+      ) : tasks === null ? (
         <div className="flex animate-pulse flex-col gap-2 motion-reduce:animate-none" aria-busy="true" aria-label="Ładowanie">
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-14 rounded-xl bg-surface-2" />
@@ -285,7 +334,7 @@ export function TasksApp({
         onClose={() => setTrelloOpen(false)}
         workspace={workspace}
         clients={clients.filter((c) => c.workspace_id === workspace.id)}
-        onImported={() => load(tab)}
+        onImported={() => (load(tab), setBoardKey((k) => k + 1))}
       />
       <TaskDialog
         key={dialogKey}
@@ -296,6 +345,7 @@ export function TasksApp({
         onClose={() => setDraft(null)}
         onSaved={(t) => {
           setDraft(null);
+          setBoardKey((k) => k + 1);
           setTasks((xs) => {
             if (!xs) return xs;
             const belongs = tab === "active" ? t.status !== "done" : t.status === "done";
@@ -305,6 +355,7 @@ export function TasksApp({
         }}
         onDeleted={(id) => {
           setDraft(null);
+          setBoardKey((k) => k + 1);
           setTasks((xs) => xs?.filter((x) => x.id !== id) ?? xs);
         }}
       />

@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -23,7 +23,7 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `shots` | Ujęcie do nagrania | `content_id`, `description`, `done`, `position` |
 | `events` | Wydarzenie | `calendar_id`, `client_id`, `project_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `rrule`, `external_id` (unikalne z `calendar_id`, np. `gcal:<kalendarz>:<id>`), `slack_notified_at` |
 | `event_content` | Wydarzenie ↔ materiały (n:m) | `event_id`, `content_id` |
-| `tasks` | Zadanie | `parent_id` (nieużywane, D-15), `client_id`, `project_id`, `content_id`, `title`, `status`, `priority`, `due_at`, `due_all_day`, `planned_on` (plan dnia), `completed_at`, `position` (kolejność w planie dnia), `external_id` (unikalne z `workspace_id`, np. `trello:<id>`) |
+| `tasks` | Zadanie | `parent_id` (nieużywane, D-15), `client_id`, `project_id`, `content_id`, `title`, `status`, `priority`, `due_at`, `due_all_day`, `planned_on` (plan dnia), `completed_at`, `position` (kolejność w planie dnia), `board_position` (kolejność na tablicy Kanban), `external_id` (unikalne z `workspace_id`, np. `trello:<id>`) |
 | `checklist_items` | Pozycja checklisty zadania | `task_id`, `label`, `done`, `position` |
 | `attachments` | Załącznik (link do Dysku) | `entity_type`, `entity_id`, `drive_file_id`, `name`, `mime_type`, `url` |
 | `reminders` | Przypomnienie (per osoba) | `user_id`, jedno z: `event_id` / `task_id` / `publication_id`, `offset_minutes`, `remind_at` (liczone triggerem), `sent_at` |

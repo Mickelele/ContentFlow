@@ -9,6 +9,7 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 ### Dodano
 - Wersja produkcyjna na Vercelu: https://contentflow-pi-ten.vercel.app
 - Kalendarz → „Google”: import wydarzeń z Google Calendar i wysyłanie planu do Google, na żądanie, bez duplikatów.
+- Zadania: tablica Kanban (Do zrobienia, W trakcie, Ukończone) z przeciąganiem kart i własną kolejnością; przełącznik Tablica/Lista.
 - Zadania → „Z Trello”: import tablicy z pliku JSON (karty, listy kontrolne, terminy).
 - Instalacja ContentFlow jako aplikacji na telefonie i komputerze (PWA) z własną ikoną.
 - Powiadomienia push o wydarzeniach na wybranych urządzeniach (Ustawienia → To urządzenie).

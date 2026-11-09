@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-28 · Tablica Kanban zadań z osobną kolejnością
+2026-11-09
+- **Decyzja:** Zadania mają widok tablicy (domyślny) i listy. Kolumny = statusy zadania (`todo`, `in_progress`, `done`); przeciągnięcie zmienia status, kolejność w kolumnie trzyma `tasks.board_position` (co 1024), niezależnie od `position` w planie dnia.
+- **Dlaczego:** użytkownik chce pracować jak w Jirze; jedna kolumna kolejności dla planu dnia i tablicy mieszałaby dwa różne porządki.
+- **Skutek:** kolumna „Ukończone” pokazuje 30 ostatnich; dodatkowe kolumny (np. „Do sprawdzenia”) wymagają nowego statusu w `task_status`.
+
 ### D-27 · Synchronizacja na żywo = ponowne pobranie po zmianie
 2026-11-09
 - **Decyzja:** Supabase Realtime powiadamia o zmianach w tabelach (z RLS), a widok pobiera dane od nowa (z opóźnieniem 0,5 s, także po powrocie do karty). Nie scalamy zmian po kawałku.

@@ -68,7 +68,7 @@ src/
     google-buttons.tsx      „Z Dysku” i „Do Google Docs”
     shell/                  AppShell, nawigacja, przełącznik workspace'ów, motyw
       notifications.tsx     dostawca powiadomień, dzwonek, dymki
-    tasks/                  wiersz zadania, okno szczegółów z checklistą, szybkie dodawanie
+    tasks/                  wiersz zadania, okno szczegółów z checklistą, szybkie dodawanie, tablica Kanban (task-board.tsx)
     ui.tsx                  Button, Field, Input, PageHeader, cx()…
     dialog.tsx              okno: wyśrodkowane na komputerze, arkusz na telefonie
     page-skeleton.tsx       szkielet ładowania modułów
@@ -172,6 +172,7 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - `/api/cron/reminders` (Bearer `CRON_SECRET`, klucz serwisowy): przypomnienia z ostatnich 2 godzin → push do osoby + Slack raz na wydarzenie.
 - `lib/use-realtime.ts`: kanał Supabase Realtime na tabele widoku → odświeżenie z opóźnieniem; używają go kalendarz, „Dziś” i zadania.
 - Google Calendar: `lib/google-auth.ts` (wspólny token GIS dla Dysku i Kalendarza, wybór konta przy kalendarzu), `lib/google-calendar.ts` (lista, wydarzenia, wstawianie, aktualizacja), `kalendarz/google-dialog.tsx`.
+- Tablica zadań: `components/tasks/task-board.tsx` — dnd-kit z wieloma kontenerami (kolumna = status), podgląd przeniesienia w `onDragOver`, zapis statusu i `board_position` w `onDragEnd`; widok zapamiętany w `localStorage` (`cf-tasks-view`).
 - Trello: `zadania/trello-import.tsx` czyta plik JSON w przeglądarce i robi `upsert` po `(workspace_id, external_id)`.
 
 ## Planowane elementy architektury
