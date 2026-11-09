@@ -5,6 +5,17 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-30 · Statystyki liczone w przeglądarce, tydzień od poniedziałku
+2026-11-09
+- **Decyzja:** podsumowanie pobiera surowe dane tygodnia (zadania, publikacje, terminy, wydarzenia) i liczy w przeglądarce, w jej strefie czasowej. Porównanie zawsze z poprzednim tygodniem.
+- **Dlaczego:** granice dnia i tygodnia zależą od strefy użytkownika; dane jednego tygodnia są małe, więc osobne agregaty w bazie nie są potrzebne.
+
+### D-29 · Akceptacja klienta przez link z tokenem, bez konta
+2026-11-09
+- **Decyzja:** prośba o akceptację tworzy losowy token (2× UUID v4) i migawkę scenariusza (`script_versions`). Strona `/akceptacja/[token]` i zapis odpowiedzi działają po stronie serwera kluczem serwisowym; przez API token nie daje dostępu. Link wygasa po 30 dniach, można go wycofać.
+- **Dlaczego:** klienci nie mają kont w ContentFlow, a akceptacja musi być prosta (jeden link, jeden przycisk). Migawka gwarantuje, że klient akceptuje dokładnie tę wersję, którą widział.
+- **Skutek:** akceptacja odhacza termin „akceptacja” i przesuwa etap na „zaplanowano”; poprawki cofają etap na „montaż”.
+
 ### D-28 · Tablica Kanban zadań z osobną kolejnością
 2026-11-09
 - **Decyzja:** Zadania mają widok tablicy (domyślny) i listy. Kolumny = statusy zadania (`todo`, `in_progress`, `done`); przeciągnięcie zmienia status, kolejność w kolumnie trzyma `tasks.board_position` (co 1024), niezależnie od `position` w planie dnia.

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DrivePickButton, ExportDocButton } from "@/components/google-buttons";
+import { ApprovalSection } from "./approval-section";
+import { ScriptVersionsButton } from "./script-versions";
 import { ArrowLeft, Plus, Trash2, X } from "lucide-react";
 import { ChatGptMenu } from "@/components/chatgpt-menu";
 import { LinkRow } from "@/components/link-chip";
@@ -71,11 +73,13 @@ export function MaterialEditor({
   workspace,
   clients,
   projects,
+  clientEmail,
 }: {
   material: Material;
   workspace: WorkspaceRef;
   clients: ClientRef[];
   projects: ProjectRef[];
+  clientEmail: string | null;
 }) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -108,6 +112,7 @@ export function MaterialEditor({
   // Aktualny tekst scenariusza i platformy — do poleceń ChatGPT.
   const scriptText = useRef(docText(material.script));
   const addLink = useRef<InsertLink | null>(null);
+  const scriptEditor = useRef<Editor | null>(null);
   const platforms = useRef(material.content_publications.map((p) => p.platform));
   const prompts = () =>
     materialPrompts({
@@ -185,6 +190,7 @@ export function MaterialEditor({
             contentId={m.id}
             initial={m.script}
             onText={(t) => (scriptText.current = t)}
+            onEditor={(e) => (scriptEditor.current = e)}
             exportTitle={`${m.title} — scenariusz`}
             onError={setError}
             onExported={async (doc) => {
@@ -194,6 +200,14 @@ export function MaterialEditor({
           <ShotsSection contentId={m.id} initial={m.shots} onError={setError} />
         </div>
         <div className="flex min-w-0 flex-col gap-8">
+          <ApprovalSection
+            contentId={m.id}
+            title={m.title}
+            clientEmail={clientEmail}
+            getEditor={() => scriptEditor.current}
+            onSent={() => m.stage !== "approval" && patch({ stage: "approval" })}
+            onError={setError}
+          />
           <MilestonesSection contentId={m.id} initial={m.content_milestones} onError={setError} />
           <PublicationsSection
             contentId={m.id}
@@ -284,6 +298,7 @@ function ScriptSection({
   contentId,
   initial,
   onText,
+  onEditor,
   exportTitle,
   onExported,
   onError,
@@ -291,6 +306,7 @@ function ScriptSection({
   contentId: string;
   initial: JSONContent | null;
   onText: (text: string) => void;
+  onEditor: (editor: Editor) => void;
   exportTitle: string;
   onExported: (doc: { id: string; url: string }) => Promise<void>;
   onError: (m: string) => void;
@@ -309,7 +325,10 @@ function ScriptSection({
         label="Scenariusz"
         content={initial}
         placeholder="Napisz scenariusz albo wstaw szablon rolki"
-        onReady={(e) => (editorRef.current = e)}
+        onReady={(e) => {
+          editorRef.current = e;
+          onEditor(e);
+        }}
         onChange={(doc, text) => {
           setEmpty(!text.trim());
           onText(text);
@@ -333,12 +352,15 @@ function ScriptSection({
               Szablon rolki
             </button>
           ) : (
-            <ExportDocButton
-              title={exportTitle}
-              getHtml={() => editorRef.current?.getHTML() ?? ""}
-              onCreated={onExported}
-              onError={onError}
-            />
+            <>
+              <ScriptVersionsButton contentId={contentId} getEditor={() => editorRef.current} onError={onError} />
+              <ExportDocButton
+                title={exportTitle}
+                getHtml={() => editorRef.current?.getHTML() ?? ""}
+                onCreated={onExported}
+                onError={onError}
+              />
+            </>
           )
         }
       />

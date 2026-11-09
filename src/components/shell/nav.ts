@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  ChartColumn,
   CheckSquare,
   Clapperboard,
   FolderKanban,
@@ -20,6 +21,7 @@ export const NAV: NavItem[] = [
   { href: "klienci", label: "Klienci", icon: Users },
   { href: "projekty", label: "Projekty", icon: FolderKanban },
   { href: "pomysly", label: "Notatki i pomysły", icon: Lightbulb },
+  { href: "podsumowanie", label: "Podsumowanie", icon: ChartColumn },
 ];
 
 export const SETTINGS: NavItem = { href: "ustawienia", label: "Ustawienia", icon: Settings };

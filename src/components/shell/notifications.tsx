@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { createContext, use, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { AlarmClock, BadgeCheck, Bell, CalendarClock, CircleAlert, Send, X } from "lucide-react";
+import { AlarmClock, BadgeCheck, Bell, CalendarClock, CircleAlert, CircleCheckBig, MessageSquareText, Send, X } from "lucide-react";
 import { Dialog } from "@/components/dialog";
 import { cx } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 
-type Kind = "reminder" | "due_today" | "overdue" | "publication" | "approval";
+type Kind = "reminder" | "due_today" | "overdue" | "publication" | "approval" | "client_approved" | "client_changes";
 export type Notice = {
   key: string;
   kind: Kind;
   workspace_id: string;
-  source_type: "event" | "task" | "publication" | "milestone";
+  source_type: "event" | "task" | "publication" | "milestone" | "content";
   source_id: string;
   title: string;
   at: string;
@@ -20,7 +20,15 @@ export type Notice = {
 };
 
 const POLL_MS = 60_000;
-const ICONS = { reminder: AlarmClock, due_today: CalendarClock, overdue: CircleAlert, publication: Send, approval: BadgeCheck };
+const ICONS = {
+  reminder: AlarmClock,
+  due_today: CalendarClock,
+  overdue: CircleAlert,
+  publication: Send,
+  approval: BadgeCheck,
+  client_approved: CircleCheckBig,
+  client_changes: MessageSquareText,
+};
 const timeFmt = new Intl.DateTimeFormat("pl-PL", { hour: "2-digit", minute: "2-digit" });
 const dateFmt = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short" });
 
@@ -38,6 +46,10 @@ function describe(n: Notice) {
       return `Publikacja dziś o ${timeFmt.format(at)}`;
     case "approval":
       return "Czeka na akceptację";
+    case "client_approved":
+      return "Klient zaakceptował";
+    case "client_changes":
+      return "Klient prosi o poprawki";
   }
 }
 
@@ -109,7 +121,9 @@ export function NotificationsProvider({ slugs, children }: { slugs: Record<strin
     (n: Notice) => {
       const slug = slugs[n.workspace_id];
       if (!slug) return "/";
-      return n.source_type === "task" ? `/w/${slug}/zadania?zadanie=${n.source_id}` : `/w/${slug}/kalendarz`;
+      if (n.source_type === "task") return `/w/${slug}/zadania?zadanie=${n.source_id}`;
+      if (n.source_type === "content") return `/w/${slug}/content/${n.source_id}`;
+      return `/w/${slug}/kalendarz`;
     },
     [slugs],
   );

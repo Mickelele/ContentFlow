@@ -4,6 +4,12 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Dodano
+- Content: tablica Kanban z kolumnami etapów produkcji, przeciąganiem i własną kolejnością; przełącznik Tablica/Lista.
+- Wersje scenariusza: „Wersje” w edytorze — zapis z nazwą, podgląd, przywracanie.
+- Akceptacja przez klienta: link bez logowania (scenariusz, publikacje, pliki), odpowiedź „Akceptuję” / „Proszę o poprawki”; status w materiale, w dzwonku i jako powiadomienie push.
+- Podsumowanie: statystyki tygodnia (zadania dzień po dniu, terminy, publikacje, produkcja, czas, klienci) i tekst podsumowania do skopiowania lub wysłania na Slacka.
+
 ## Etap 6: Google Calendar, Trello, PWA (2026-11-09)
 
 ### Dodano

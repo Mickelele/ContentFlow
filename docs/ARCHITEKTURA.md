@@ -175,6 +175,13 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - Tablica zadań: `components/tasks/task-board.tsx` — dnd-kit z wieloma kontenerami (kolumna = status), podgląd przeniesienia w `onDragOver`, zapis statusu i `board_position` w `onDragEnd`; widok zapamiętany w `localStorage` (`cf-tasks-view`).
 - Trello: `zadania/trello-import.tsx` czyta plik JSON w przeglądarce i robi `upsert` po `(workspace_id, external_id)`.
 
+## Tablica materiałów, wersje, akceptacja, podsumowanie (Etap 7)
+
+- `content/content-board.tsx`: ten sam wzorzec dnd-kit co tablica zadań; kolumna = etap, `content.board_position`. Widok zapamiętany przez `useSyncExternalStore` (serwer renderuje tablicę, przeglądarka może przełączyć na listę).
+- `content/[id]/script-versions.tsx`: migawki dokumentu edytora; przywrócenie = `setContent` + automatyczny zapis.
+- `content/[id]/approval-section.tsx` → `approval_requests`; publiczna strona `app/akceptacja/[token]` (proxy przepuszcza `/akceptacja`), HTML scenariusza z `lib/doc-html.ts` (własny bezpieczny renderer JSON → HTML), odpowiedź w `akceptacja/[token]/actions.ts` (klucz serwisowy, push do autora prośby).
+- `podsumowanie/stats-app.tsx`: zapytania z zakresu tygodnia, agregacja w przeglądarce, wykres słupkowy w HTML (jedna seria, kolor atramentu, wartość po najechaniu/fokusie, opis dla czytników).
+
 ## Planowane elementy architektury
 
 - Praca offline: kolejka zmian w IndexedDB i wskaźnik „czeka na synchronizację”.

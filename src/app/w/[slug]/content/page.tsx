@@ -14,6 +14,7 @@ type Raw = {
   client_id: string | null;
   project_id: string | null;
   updated_at: string;
+  board_position: number | null;
   content_milestones: { kind: MilestoneKind; due_at: string; done_at: string | null }[];
   content_publications: { platform: Platform; publish_at: string; status: string }[];
 };
@@ -24,7 +25,7 @@ export default async function ContentPage({ params }: PageProps<"/w/[slug]/conte
   const { data } = await supabase
     .from("content")
     .select(
-      "id, title, type, stage, client_id, project_id, updated_at, content_milestones(kind, due_at, done_at), content_publications(platform, publish_at, status)",
+      "id, title, type, stage, client_id, project_id, updated_at, board_position, content_milestones(kind, due_at, done_at), content_publications(platform, publish_at, status)",
     )
     .eq("workspace_id", ws.id)
     .order("updated_at", { ascending: false });
@@ -44,6 +45,7 @@ export default async function ContentPage({ params }: PageProps<"/w/[slug]/conte
       stage: c.stage,
       client_id: c.client_id,
       project_id: c.project_id,
+      board_position: c.board_position,
       platforms: [...new Set(c.content_publications.map((p) => p.platform))],
       next,
     };

@@ -34,8 +34,13 @@ export default async function MaterialPage({ params }: PageProps<"/w/[slug]/cont
     shots: [...(raw.shots ?? [])].sort((a, b) => a.position - b.position),
   };
 
+  const { data: clientRow } = material.client_id
+    ? await supabase.from("clients").select("email").eq("id", material.client_id).maybeSingle()
+    : { data: null };
+
   return (
     <MaterialLoader
+      clientEmail={(clientRow?.email as string | null) ?? null}
       material={material}
       workspace={{ id: ws.id, name: ws.name, slug: ws.slug, color: ws.color }}
       clients={refs.clients.filter((c) => c.workspace_id === ws.id)}

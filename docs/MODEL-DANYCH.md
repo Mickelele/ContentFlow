@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`, `20261110200000_content_review`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -16,10 +16,12 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `calendars` | Warstwa kalendarza | `kind` (`client`/`tasks`/`custom`/`google`), `name`, `color`, `client_id`, `google_calendar_id` + `google_account_email` + `last_imported_at` (import z Google), `position` |
 | `calendar_visibility` | Czy warstwa jest widoczna (per użytkownik) | `user_id`, `calendar_id`, `visible` |
 | `projects` | Projekt klienta | `client_id`, `name`, `status`, `starts_on`, `ends_on` |
-| `content` | Materiał | `client_id`, `project_id`, `title`, `type`, `stage` |
+| `content` | Materiał | `client_id`, `project_id`, `title`, `type`, `stage`, `board_position` (kolejność na tablicy) |
 | `content_milestones` | Termin produkcyjny materiału | `content_id`, `kind` (`recording`/`editing`/`approval`), `due_at`, `done_at` |
 | `content_publications` | Publikacja na platformie | `content_id`, `platform`, `publish_at`, `caption`, `hashtags`, `status` |
 | `scripts` | Scenariusz (1:1 z materiałem) | `content_id`, `body` (jsonb, dokument edytora) |
+| `script_versions` | Wersja scenariusza | `content_id`, `label`, `body` (jsonb), `body_text`, `created_at` |
+| `approval_requests` | Prośba o akceptację klienta | `content_id`, `script_version_id` (migawka), `token` (unikalny), `status` (`pending`/`approved`/`changes_requested`/`cancelled`), `message`, `client_name`, `client_comment`, `responded_at`, `expires_at` |
 | `shots` | Ujęcie do nagrania | `content_id`, `description`, `done`, `position` |
 | `events` | Wydarzenie | `calendar_id`, `client_id`, `project_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `rrule`, `external_id` (unikalne z `calendar_id`, np. `gcal:<kalendarz>:<id>`), `slack_notified_at` |
 | `event_content` | Wydarzenie ↔ materiały (n:m) | `event_id`, `content_id` |
@@ -101,6 +103,7 @@ Powiadomienia zalogowanej osoby, liczone na bieżąco (D-14). „Dziś” wg `pr
 | `overdue` | niezrobione zadanie z terminem przed dziś | `overdue:<id>:<due_at>` |
 | `publication` | zaplanowana publikacja dziś | `pub:<id>:<publish_at>` |
 | `approval` | akceptacja materiału z terminem dziś lub wcześniej, niezrobiona | `approval:<id>:<due_at>` |
+| `client_approved` / `client_changes` | klient odpowiedział na prośbę o akceptację (ostatnie 7 dni) | `review:<id>:<status>` |
 
 Kolumna `read` mówi, czy klucz jest w `notification_reads`.
 

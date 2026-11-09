@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env, isConfigured } from "@/lib/env";
 
-const PUBLIC_PATHS = ["/logowanie", "/auth"];
+const PUBLIC_PATHS = ["/logowanie", "/auth", "/akceptacja"];
 
 /** Odświeża sesję Supabase w ciasteczkach i odsyła niezalogowanych do /logowanie. */
 export async function updateSession(request: NextRequest) {

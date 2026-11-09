@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **plan etapów 1–6 zrealizowany** — dalej „Później” (P1/P2)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **7 — tablica materiałów, wersje, akceptacja, podsumowanie** (testy)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -100,14 +100,20 @@ Zakończony 2026-11-09 · migracje `20261110150000_push_sync.sql`, `202611101800
 
 ---
 
+## 🔨 Etap 7: Tablica materiałów, wersje, akceptacja, podsumowanie
+Kod gotowy 2026-11-09 · migracja `20261110200000_content_review.sql`
+
+- 🔨 **Tablica Kanban materiałów** (`CON-11`): 7 kolumn = etapy produkcji, przeciąganie zmienia etap, własna kolejność; przełącznik Tablica/Lista
+- 🔨 **Wersje scenariuszy** (`CON-12`): zapis wersji z nazwą, podgląd, przywracanie (bieżący tekst trafia do historii)
+- 🔨 **Akceptacja przez klienta** (`CON-13`): link bez logowania z migawką scenariusza, publikacjami i plikami; „Akceptuję” / „Proszę o poprawki” z komentarzem; odpowiedź zmienia etap, odhacza termin akceptacji, przychodzi jako push i w dzwonku
+- 🔨 **Podsumowanie** (`DASH-06`, `DASH-07`): tydzień po tygodniu — ukończone zadania (dzień po dniu, porównanie z poprzednim tygodniem), terminy dotrzymane, publikacje, produkcja, czas w kalendarzu, podział na klientów; tekst podsumowania do skopiowania i na Slacka
+
 ## Później (P1/P2 ze specyfikacji)
 - 💤 Praca offline z kolejką zmian i wskaźnikiem „czeka na synchronizację”
 - 💤 Weryfikacja aplikacji w Google (zakresy kalendarza) i polityka prywatności / regulamin
 - 💤 Wydarzenia cykliczne (`CAL-09`), wykrywanie konfliktów (`CAL-12`)
-- 💤 Kanban contentu (`CON-11`), wersjonowanie (`CON-12`), akceptacja przez klienta (`CON-13`)
 - 💤 Planer sesji nagraniowych (`REC-01..08`)
 - 💤 Pakiety usług i licznik materiałów (`CLI-08..09`), raporty (`CLI-11`)
-- 💤 Statystyki i podsumowanie tygodnia (`DASH-06..07`)
 - 💤 Zapraszanie osób do workspace'u, role
 - 💤 AI: wydarzenia z opisu, scenariusze, plan miesiąca (`AI-01..09`)
 - 💤 Weryfikacja aplikacji w Google przed publicznym startem

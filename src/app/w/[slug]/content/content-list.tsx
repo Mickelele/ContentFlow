@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-import { ChevronRight, Plus, Search } from "lucide-react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { ChevronRight, Columns3, List, Plus, Search } from "lucide-react";
 import { Dialog } from "@/components/dialog";
 import { ClientChip } from "@/components/tasks/task-row";
 import { Button, Field, Input, PageHeader, cx, inputClass } from "@/components/ui";
 import { CONTENT_TYPES, PLATFORM_LIST, STAGES, STAGE_LABEL, stageIndex, type ContentStage, type ContentType, type Platform } from "@/lib/content";
 import { createClient } from "@/lib/supabase/client";
 import type { ClientRef, ProjectRef, WorkspaceRef } from "@/lib/tasks";
+import { ContentBoard } from "./content-board";
 
 export type ContentRow = {
   id: string;
@@ -18,6 +19,7 @@ export type ContentRow = {
   stage: ContentStage;
   client_id: string | null;
   project_id: string | null;
+  board_position: number | null;
   platforms: Platform[];
   next: { label: string; at: string } | null;
 };
@@ -29,6 +31,27 @@ const NEXT_LABEL: Record<string, string> = {
   publication: "Publikacja",
 };
 const dateFmt = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short" });
+
+// Widok (tablica / lista) zapamiętany w przeglądarce; serwer renderuje tablicę.
+const VIEW_KEY = "cf-content-view";
+const viewListeners = new Set<() => void>();
+const readView = (): "board" | "list" => {
+  try {
+    return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "board";
+  } catch {
+    return "board";
+  }
+};
+const writeView = (v: "board" | "list") => {
+  try {
+    localStorage.setItem(VIEW_KEY, v);
+  } catch {}
+  viewListeners.forEach((l) => l());
+};
+const subscribeView = (cb: () => void) => {
+  viewListeners.add(cb);
+  return () => viewListeners.delete(cb);
+};
 
 export function ContentList({
   workspace,
@@ -46,6 +69,7 @@ export function ContentList({
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients]);
+  const view = useSyncExternalStore(subscribeView, readView, () => "board" as const);
 
   const filtered = rows.filter(
     (r) =>
@@ -53,10 +77,12 @@ export function ContentList({
       (!client || r.client_id === client) &&
       (!query || r.title.toLowerCase().includes(query.toLowerCase())),
   );
+  // Tablica pokazuje wszystkie etapy; filtrują ją tylko klient i wyszukiwarka.
+  const boardRows = rows.filter((r) => (!client || r.client_id === client) && (!query || r.title.toLowerCase().includes(query.toLowerCase())));
   const counts = Object.fromEntries(STAGES.map((s) => [s.key, rows.filter((r) => r.stage === s.key).length]));
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className={cx("mx-auto", view === "board" ? "max-w-none" : "max-w-4xl")}>
       <PageHeader
         title="Content"
         description="Materiały od pomysłu do publikacji. Terminy produkcji i publikacji trafiają do kalendarza."
@@ -68,6 +94,7 @@ export function ContentList({
         }
       />
 
+      {view === "list" ? (
       <div className="-mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <div className="flex w-max gap-1.5" role="tablist" aria-label="Etap produkcji">
           {(
@@ -94,8 +121,31 @@ export function ContentList({
           ))}
         </div>
       </div>
+      ) : null}
 
       <div className="mb-5 flex flex-wrap gap-2">
+        <div className="flex rounded-lg bg-surface-2 p-0.5" role="group" aria-label="Widok">
+          {(
+            [
+              ["board", "Tablica", Columns3],
+              ["list", "Lista", List],
+            ] as const
+          ).map(([k, label, Icon]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={view === k}
+              onClick={() => writeView(k)}
+              className={cx(
+                "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm",
+                view === k ? "bg-surface font-medium shadow-[0_1px_2px_rgb(0_0_0/0.08)]" : "text-ink-2 hover:text-ink",
+              )}
+            >
+              <Icon className="size-4" aria-hidden="true" />
+              {label}
+            </button>
+          ))}
+        </div>
         <div className="relative min-w-48 flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Szukaj materiału" aria-label="Szukaj materiału" className="pl-9" />
@@ -112,7 +162,14 @@ export function ContentList({
         ) : null}
       </div>
 
-      {rows.length === 0 ? (
+      {view === "board" && rows.length > 0 ? (
+        <ContentBoard
+          key={boardRows.map((r) => r.id + r.stage).join("|")}
+          slug={workspace.slug}
+          rows={boardRows}
+          clients={clients}
+        />
+      ) : rows.length === 0 ? (
         <div className="rounded-2xl bg-surface-2 px-6 py-12 text-center">
           <h2 className="text-lg font-semibold">Dodaj pierwszy materiał</h2>
           <p className="mx-auto mt-2 max-w-md text-ink-2">
