@@ -124,6 +124,11 @@ Zakończony 2026-11-09 · commit `d7f0f04` · sprawdzone na produkcji: panel cza
 - 💤 Zapraszanie osób do workspace'u, role
 - 💤 AI: wydarzenia z opisu, scenariusze, plan miesiąca (`AI-01..09`)
 - 💤 Weryfikacja aplikacji w Google przed publicznym startem
+- 💤 Zadania: powtarzające się (`TASK-07`), czas szacowany i rzeczywisty (`TASK-08`), zależności (`TASK-09`), sugerowanie terminów (`TASK-10`)
+- 💤 Historia współpracy z klientem (`CLI-10`)
+- 💤 Personalizacja układu „Dziś” (`DASH-08`)
+- 💤 Synchronizacja z Outlook Calendar (`CAL-15`)
+- 💤 Test wydajności: 1000+ wydarzeń w kalendarzu (`NFR-04`)
 
 ## Poza zakresem (decyzja z 2026-11-09)
 - Gmail przez API: zakres „restricted” wymaga płatnego audytu bezpieczeństwa
