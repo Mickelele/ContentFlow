@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+  ContentFlow — tokeny.
+  Interfejs jest neutralny (ciepła szarość), bo znaczenie niesie kolor klienta.
+  Akcent = atrament, nie osobny kolor marki.
+*/
+:root {
+  color-scheme: light;
+  --bg: oklch(0.985 0.002 85);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.965 0.003 85);
+  --surface-3: oklch(0.935 0.004 85);
+  --ink: oklch(0.22 0.006 85);
+  --ink-2: oklch(0.45 0.008 85);
+  --ink-3: oklch(0.58 0.008 85);
+  --line: oklch(0.9 0.004 85);
+  --line-strong: oklch(0.82 0.005 85);
+  --primary: oklch(0.22 0.006 85);
+  --on-primary: oklch(0.985 0.002 85);
+  --danger: oklch(0.55 0.18 25);
+  --danger-bg: oklch(0.96 0.03 25);
+  --focus: oklch(0.55 0.15 250);
+
+  /* Paleta klientów: solid (kropka, checkbox), fill (tło wpisu), ink (tekst na fill). */
+  --c-red-solid: oklch(0.6 0.19 25);      --c-red-fill: oklch(0.95 0.035 25);      --c-red-ink: oklch(0.42 0.14 25);
+  --c-orange-solid: oklch(0.68 0.16 50);  --c-orange-fill: oklch(0.95 0.04 55);    --c-orange-ink: oklch(0.45 0.12 45);
+  --c-amber-solid: oklch(0.76 0.15 80);   --c-amber-fill: oklch(0.96 0.05 85);     --c-amber-ink: oklch(0.46 0.1 70);
+  --c-lime-solid: oklch(0.72 0.17 130);   --c-lime-fill: oklch(0.96 0.05 130);     --c-lime-ink: oklch(0.43 0.11 130);
+  --c-green-solid: oklch(0.6 0.14 150);   --c-green-fill: oklch(0.95 0.04 150);    --c-green-ink: oklch(0.4 0.1 150);
+  --c-teal-solid: oklch(0.62 0.11 185);   --c-teal-fill: oklch(0.95 0.035 185);    --c-teal-ink: oklch(0.4 0.08 185);
+  --c-cyan-solid: oklch(0.66 0.12 220);   --c-cyan-fill: oklch(0.95 0.035 220);    --c-cyan-ink: oklch(0.42 0.09 225);
+  --c-blue-solid: oklch(0.58 0.17 255);   --c-blue-fill: oklch(0.95 0.035 255);    --c-blue-ink: oklch(0.42 0.14 260);
+  --c-indigo-solid: oklch(0.52 0.18 275); --c-indigo-fill: oklch(0.95 0.035 275);  --c-indigo-ink: oklch(0.4 0.15 275);
+  --c-violet-solid: oklch(0.56 0.19 305); --c-violet-fill: oklch(0.95 0.04 305);   --c-violet-ink: oklch(0.42 0.15 305);
+  --c-pink-solid: oklch(0.63 0.19 355);   --c-pink-fill: oklch(0.95 0.035 355);    --c-pink-ink: oklch(0.45 0.15 355);
+  --c-brown-solid: oklch(0.55 0.06 60);   --c-brown-fill: oklch(0.94 0.015 60);    --c-brown-ink: oklch(0.4 0.045 60);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(0.17 0.004 85);
+  --surface: oklch(0.205 0.004 85);
+  --surface-2: oklch(0.235 0.005 85);
+  --surface-3: oklch(0.27 0.005 85);
+  --ink: oklch(0.95 0.003 85);
+  --ink-2: oklch(0.76 0.006 85);
+  --ink-3: oklch(0.64 0.006 85);
+  --line: oklch(0.29 0.005 85);
+  --line-strong: oklch(0.36 0.006 85);
+  --primary: oklch(0.95 0.003 85);
+  --on-primary: oklch(0.17 0.004 85);
+  --danger: oklch(0.7 0.16 25);
+  --danger-bg: oklch(0.28 0.06 25);
+  --focus: oklch(0.72 0.13 250);
+
+  --c-red-solid: oklch(0.68 0.17 25);     --c-red-fill: oklch(0.32 0.07 25);       --c-red-ink: oklch(0.9 0.05 25);
+  --c-orange-solid: oklch(0.74 0.14 55);  --c-orange-fill: oklch(0.33 0.06 55);    --c-orange-ink: oklch(0.91 0.05 60);
+  --c-amber-solid: oklch(0.8 0.13 85);    --c-amber-fill: oklch(0.34 0.06 80);     --c-amber-ink: oklch(0.92 0.06 85);
+  --c-lime-solid: oklch(0.78 0.15 130);   --c-lime-fill: oklch(0.33 0.06 130);     --c-lime-ink: oklch(0.92 0.06 130);
+  --c-green-solid: oklch(0.7 0.13 150);   --c-green-fill: oklch(0.32 0.05 150);    --c-green-ink: oklch(0.9 0.05 150);
+  --c-teal-solid: oklch(0.72 0.1 185);    --c-teal-fill: oklch(0.32 0.045 185);    --c-teal-ink: oklch(0.9 0.04 185);
+  --c-cyan-solid: oklch(0.74 0.11 220);   --c-cyan-fill: oklch(0.32 0.05 225);     --c-cyan-ink: oklch(0.9 0.04 220);
+  --c-blue-solid: oklch(0.68 0.15 255);   --c-blue-fill: oklch(0.32 0.07 260);     --c-blue-ink: oklch(0.9 0.04 255);
+  --c-indigo-solid: oklch(0.65 0.16 275); --c-indigo-fill: oklch(0.31 0.08 275);   --c-indigo-ink: oklch(0.9 0.045 275);
+  --c-violet-solid: oklch(0.68 0.17 305); --c-violet-fill: oklch(0.32 0.08 305);   --c-violet-ink: oklch(0.91 0.05 305);
+  --c-pink-solid: oklch(0.72 0.16 355);   --c-pink-fill: oklch(0.33 0.07 355);     --c-pink-ink: oklch(0.91 0.05 355);
+  --c-brown-solid: oklch(0.66 0.05 60);   --c-brown-fill: oklch(0.3 0.02 60);      --c-brown-ink: oklch(0.89 0.02 60);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-focus: var(--focus);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: color-mix(in oklch, var(--focus) 28%, transparent);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--focus);
+}
+
+/* Na telefonie pola mają min. 16px, żeby iOS nie powiększał strony. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.pressable {
+  transition: transform 140ms var(--ease-out), background-color 140ms ease, color 140ms ease;
+}
+.pressable:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pressable:active {
+    transform: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
