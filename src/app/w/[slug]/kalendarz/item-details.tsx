@@ -67,11 +67,12 @@ export function ItemDetails({
             <Link href={`/w/${workspaceSlug}/zadania?zadanie=${item.source_id}`} className={buttonClass("primary", "self-start")}>
               Otwórz zadanie
             </Link>
-          ) : (
-            <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink-2">
-              Termin przesuniesz, przeciągając go w kalendarzu. Pełna edycja będzie w module Content.
-            </p>
-          )}
+          ) : item.content_id && workspaceSlug ? (
+            <Link href={`/w/${workspaceSlug}/content/${item.content_id}`} className={buttonClass("primary", "self-start")}>
+              Otwórz materiał
+            </Link>
+          ) : null}
+          <p className="text-sm text-ink-3">Termin przesuniesz, przeciągając go w kalendarzu.</p>
         </div>
       ) : null}
     </Dialog>

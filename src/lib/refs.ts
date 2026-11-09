@@ -1,18 +1,18 @@
 import "server-only";
-import type { ClientRef, WorkspaceRef } from "@/lib/tasks";
+import type { ClientRef, ProjectRef, WorkspaceRef } from "@/lib/tasks";
 import { getSession, getWorkspaces } from "@/lib/workspace";
 
-/** Workspace'y użytkownika i ich aktywni klienci — do list, filtrów i formularzy. */
-export async function getRefs(): Promise<{ workspaces: WorkspaceRef[]; clients: ClientRef[] }> {
+/** Workspace'y użytkownika, ich aktywni klienci i aktywne projekty — do list, filtrów i formularzy. */
+export async function getRefs(): Promise<{ workspaces: WorkspaceRef[]; clients: ClientRef[]; projects: ProjectRef[] }> {
   const [workspaces, { supabase }] = await Promise.all([getWorkspaces(), getSession()]);
-  const { data } = await supabase
-    .from("clients")
-    .select("id, workspace_id, name, color")
-    .in("workspace_id", workspaces.map((w) => w.id))
-    .is("archived_at", null)
-    .order("name");
+  const ids = workspaces.map((w) => w.id);
+  const [{ data: clients }, { data: projects }] = await Promise.all([
+    supabase.from("clients").select("id, workspace_id, name, color").in("workspace_id", ids).is("archived_at", null).order("name"),
+    supabase.from("projects").select("id, workspace_id, client_id, name").in("workspace_id", ids).neq("status", "archived").order("name"),
+  ]);
   return {
     workspaces: workspaces.map(({ id, name, slug, color }) => ({ id, name, slug, color })),
-    clients: (data ?? []) as ClientRef[],
+    clients: (clients ?? []) as ClientRef[],
+    projects: (projects ?? []) as ProjectRef[],
   };
 }

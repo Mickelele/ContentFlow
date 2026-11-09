@@ -19,7 +19,7 @@ export const NAV: NavItem[] = [
   { href: "zadania", label: "Zadania", icon: CheckSquare },
   { href: "klienci", label: "Klienci", icon: Users },
   { href: "projekty", label: "Projekty", icon: FolderKanban },
-  { href: "pomysly", label: "Pomysły", icon: Lightbulb },
+  { href: "pomysly", label: "Notatki i pomysły", icon: Lightbulb },
 ];
 
 export const SETTINGS: NavItem = { href: "ustawienia", label: "Ustawienia", icon: Settings };

@@ -25,6 +25,7 @@ import {
   type WorkspaceLayers,
 } from "@/lib/calendar";
 import { colorVars, type ClientColor } from "@/lib/palette";
+import type { ProjectRef } from "@/lib/tasks";
 import { EventEditor, type EventDraft } from "./event-editor";
 import { ItemDetails } from "./item-details";
 import { LayersPanel } from "./layers-panel";
@@ -69,6 +70,7 @@ function blankDraft(
     url: "",
     description: "",
     reminder: range.allDay ? null : 10,
+    projectId: null,
   };
 }
 
@@ -99,7 +101,15 @@ function rangeTitle(view: ViewName, start: Date, end: Date) {
   return `${titleFmt.short.format(start)} – ${titleFmt.short.format(last)}`;
 }
 
-export function CalendarApp({ groups: initialGroups, currentWorkspaceId }: { groups: WorkspaceLayers[]; currentWorkspaceId: string }) {
+export function CalendarApp({
+  groups: initialGroups,
+  currentWorkspaceId,
+  projects,
+}: {
+  groups: WorkspaceLayers[];
+  currentWorkspaceId: string;
+  projects: ProjectRef[];
+}) {
   const supabase = useMemo(() => createClient(), []);
   const calRef = useRef<FullCalendar>(null);
   const [groups, setGroups] = useState(initialGroups);
@@ -234,7 +244,7 @@ export function CalendarApp({ groups: initialGroups, currentWorkspaceId }: { gro
               ...g,
               layers: [
                 ...g.layers.filter((l) => l.kind !== "tasks"),
-                { id: data.id, workspaceId, kind: "custom", name, color, position: data.position, visible: true },
+                { id: data.id, workspaceId, kind: "custom", name, color, position: data.position, visible: true, clientId: null },
                 ...g.layers.filter((l) => l.kind === "tasks"),
               ],
             }
@@ -320,6 +330,7 @@ export function CalendarApp({ groups: initialGroups, currentWorkspaceId }: { gro
       location: d.location.trim() || null,
       url: d.url.trim() || null,
       description: d.description.trim() || null,
+      ...(d.projectId !== undefined ? { project_id: d.projectId } : {}),
     };
     const { data: saved, error } = d.id
       ? await supabase.from("events").update(row).eq("id", d.id).select("id").single()
@@ -502,7 +513,7 @@ export function CalendarApp({ groups: initialGroups, currentWorkspaceId }: { gro
         {panel}
       </Dialog>
 
-      <EventEditor key={editorKey} draft={draft} groups={groups} onClose={() => setDraft(null)} onSave={saveDraft} onDelete={deleteEvent} />
+      <EventEditor key={editorKey} draft={draft} groups={groups} projects={projects} onClose={() => setDraft(null)} onSave={saveDraft} onDelete={deleteEvent} />
       <ItemDetails
         item={details}
         layer={details ? layerById.get(details.calendar_id) : undefined}

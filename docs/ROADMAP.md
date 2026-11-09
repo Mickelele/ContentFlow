@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **4 — Content, notatki i pomysły** (nierozpoczęty)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **5 — Integracje** (nierozpoczęty)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -52,15 +52,21 @@ Zakończony 2026-11-09 · migracja `20261109180000_day_plan.sql`
 - ✅ **Powiadomienia w aplikacji:** dzwonek z przypomnieniami, terminami, zaległościami, publikacjami i akceptacjami; dymek przy nowym przypomnieniu
 - ✅ Z kalendarza termin zadania otwiera się w module Zadania
 
-## ⏳ Etap 4: Content, notatki i pomysły
-- ⏳ Materiały: rolka, post, grafika, film, karuzela (`CON-01..03`)
-- ⏳ Ścieżka produkcji: pomysł → scenariusz → nagranie → montaż → akceptacja → zaplanowano → opublikowano
-- ⏳ Edytor scenariusza i lista ujęć (`CON-04..05`)
-- ⏳ Terminy nagrania, montażu, akceptacji i publikacji widoczne w kalendarzu (`CON-06..07`)
-- ⏳ Publikacje per platforma z opisem i hashtagami (`CON-08..09`)
-- ⏳ **Notatki:** formatowanie, checklisty, notatki ze spotkań podpięte pod wydarzenie
-- ⏳ **Pomysły:** tagi, klient, wyszukiwarka, zamiana w materiał jednym kliknięciem
-- ⏳ Projekty klientów (`CLI-05..07`), w tym przypisanie wydarzenia do projektu w edytorze kalendarza
+## ✅ Etap 4: Content, notatki i pomysły
+Zakończony 2026-11-09 · migracja `20261110090000_content_notes.sql`
+
+- ✅ Materiały: rolka, post, grafika, film, karuzela, inne; lista z filtrem etapu, klienta i wyszukiwarką (`CON-01..03`)
+- ✅ Ścieżka produkcji: pomysł → scenariusz → nagrania → montaż → akceptacja → zaplanowano → opublikowano
+- ✅ Edytor scenariusza (Tiptap, zapis automatyczny, szablon rolki) i numerowana lista ujęć (`CON-04..05`)
+- ✅ Terminy nagrania, montażu i akceptacji z odhaczaniem, widoczne w kalendarzu (`CON-06..07`)
+- ✅ Publikacje per platforma: data, opis, hashtagi, „Opublikowano” (`CON-08..09`)
+- ✅ Pliki i linki przy materiale (`CON-10`)
+- ✅ **Notatki:** formatowanie, checklisty, przypinanie, wyszukiwarka, klient; notatka ze spotkania z edytora wydarzenia
+- ✅ **Pomysły:** szybkie zapisywanie, tagi, klient, link do inspiracji, archiwum; „Zrób materiał” jednym kliknięciem
+- ✅ Projekty klientów: lista, strona projektu z materiałami, zadaniami i wydarzeniami (`CLI-05..07`)
+- ✅ Projekt w materiale, zadaniu (`TASK-05`) i wydarzeniu w kalendarzu
+- ✅ Z kalendarza i „Dziś” termin produkcji / publikacja otwiera materiał
+- ➡️ Kanban materiałów (`CON-11`), wersjonowanie scenariuszy (`CON-12`) zostają w „Później”
 
 ## ⏳ Etap 5: Integracje
 - ⏳ **Inteligentne linki:** wklejony link pokazuje ikonę i nazwę serwisu (Docs, Dysk, Trello, Slack i inne)

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { Layer, WorkspaceLayers } from "@/lib/calendar";
 import type { ClientColor } from "@/lib/palette";
+import { getRefs } from "@/lib/refs";
 import { getSession, getWorkspace, getWorkspaces } from "@/lib/workspace";
 import { CalendarLoader } from "./calendar-loader";
 
@@ -52,8 +53,10 @@ export default async function CalendarPage({ params }: PageProps<"/w/[slug]/kale
         color: c.color,
         position: c.position,
         visible: !hidden.has(c.id),
+        clientId: c.client_id,
       })),
   }));
 
-  return <CalendarLoader groups={groups} currentWorkspaceId={current.id} />;
+  const { projects } = await getRefs();
+  return <CalendarLoader groups={groups} currentWorkspaceId={current.id} projects={projects} />;
 }

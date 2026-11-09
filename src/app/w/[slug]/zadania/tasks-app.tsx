@@ -16,6 +16,7 @@ import {
   toTasks,
   todayKey,
   type ClientRef,
+  type ProjectRef,
   type Task,
   type WorkspaceRef,
 } from "@/lib/tasks";
@@ -45,10 +46,12 @@ export function TasksApp({
   workspace,
   workspaces,
   clients,
+  projects,
 }: {
   workspace: WorkspaceRef;
   workspaces: WorkspaceRef[];
   clients: ClientRef[];
+  projects: ProjectRef[];
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [tab, setTab] = useState<Tab>("active");
@@ -269,6 +272,7 @@ export function TasksApp({
         draft={draft}
         workspaces={workspaces.filter((w) => w.id === workspace.id)}
         clients={clients}
+        projects={projects}
         onClose={() => setDraft(null)}
         onSaved={(t) => {
           setDraft(null);

@@ -14,6 +14,7 @@ import {
   todayKey,
   type ChecklistItem,
   type ClientRef,
+  type ProjectRef,
   type Task,
   type TaskPriority,
   type TaskStatus,
@@ -31,6 +32,7 @@ export function TaskDialog({
   draft,
   workspaces,
   clients,
+  projects = [],
   onClose,
   onSaved,
   onDeleted,
@@ -38,6 +40,7 @@ export function TaskDialog({
   draft: TaskDraft | null;
   workspaces: WorkspaceRef[];
   clients: ClientRef[];
+  projects?: ProjectRef[];
   onClose: () => void;
   onSaved: (task: Task) => void;
   onDeleted: (id: string) => void;
@@ -51,6 +54,7 @@ export function TaskDialog({
     priority: (draft?.priority ?? "normal") as TaskPriority,
     workspace_id: draft?.workspace_id ?? workspaces[0]?.id ?? "",
     client_id: draft?.client_id ?? "",
+    project_id: draft?.project_id ?? "",
     due_date: due.date,
     due_time: due.time,
     planned_on: draft?.planned_on ?? "",
@@ -84,6 +88,9 @@ export function TaskDialog({
 
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((p) => ({ ...p, [k]: v }));
   const wsClients = clients.filter((c) => c.workspace_id === f.workspace_id);
+  const wsProjects = projects.filter(
+    (p) => p.workspace_id === f.workspace_id && (!f.client_id || !p.client_id || p.client_id === f.client_id),
+  );
 
   const save = async () => {
     if (!f.title.trim()) return setError("Wpisz nazwę zadania.");
@@ -95,13 +102,14 @@ export function TaskDialog({
       priority: f.priority,
       workspace_id: f.workspace_id,
       client_id: f.client_id || null,
+      project_id: f.project_id || null,
       planned_on: f.planned_on || null,
       ...dueFromInputs(f.due_date, f.due_time),
     };
     const q = id
       ? supabase.from("tasks").update(row).eq("id", id)
       : supabase.from("tasks").insert({ ...row, position: Date.now() % 2147483647 });
-    const { data, error } = await q.select("id, workspace_id, client_id, title, description, status, priority, due_at, due_all_day, planned_on, position, completed_at").single();
+    const { data, error } = await q.select("id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, completed_at").single();
     setBusy(false);
     if (error || !data) return setError("Nie udało się zapisać zadania. Spróbuj ponownie.");
     onSaved({ ...data, checklist_total: items.length, checklist_done: items.filter((i) => i.done).length } as Task);
@@ -199,7 +207,7 @@ export function TaskDialog({
                 id="task-ws"
                 className={inputClass}
                 value={f.workspace_id}
-                onChange={(e) => setF((p) => ({ ...p, workspace_id: e.target.value, client_id: "" }))}
+                onChange={(e) => setF((p) => ({ ...p, workspace_id: e.target.value, client_id: "", project_id: "" }))}
               >
                 {workspaces.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -210,7 +218,12 @@ export function TaskDialog({
             </Field>
           ) : null}
           <Field label="Klient" htmlFor="task-client">
-            <select id="task-client" className={inputClass} value={f.client_id} onChange={(e) => set("client_id", e.target.value)}>
+            <select
+              id="task-client"
+              className={inputClass}
+              value={f.client_id}
+              onChange={(e) => setF((p) => ({ ...p, client_id: e.target.value, project_id: "" }))}
+            >
               <option value="">Bez klienta</option>
               {wsClients.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -219,6 +232,18 @@ export function TaskDialog({
               ))}
             </select>
           </Field>
+          {wsProjects.length > 0 || f.project_id ? (
+            <Field label="Projekt" htmlFor="task-project">
+              <select id="task-project" className={inputClass} value={f.project_id} onChange={(e) => set("project_id", e.target.value)}>
+                <option value="">Bez projektu</option>
+                {wsProjects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
           <Field label="Priorytet" htmlFor="task-prio">
             <select id="task-prio" className={inputClass} value={f.priority} onChange={(e) => set("priority", e.target.value as TaskPriority)}>
               {(Object.keys(PRIORITIES) as TaskPriority[]).map((p) => (

@@ -4,6 +4,21 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Etap 4: Content, notatki i pomysły (2026-11-09)
+
+### Dodano
+- Content: lista materiałów z filtrem etapu i klienta, wyszukiwarką, najbliższym terminem i postępem.
+- Tworzenie materiału: nazwa, rodzaj (rolka, post, grafika, film, karuzela), klient, projekt.
+- Strona materiału: ścieżka produkcji, scenariusz z formatowaniem i szablonem rolki (zapis automatyczny), lista ujęć, terminy nagrania / montażu / akceptacji, publikacje na każdej platformie z opisem i hashtagami, pliki i linki.
+- Projekty: lista według klientów, strona projektu z materiałami, zadaniami i wydarzeniami; wybór projektu w materiale, zadaniu i wydarzeniu.
+- Notatki: edytor z formatowaniem i checklistami, przypinanie, wyszukiwarka, klient.
+- „Notatka” w wydarzeniu zakłada notatkę ze spotkania albo otwiera istniejącą.
+- Bank pomysłów: tagi, klient, link do inspiracji, archiwum; „Zrób materiał” zamienia pomysł w materiał.
+- Termin produkcji i publikacja w kalendarzu oraz na „Dziś” prowadzą do materiału.
+
+### Zmieniono
+- „Pomysły” w menu to teraz „Notatki i pomysły”.
+
 ## Etap 3: Plan dnia i zadania (2026-11-09)
 
 ### Dodano

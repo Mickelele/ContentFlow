@@ -1,0 +1,101 @@
+/* Treść edytora: czytelna typografia w tokenach aplikacji. */
+.cf-prose {
+  min-height: 12rem;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: 72ch;
+}
+.cf-prose > * + * {
+  margin-top: 0.6em;
+}
+.cf-prose h2 {
+  margin-top: 1.4em;
+  font-size: 1.2rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.cf-prose h3 {
+  margin-top: 1.2em;
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+.cf-prose > h2:first-child,
+.cf-prose > h3:first-child {
+  margin-top: 0;
+}
+.cf-prose ul,
+.cf-prose ol {
+  padding-left: 1.4em;
+}
+.cf-prose ul {
+  list-style: disc;
+}
+.cf-prose ol {
+  list-style: decimal;
+}
+.cf-prose li + li {
+  margin-top: 0.2em;
+}
+.cf-prose li::marker {
+  color: var(--ink-3);
+}
+.cf-prose blockquote {
+  padding-left: 1em;
+  border-left: 2px solid var(--line-strong);
+  color: var(--ink-2);
+}
+.cf-prose a {
+  color: var(--focus);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cf-prose code {
+  border-radius: 4px;
+  background: var(--surface-2);
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
+.cf-prose hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 1.5em 0;
+}
+
+/* Checklisty */
+.cf-prose ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.1em;
+}
+.cf-prose ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6em;
+}
+.cf-prose ul[data-type="taskList"] li > label {
+  margin-top: 0.3em;
+  user-select: none;
+}
+.cf-prose ul[data-type="taskList"] li > label input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.cf-prose ul[data-type="taskList"] li > div {
+  flex: 1;
+}
+.cf-prose ul[data-type="taskList"] li[data-checked="true"] > div {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+/* Podpowiedź w pustym edytorze */
+.cf-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--ink-3);
+  pointer-events: none;
+}

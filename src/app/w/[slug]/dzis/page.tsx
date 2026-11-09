@@ -16,6 +16,7 @@ export default async function TodayPage({ params }: PageProps<"/w/[slug]/dzis">)
       workspace={{ id: ws.id, name: ws.name, slug: ws.slug, color: ws.color }}
       workspaces={workspaces}
       clients={refs.clients}
+      projects={refs.projects}
       firstName={profile?.full_name?.split(" ")[0] ?? null}
     />
   );

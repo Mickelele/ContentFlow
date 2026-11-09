@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/coming-soon";
+import { getRefs } from "@/lib/refs";
+import { getWorkspace } from "@/lib/workspace";
+import { NotesLoader } from "./notes-loader";
 
-export const metadata: Metadata = { title: "Pomysły" };
+export const metadata: Metadata = { title: "Notatki i pomysły" };
 
-export default function Page() {
+export default async function NotesPage({ params }: PageProps<"/w/[slug]/pomysly">) {
+  const { slug } = await params;
+  const [ws, refs] = await Promise.all([getWorkspace(slug), getRefs()]);
   return (
-    <ComingSoon
-      title="Pomysły"
-      description="Bank pomysłów i inspiracji."
-      stage="6"
-      points={["Pomysły na filmy i posty z linkami do inspiracji", "Tagi, kategorie i wyszukiwarka", "Zamiana pomysłu w materiał jednym kliknięciem"]}
+    <NotesLoader
+      workspace={{ id: ws.id, name: ws.name, slug: ws.slug, color: ws.color }}
+      clients={refs.clients.filter((c) => c.workspace_id === ws.id)}
     />
   );
 }

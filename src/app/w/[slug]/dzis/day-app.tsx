@@ -32,6 +32,7 @@ import {
   toTasks,
   todayKey,
   type ClientRef,
+  type ProjectRef,
   type Task,
   type WorkspaceRef,
 } from "@/lib/tasks";
@@ -61,11 +62,13 @@ export function DayApp({
   workspace,
   workspaces,
   clients,
+  projects,
   firstName,
 }: {
   workspace: WorkspaceRef;
   workspaces: WorkspaceRef[];
   clients: ClientRef[];
+  projects: ProjectRef[];
   firstName: string | null;
 }) {
   const supabase = useMemo(() => createClient(), []);
@@ -377,7 +380,16 @@ export function DayApp({
               {publications.map((p) => (
                 <li key={p.source_id} className="flex items-center gap-3 py-1.5 text-sm">
                   <Send className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
-                  <span className="min-w-0 flex-1 truncate">{p.title}</span>
+                  {p.content_id ? (
+                    <Link
+                      href={`/w/${wsById.get(p.workspace_id)?.slug ?? workspace.slug}/content/${p.content_id}`}
+                      className="min-w-0 flex-1 truncate hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                  ) : (
+                    <span className="min-w-0 flex-1 truncate">{p.title}</span>
+                  )}
                   <span className="tabular shrink-0 text-ink-3">
                     {shortDay.format(new Date(p.starts_at))}
                     {p.platform ? ` · ${PLATFORMS[p.platform] ?? p.platform}` : ""}
@@ -394,6 +406,7 @@ export function DayApp({
         draft={draft}
         workspaces={workspaces}
         clients={clients}
+        projects={projects}
         onClose={() => setDraft(null)}
         onSaved={(t) => {
           setDraft(null);

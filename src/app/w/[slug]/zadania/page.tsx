@@ -13,6 +13,7 @@ export default async function TasksPage({ params }: PageProps<"/w/[slug]/zadania
       workspace={{ id: ws.id, name: ws.name, slug: ws.slug, color: ws.color }}
       workspaces={refs.workspaces}
       clients={refs.clients}
+      projects={refs.projects}
     />
   );
 }

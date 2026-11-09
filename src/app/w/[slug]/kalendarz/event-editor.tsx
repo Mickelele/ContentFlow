@@ -1,7 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Bell, Check, Copy, ExternalLink, Trash2, Video } from "lucide-react";
+import { Bell, Check, Copy, ExternalLink, NotebookPen, Trash2, Video } from "lucide-react";
+import type { ProjectRef } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/dialog";
 import { Button, Field, Input, Textarea, buttonClass, cx, inputClass } from "@/components/ui";
@@ -35,6 +37,8 @@ export type EventDraft = {
   description: string;
   /** Przypomnienie: minuty przed początkiem; null = brak; undefined = jeszcze nie wczytane. */
   reminder?: number | null;
+  /** Projekt; undefined = jeszcze nie wczytany (istniejące wydarzenie). */
+  projectId?: string | null;
 };
 
 export const REMINDER_OPTIONS: { value: number | null; label: string }[] = [
@@ -65,41 +69,83 @@ export function useCopy() {
 export function EventEditor({
   draft,
   groups,
+  projects,
   onClose,
   onSave,
   onDelete,
 }: {
   draft: EventDraft | null;
   groups: WorkspaceLayers[];
+  projects: ProjectRef[];
   onClose: () => void;
   onSave: (d: EventDraft) => Promise<string | null>;
   onDelete: (id: string) => Promise<string | null>;
 }) {
+  const router = useRouter();
   const [d, setD] = useState<EventDraft | null>(draft);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { copied, copy } = useCopy();
 
-  // Przypomnienie istniejącego wydarzenia wczytujemy przy otwarciu (jest osobne dla każdej osoby).
+  // Przypomnienie (osobne dla każdej osoby) i projekt istniejącego wydarzenia wczytujemy przy otwarciu.
   const eventId = draft?.id;
-  const needsReminder = draft?.reminder === undefined;
+  const needsLoad = draft?.reminder === undefined || draft?.projectId === undefined;
   useEffect(() => {
-    if (!eventId || !needsReminder) return;
+    if (!eventId || !needsLoad) return;
     let alive = true;
-    createClient()
-      .from("reminders")
-      .select("offset_minutes")
-      .eq("event_id", eventId)
-      .maybeSingle()
-      .then(({ data }) => alive && setD((p) => (p ? { ...p, reminder: data?.offset_minutes ?? null } : p)));
+    const supabase = createClient();
+    Promise.all([
+      supabase.from("reminders").select("offset_minutes").eq("event_id", eventId).maybeSingle(),
+      supabase.from("events").select("project_id").eq("id", eventId).maybeSingle(),
+    ]).then(([rem, ev]) => {
+      if (!alive) return;
+      setD((p) => (p ? { ...p, reminder: rem.data?.offset_minutes ?? null, projectId: ev.data?.project_id ?? null } : p));
+    });
     return () => {
       alive = false;
     };
-  }, [eventId, needsReminder]);
+  }, [eventId, needsLoad]);
 
   const set = <K extends keyof EventDraft>(k: K, v: EventDraft[K]) => setD((p) => (p ? { ...p, [k]: v } : p));
   const meeting = d ? findMeeting(d.url, d.location, d.description) : null;
+
+  // Warstwa → workspace i klient, żeby pokazać pasujące projekty.
+  const layerInfo = (() => {
+    for (const g of groups) {
+      const l = g.layers.find((x) => x.id === d?.calendarId);
+      if (l) return { workspace: g, layer: l };
+    }
+    return null;
+  })();
+  const layerProjects = projects.filter(
+    (p) => p.workspace_id === layerInfo?.workspace.id && (!layerInfo.layer.clientId || !p.client_id || p.client_id === layerInfo.layer.clientId),
+  );
+
+  // Notatka ze spotkania: otwiera istniejącą albo zakłada nową, podpiętą pod wydarzenie.
+  const openNote = async () => {
+    if (!d?.id || !layerInfo) return;
+    const supabase = createClient();
+    const { data: existing } = await supabase.from("notes").select("id").eq("event_id", d.id).limit(1).maybeSingle();
+    let noteId = existing?.id as string | undefined;
+    if (!noteId) {
+      const day = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long" }).format(d.start);
+      const { data, error } = await supabase
+        .from("notes")
+        .insert({
+          workspace_id: layerInfo.workspace.id,
+          event_id: d.id,
+          client_id: layerInfo.layer.clientId,
+          project_id: d.projectId ?? null,
+          title: `${d.title} — ${day}`,
+        })
+        .select("id")
+        .single();
+      if (error || !data) return setError("Nie udało się utworzyć notatki.");
+      noteId = data.id;
+    }
+    router.push(`/w/${layerInfo.workspace.slug}/pomysly?notatka=${noteId}`);
+  };
 
   const save = async () => {
     if (!d) return;
@@ -143,6 +189,12 @@ export function EventEditor({
               {copied === "details" ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
               {copied === "details" ? "Skopiowano" : "Kopiuj szczegóły"}
             </Button>
+            {d.id ? (
+              <Button type="button" variant="ghost" className="h-9 px-3" onClick={openNote}>
+                <NotebookPen className="size-4" aria-hidden="true" />
+                Notatka
+              </Button>
+            ) : null}
             <div className="ml-auto flex gap-2">
               <Button type="button" variant="ghost" onClick={onClose} className="h-9 px-3">
                 Anuluj
@@ -180,7 +232,12 @@ export function EventEditor({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Warstwa" htmlFor="ev-layer">
-              <select id="ev-layer" className={inputClass} value={d.calendarId} onChange={(e) => set("calendarId", e.target.value)}>
+              <select
+                id="ev-layer"
+                className={inputClass}
+                value={d.calendarId}
+                onChange={(e) => setD((p) => (p ? { ...p, calendarId: e.target.value, projectId: p.projectId === undefined ? undefined : null } : p))}
+              >
                 {groups.map((g) => (
                   <optgroup key={g.id} label={g.name}>
                     {g.layers.map((l) => (
@@ -201,6 +258,24 @@ export function EventEditor({
                 ))}
               </select>
             </Field>
+            {layerProjects.length > 0 || d.projectId ? (
+              <Field label="Projekt" htmlFor="ev-project">
+                <select
+                  id="ev-project"
+                  className={inputClass}
+                  disabled={d.projectId === undefined}
+                  value={d.projectId ?? ""}
+                  onChange={(e) => set("projectId", e.target.value || null)}
+                >
+                  <option value="">Bez projektu</option>
+                  {layerProjects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ) : null}
           </div>
 
           <fieldset className="flex flex-col gap-3">

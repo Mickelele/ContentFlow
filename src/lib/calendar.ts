@@ -14,6 +14,7 @@ export type Layer = {
   color: ClientColor;
   position: number;
   visible: boolean;
+  clientId: string | null;
 };
 
 export type WorkspaceLayers = { id: string; name: string; slug: string; color: ClientColor; layers: Layer[] };

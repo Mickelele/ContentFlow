@@ -8,6 +8,7 @@ export type Task = {
   id: string;
   workspace_id: string;
   client_id: string | null;
+  project_id: string | null;
   title: string;
   description: string | null;
   status: TaskStatus;
@@ -25,6 +26,7 @@ export type ChecklistItem = { id: string; task_id: string; label: string; done: 
 
 export type ClientRef = { id: string; workspace_id: string; name: string; color: ClientColor };
 export type WorkspaceRef = { id: string; name: string; slug: string; color: ClientColor };
+export type ProjectRef = { id: string; workspace_id: string; client_id: string | null; name: string };
 
 export const STATUSES: Record<TaskStatus, string> = {
   todo: "Do zrobienia",
@@ -40,7 +42,7 @@ export const PRIORITIES: Record<TaskPriority, { label: string; rank: number }> =
 };
 
 export const TASK_SELECT =
-  "id, workspace_id, client_id, title, description, status, priority, due_at, due_all_day, planned_on, position, completed_at, checklist_items(done)";
+  "id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, completed_at, checklist_items(done)";
 
 type Row = Omit<Task, "checklist_total" | "checklist_done"> & { checklist_items: { done: boolean }[] | null };
 

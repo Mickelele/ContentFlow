@@ -5,6 +5,22 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-19 · Klient projektu przechodzi na materiał i zadanie
+2026-11-09
+- **Decyzja:** trigger `project_client_check` pilnuje, żeby projekt był z tego samego workspace'u, a materiał lub zadanie bez klienta przejmuje klienta projektu.
+- **Dlaczego:** materiał z projektu HELINAT bez klienta nie miałby koloru w kalendarzu.
+
+### D-18 · Notatki i pomysły w jednym module
+2026-11-09
+- **Decyzja:** moduł „Notatki i pomysły” (`/pomysly`) ma dwa widoki. Notatki mają formatowanie i mogą być podpięte pod wydarzenie. Pomysły to lekkie rekordy (tytuł, opis, link, tagi), które jednym kliknięciem stają się materiałem.
+- **Dlaczego:** oba służą do „złapania myśli”, ale pomysł ma prowadzić do materiału, a notatka zostaje notatką. Osobne pozycje w menu zabierałyby miejsce na telefonie.
+- **Skutek:** zamieniony pomysł ma status `converted` i odnośnik `content_id`, link do inspiracji trafia do plików materiału.
+
+### D-17 · Tiptap jako edytor tekstu
+2026-11-09
+- **Decyzja:** scenariusze i notatki piszemy w Tiptap 3.31 (StarterKit, checklisty). Dokument zapisujemy jako JSON (`body`); w notatkach dodatkowo czysty tekst (`body_text`) do wyszukiwania. Zapis automatyczny po 0,8 s bez zmian.
+- **Dlaczego:** potrzebne są nagłówki, listy i checklisty, a zwykłe pole tekstowe tego nie daje. JSON da się później wersjonować (`CON-12`) i przetwarzać (AI).
+
 ### D-16 · Przypomnienia są osobne dla każdej osoby
 2026-11-09
 - **Decyzja:** przypomnienie (`reminders`) należy do użytkownika i zapisuje przesunięcie w minutach (`offset_minutes`). Trigger liczy z niego `remind_at`, a przesunięcie wydarzenia przelicza przypomnienia wszystkich osób.

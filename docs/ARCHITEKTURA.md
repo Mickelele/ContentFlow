@@ -1,6 +1,6 @@
 # Architektura
 
-> Ostatnia aktualizacja: 2026-11-09 (Etap 3)
+> Ostatnia aktualizacja: 2026-11-09 (Etap 4)
 
 ## Stos
 
@@ -11,6 +11,7 @@
 | Ikony | lucide-react | |
 | Kalendarz | FullCalendar 6.1.22 (daygrid, timegrid, interaction) | wersje przypięte, zob. D-11 |
 | Przeciąganie list | dnd-kit (core, sortable) | kolejność planu dnia; mysz, dotyk, klawiatura |
+| Edytor tekstu | Tiptap 3.31.4 (StarterKit, task list) | scenariusze i notatki, zob. D-17 |
 | Klasy CSS | tailwind-merge | `cx()` w `components/ui.tsx`: przy konflikcie wygrywa późniejsza klasa |
 | Walidacja | zod 4 | w server actions |
 | Backend | Supabase: Postgres, Auth, RLS, Realtime | klient `@supabase/ssr` |
@@ -44,8 +45,20 @@ src/
       zadania/
         page.tsx            serwer: workspace'y i klienci
         tasks-app.tsx       lista zadań w grupach, filtr, szybkie dodawanie (tylko przeglądarka)
-      content/ klienci/ projekty/ pomysly/ ustawienia/
+      content/
+        page.tsx            serwer: materiały z najbliższym terminem
+        content-list.tsx    filtry etapu i klienta, nowy materiał
+        [id]/material-editor.tsx  etapy, scenariusz, ujęcia, terminy, publikacje, linki (tylko przeglądarka)
+      projekty/
+        page.tsx, projects-list.tsx   lista według klientów, okno projektu
+        [id]/page.tsx       materiały, zadania i wydarzenia projektu (serwer)
+      pomysly/
+        notes-app.tsx       widoki „Notatki” i „Pomysły” (tylko przeglądarka)
+        notes-view.tsx      lista + edytor notatki z zapisem automatycznym
+        ideas-view.tsx      bank pomysłów, „Zrób materiał”
+      klienci/ ustawienia/
   components/
+    editor/                 RichText (Tiptap), useAutosave + wskaźnik zapisu
     shell/                  AppShell, nawigacja, przełącznik workspace'ów, motyw
       notifications.tsx     dostawca powiadomień, dzwonek, dymki
     tasks/                  wiersz zadania, okno szczegółów z checklistą, szybkie dodawanie
@@ -57,7 +70,9 @@ src/
     palette.ts              12 kolorów klientów
     calendar.ts             typy kalendarza, kategorie, wykrywanie linków spotkań, daty
     tasks.ts                typy zadań, priorytety, daty „dziś / jutro”, sortowanie
-    refs.ts                 workspace'y i aktywni klienci użytkownika (server-only)
+    refs.ts                 workspace'y, aktywni klienci i projekty użytkownika (server-only)
+    content.ts              rodzaje materiałów, etapy, platformy, szablon rolki
+    projects.ts             statusy i typy projektów
     workspace.ts            sesja, lista workspace'ów, bieżący workspace (server-only)
     supabase/               klient przeglądarkowy, serwerowy i do proxy
 supabase/migrations/        schemat bazy (SQL)
@@ -123,6 +138,14 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - Termin całodniowy zapisujemy jako lokalną północ (`due_all_day = true`).
 - `?zadanie=<id>` w adresie modułu Zadania otwiera to zadanie (linki z kalendarza i powiadomień).
 - Powiadomienia: `NotificationsProvider` w powłoce odpytuje `notifications_feed()` co 60 s i po powrocie do karty. Dzwonek jest w dwóch miejscach (panel boczny, górny pasek telefonu) i korzysta z jednego stanu. Nowe przypomnienie pokazuje dymek (tylko gdy aplikacja jest otwarta).
+
+## Content i notatki
+
+- Edytor (`components/editor/rich-text.tsx`) zwraca dokument JSON i czysty tekst. Pasek formatowania renderuje się dopiero przy gotowej instancji edytora (`immediatelyRender: false`).
+- `useAutosave` zapisuje 0,8 s po ostatniej zmianie i wysyła niezapisane zmiany przy zamknięciu karty. Notatka łączy zmiany kilku pól w jeden zapis.
+- Terminy produkcji: jeden na rodzaj (`unique (content_id, kind)`), zapis przez `upsert`. Termin całodniowy = lokalna północ.
+- Zapisy pól materiału, ujęć, publikacji i linków idą od razu przez `supabase-js`; `workspace_id` danych materiału ustawia trigger.
+- Stałe i typy używane w komponentach serwerowych trzymamy w `lib/` (nie w plikach `"use client"`), bo eksporty z modułów klienckich są dla serwera tylko referencjami.
 
 ## Planowane elementy architektury
 

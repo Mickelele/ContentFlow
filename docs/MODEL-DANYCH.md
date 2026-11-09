@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -28,6 +28,8 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `attachments` | Załącznik (link do Dysku) | `entity_type`, `entity_id`, `drive_file_id`, `name`, `mime_type`, `url` |
 | `reminders` | Przypomnienie (per osoba) | `user_id`, jedno z: `event_id` / `task_id` / `publication_id`, `offset_minutes`, `remind_at` (liczone triggerem), `sent_at` |
 | `notification_reads` | Przeczytane powiadomienia | `user_id`, `key`, `read_at` |
+| `notes` | Notatka | `client_id`, `project_id`, `event_id` (notatka ze spotkania), `title`, `body` (jsonb, Tiptap), `body_text` (do wyszukiwania), `pinned` |
+| `ideas` | Pomysł | `client_id`, `title`, `description`, `link`, `type`, `tags` (text[]), `status` (`new`/`converted`/`archived`), `content_id` |
 | `integrations` | Podłączone konto zewnętrzne | `provider`, `account_email`, `scopes`, `status`, `vault_secret_id` |
 
 ## Relacje
@@ -43,6 +45,10 @@ content    1─1 scripts
 events     n─m content               (event_content)
 tasks      1─n tasks                 (podzadania, parent_id)
 tasks      1─n checklist_items
+projects   1─n content, tasks, events, notes
+events     1─n notes                 (notatki ze spotkania)
+ideas      n─1 content               (pomysł zamieniony w materiał)
+content    1─n attachments           (entity_type = 'content')
 ```
 
 ## Automatyka w bazie
@@ -57,6 +63,8 @@ tasks      1─n checklist_items
 | `events_from_calendar` | nowe wydarzenie / zmiana warstwy | ustawia `workspace_id` i `client_id` z warstwy (D-13) |
 | `tasks_completed_at` | zmiana statusu zadania | ustawia / czyści `completed_at` |
 | `checklist_from_task` | nowa pozycja checklisty | ustawia `workspace_id` z zadania |
+| `inherit_workspace_from_content` | nowy termin / publikacja / scenariusz / ujęcie | ustawia `workspace_id` z materiału |
+| `project_client_check` | projekt w materiale / zadaniu / wydarzeniu | sprawdza workspace projektu; materiał i zadanie bez klienta przejmują klienta projektu (D-19) |
 | `reminders_from_event` | nowe / zmienione przypomnienie | `workspace_id` z wydarzenia, `remind_at = starts_at − offset_minutes` |
 | `events_move_reminders` | przesunięcie wydarzenia | przelicza przypomnienia wszystkich osób (SECURITY DEFINER) |
 
@@ -99,5 +107,4 @@ Kolumna `read` mówi, czy klucz jest w `notification_reads`.
 
 | Etap | Zmiana |
 |---|---|
-| 4 | Tabele `notes` i `ideas` (tagi, klient, powiązanie z wydarzeniem) |
 | 6 | `calendars.google_account_email`, `calendars.last_imported_at`; tabela powiązań eksportu (`event_id` ↔ `google_event_id`) |
