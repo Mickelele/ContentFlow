@@ -7,6 +7,7 @@ import { Ellipsis, LogOut, Plus, X } from "lucide-react";
 import { signOut } from "@/app/logowanie/actions";
 import { Logo } from "@/components/logo";
 import { cx } from "@/components/ui";
+import { NEW_EVENT } from "@/lib/calendar";
 import type { Workspace } from "@/lib/workspace";
 import { MOBILE_PRIMARY, NAV, SETTINGS, type NavItem } from "./nav";
 import { ThemeToggle } from "./theme-toggle";
@@ -211,12 +212,24 @@ function MobileTabBar({ base, isActive, user }: { base: string; isActive: (i: Na
       <Sheet open={sheet === "add"} onClose={() => setSheet(null)} title="Dodaj">
         <div className="flex flex-col">
           {[
-            { href: `${base}/kalendarz`, label: "Wydarzenie" },
+            { href: `${base}/kalendarz?nowe=1`, label: "Wydarzenie" },
             { href: `${base}/zadania`, label: "Zadanie" },
             { href: `${base}/content`, label: "Materiał" },
             { href: `${base}/klienci/nowy`, label: "Klient" },
           ].map((a) => (
-            <Link key={a.label} href={a.href} className="flex h-12 items-center rounded-lg px-3 text-[15px] active:bg-surface-2">
+            <Link
+              key={a.label}
+              href={a.href}
+              onClick={(e) => {
+                // Kalendarz już otwarty: zamiast nawigacji od razu otwórz edytor.
+                if (a.label === "Wydarzenie" && pathname === `${base}/kalendarz`) {
+                  e.preventDefault();
+                  setSheet(null);
+                  window.dispatchEvent(new Event(NEW_EVENT));
+                }
+              }}
+              className="flex h-12 items-center rounded-lg px-3 text-[15px] active:bg-surface-2"
+            >
               {a.label}
             </Link>
           ))}

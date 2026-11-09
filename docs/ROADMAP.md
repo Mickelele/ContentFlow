@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **2 — Kalendarz** (nierozpoczęty)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **3 — Plan dnia i zadania** (nierozpoczęty)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -22,17 +22,21 @@ Zakończony 2026-11-09 · commit `e166cf1`
 - ✅ Ekran „Dziś” (szkielet) i tworzenie workspace'u
 - ✅ Szkielety ładowania modułów (natychmiastowa nawigacja w Next 16)
 
-## ⏳ Etap 2: Kalendarz
-- ⏳ Widok dnia, tygodnia i miesiąca (`CAL-01`); na telefonie tydzień jako 3 dni z przewijaniem
-- ⏳ Jeden widok dla **wszystkich workspace'ów** z panelem warstw i checkboxami jak w Google Calendar
-- ⏳ Widoczność warstw zapisywana na koncie i zsynchronizowana między urządzeniami
-- ⏳ Własne warstwy (np. „Urlopy”, „Deadline”) obok warstw klientów i „Zadań”
-- ⏳ Dodawanie, edycja i usuwanie wydarzeń (`CAL-02`), całodniowe i godzinowe (`CAL-06`)
-- ⏳ Przypisanie do klienta i projektu (`CAL-03`), kategorie jako ikony (`CAL-05`), kolor klienta (`CAL-04`)
-- ⏳ Przeciąganie i zmiana długości myszą i palcem (`CAL-07`)
-- ⏳ Filtry według klienta i kategorii (`CAL-08`)
-- ⏳ **Linki do spotkań:** rozpoznawanie Meet/Zoom/Teams, przyciski „Dołącz” i „Kopiuj link”, „Kopiuj szczegóły” do wysłania klientowi
-- ⏳ Funkcja `calendar_items(od, do)`: jeden odczyt wydarzeń, terminów zadań i terminów contentu dla widocznego zakresu (`CAL-13`, `NFR-05`)
+## ✅ Etap 2: Kalendarz
+Zakończony 2026-11-09 · migracja `20261109150000_calendar.sql`
+
+- ✅ Widok dnia, tygodnia i miesiąca (`CAL-01`); na telefonie zamiast tygodnia 3 dni
+- ✅ Jeden widok dla **wszystkich workspace'ów** z panelem warstw i checkboxami jak w Google Calendar (na telefonie wysuwany z boku)
+- ✅ Widoczność warstw zapisywana na koncie i zsynchronizowana między urządzeniami
+- ✅ Własne warstwy (np. „Urlopy”, „Deadline”) obok warstw klientów i „Zadań”
+- ✅ Dodawanie, edycja i usuwanie wydarzeń (`CAL-02`), całodniowe i godzinowe (`CAL-06`)
+- ✅ Klient wydarzenia wynika z jego warstwy (`CAL-03`), kategorie jako ikony (`CAL-05`), kolor klienta (`CAL-04`)
+- ✅ Przeciąganie i zmiana długości myszą i palcem (`CAL-07`); zmiana trafia do rekordu źródłowego
+- ✅ Filtry: klienci przez warstwy, kategorie przez przełączniki (`CAL-08`)
+- ✅ **Linki do spotkań:** rozpoznawanie Meet/Zoom/Teams, „Dołącz”, „Kopiuj link”, „Kopiuj szczegóły” do wysłania klientowi
+- ✅ Funkcja `calendar_items(od, do)`: wydarzenia, terminy zadań, terminy produkcji i publikacje dla widocznego zakresu (`CAL-13`, `NFR-05`)
+- ✅ „+ → Wydarzenie” w dolnym pasku otwiera edytor od razu
+- ➡️ Przypisanie wydarzenia do **projektu** przeniesione do Etapu 4 (razem z modułem projektów)
 
 ## ⏳ Etap 3: Plan dnia i zadania
 - ⏳ „Dziś” jako plan dnia: lista do odhaczania, własna kolejność, szybkie dodawanie
@@ -50,7 +54,7 @@ Zakończony 2026-11-09 · commit `e166cf1`
 - ⏳ Publikacje per platforma z opisem i hashtagami (`CON-08..09`)
 - ⏳ **Notatki:** formatowanie, checklisty, notatki ze spotkań podpięte pod wydarzenie
 - ⏳ **Pomysły:** tagi, klient, wyszukiwarka, zamiana w materiał jednym kliknięciem
-- ⏳ Projekty klientów (`CLI-05..07`)
+- ⏳ Projekty klientów (`CLI-05..07`), w tym przypisanie wydarzenia do projektu w edytorze kalendarza
 
 ## ⏳ Etap 5: Integracje
 - ⏳ **Inteligentne linki:** wklejony link pokazuje ikonę i nazwę serwisu (Docs, Dysk, Trello, Slack i inne)

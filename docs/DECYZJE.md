@@ -5,6 +5,24 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-13 · Klient wydarzenia = klient jego warstwy
+2026-11-09
+- **Decyzja:** wydarzenie nie ma osobnego wyboru klienta. Trigger `events_from_calendar` ustawia `workspace_id` i `client_id` na podstawie warstwy.
+- **Dlaczego:** gdyby klienta wybierało się osobno, wydarzenie mogłoby leżeć w warstwie HELINAT, a należeć do innego klienta. Kolor w kalendarzu przestałby wtedy mówić prawdę.
+- **Skutek:** przeniesienie wydarzenia do innej warstwy zmienia klienta. Wydarzenie na warstwie własnej lub „Zadania” nie ma klienta.
+
+### D-12 · Kalendarz rozmawia z bazą bezpośrednio z przeglądarki
+2026-11-09
+- **Decyzja:** odczyt (`rpc calendar_items`) i zapisy w kalendarzu idą z przeglądarki przez `supabase-js`, a nie przez server actions. Kalendarz renderuje się tylko po stronie klienta (`next/dynamic`, `ssr: false`).
+- **Dlaczego:** przeciąganie i przełączanie warstw musi działać natychmiast. RLS i tak pilnuje dostępu na poziomie bazy. Widok zależy od szerokości ekranu i ustawień z `localStorage`, więc wersja z serwera i tak różniłaby się od tej w przeglądarce.
+- **Skutek:** szkielet ładowania przy wejściu; listę warstw i workspace'ów nadal dostarcza serwer.
+
+### D-11 · FullCalendar 6
+2026-11-09
+- **Decyzja:** widoki kalendarza na FullCalendar 6.1 (wtyczki daygrid, timegrid, interaction; licencja MIT), wersje przypięte dokładnie.
+- **Dlaczego:** dojrzałe przeciąganie myszą i dotykiem, polska lokalizacja, pełna kontrola nad wyglądem wpisów. Własny kalendarz z obsługą dotyku to tygodnie pracy. Wersja 7 ma nowe API (Temporal) i jest świeża, więc na razie zostajemy przy 6.
+- **Skutek:** wygląd jest nadpisany tokenami w `kalendarz/calendar.css`. Ewentualna migracja na 7 to osobne zadanie.
+
 ### D-10 · Na razie bez Gmaila i Canvy
 2026-11-09
 - **Decyzja:** integracje w Etapach 5–6 to Dysk Google, Google Docs, ChatGPT, Slack i Trello. Gmail i Canva wypadają z zakresu.

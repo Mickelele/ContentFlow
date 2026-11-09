@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/`
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -53,6 +53,22 @@ tasks      1─n checklist_items
 | `workspaces_after_insert` | nowy workspace | twórca jako `owner`, warstwa „Zadania”, ustawia `last_workspace_id`, jeśli był pusty |
 | `clients_sync_calendar` | nowy / zmieniony klient | tworzy warstwę klienta i synchronizuje jej nazwę i kolor |
 | `touch_row` | aktualizacja | `updated_at = now()`, `version + 1` |
+| `events_from_calendar` | nowe wydarzenie / zmiana warstwy | ustawia `workspace_id` i `client_id` z warstwy (D-13) |
+
+## Funkcje do odczytu
+
+### `calendar_items(p_from, p_to)`
+Wszystko, co ma datę w podanym zakresie, ze wszystkich workspace'ów użytkownika (`security invoker`, więc filtruje RLS).
+
+| `source_type` | Źródło | Warstwa | Czas |
+|---|---|---|---|
+| `event` | `events` | `calendar_id` wydarzenia | `starts_at`–`ends_at` |
+| `task` | `tasks` (bez podzadań) | „Zadania” workspace'u | `due_at` (znacznik) |
+| `milestone` | `content_milestones` | warstwa klienta materiału, inaczej „Zadania” | `due_at` |
+| `publication` | `content_publications` | warstwa klienta materiału, inaczej „Zadania” | `publish_at` |
+
+Kolumny: `source_type`, `source_id`, `workspace_id`, `calendar_id`, `client_id`, `content_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `description`, `platform`.
+Przeciągnięcie w kalendarzu aktualizuje tabelę wskazaną przez `source_type` (D-02).
 
 ## Zasady biznesowe zapisane w schemacie
 
@@ -65,7 +81,6 @@ tasks      1─n checklist_items
 
 | Etap | Zmiana |
 |---|---|
-| 2 | Funkcja `calendar_items(od, do, …)` |
 | 3 | `tasks.planned_on date`, czyli „zrobię dziś”, osobno od terminu; tabela `notifications` |
 | 4 | Tabele `notes` i `ideas` (tagi, klient, powiązanie z wydarzeniem) |
 | 6 | `calendars.google_account_email`, `calendars.last_imported_at`; tabela powiązań eksportu (`event_id` ↔ `google_event_id`) |

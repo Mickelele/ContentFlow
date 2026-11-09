@@ -1,6 +1,8 @@
 import type { ComponentProps, ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 
-const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
+/** Łączy klasy; przy konflikcie (np. px-4 i px-0) wygrywa późniejsza. */
+const cx = (...c: (string | false | null | undefined)[]) => twMerge(c.filter(Boolean).join(" "));
 export { cx };
 
 type ButtonProps = ComponentProps<"button"> & { variant?: "primary" | "secondary" | "ghost" | "danger" };

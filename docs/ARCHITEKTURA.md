@@ -1,6 +1,6 @@
 # Architektura
 
-> Ostatnia aktualizacja: 2026-11-09 (Etap 1)
+> Ostatnia aktualizacja: 2026-11-09 (Etap 2)
 
 ## Stos
 
@@ -9,6 +9,8 @@
 | Aplikacja | Next.js 16 (App Router, Turbopack), React 19, TypeScript | `cacheComponents` włączone |
 | Style | Tailwind CSS 4, tokeny w `src/app/globals.css` | bez biblioteki komponentów |
 | Ikony | lucide-react | |
+| Kalendarz | FullCalendar 6.1.22 (daygrid, timegrid, interaction) | wersje przypięte, zob. D-11 |
+| Klasy CSS | tailwind-merge | `cx()` w `components/ui.tsx`: przy konflikcie wygrywa późniejsza klasa |
 | Walidacja | zod 4 | w server actions |
 | Backend | Supabase: Postgres, Auth, RLS, Realtime | klient `@supabase/ssr` |
 | Pliki | Google Drive (tylko linki i identyfikatory) | brak własnego storage |
@@ -27,14 +29,24 @@ src/
     w/[slug]/               aplikacja w obrębie workspace'u
       layout.tsx            powłoka (AppShell)
       page.tsx              zapamiętuje workspace jako ostatni → /dzis
-      dzis/ kalendarz/ content/ zadania/ klienci/ projekty/ pomysly/ ustawienia/
+      kalendarz/
+        page.tsx            serwer: warstwy wszystkich workspace'ów + widoczność
+        calendar-loader.tsx ładuje kalendarz tylko w przeglądarce
+        calendar-app.tsx    FullCalendar, pobieranie zakresu, przeciąganie, zapis
+        layers-panel.tsx    warstwy z checkboxami, nowa warstwa, filtry kategorii
+        event-editor.tsx    edytor wydarzenia, linki do spotkań, kopiowanie
+        item-details.tsx    podgląd terminu zadania / materiału
+        calendar.css        wygląd FullCalendar w tokenach
+      dzis/ content/ zadania/ klienci/ projekty/ pomysly/ ustawienia/
   components/
     shell/                  AppShell, nawigacja, przełącznik workspace'ów, motyw
-    ui.tsx                  Button, Field, Input, PageHeader…
+    ui.tsx                  Button, Field, Input, PageHeader, cx()…
+    dialog.tsx              okno: wyśrodkowane na komputerze, arkusz na telefonie
     page-skeleton.tsx       szkielet ładowania modułów
   lib/
     env.ts                  zmienne środowiskowe (publiczne)
     palette.ts              12 kolorów klientów
+    calendar.ts             typy kalendarza, kategorie, wykrywanie linków spotkań, daty
     workspace.ts            sesja, lista workspace'ów, bieżący workspace (server-only)
     supabase/               klient przeglądarkowy, serwerowy i do proxy
 supabase/migrations/        schemat bazy (SQL)
@@ -76,8 +88,23 @@ Logowanie Google prosi tylko o `openid email profile`. Dostęp do kalendarza czy
 - Motyw: `localStorage['cf-theme']` = `light` | `dark` | `system`, ustawiany skryptem przed pierwszym malowaniem.
 - Telefon: dolny pasek Dziś · Kalendarz · + · Content · Więcej; pola formularzy mają 16px (bez powiększania na iOS).
 
+## Kalendarz
+
+```
+page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko przeglądarka)
+                                                │
+         datesSet (zmiana zakresu) ── rpc calendar_items(od, do) ──▶ elementy
+         filtr: widoczna warstwa ∧ włączona kategoria ──▶ FullCalendar
+         przeciągnięcie ── update tabeli źródłowej (events / tasks / content_*) ── błąd ⇒ revert()
+```
+
+- Zapisy idą prosto z przeglądarki przez `supabase-js`; dostęp pilnuje RLS (D-12).
+- Wydarzenie zapisuje tylko `calendar_id`; `workspace_id` i `client_id` ustawia trigger (D-13).
+- Czas: `timestamptz` w bazie, wyświetlanie w strefie przeglądarki. Wydarzenia całodniowe: północ do północy dnia po ostatnim dniu (koniec wyłączny).
+- W `localStorage` zapamiętywane są tylko wygoda: ostatni widok (`cf-cal-view`) i włączone kategorie (`cf-cal-categories`). Widoczność warstw jest w bazie.
+- „+ → Wydarzenie” z dolnego paska: na innym ekranie `kalendarz?nowe=1`, na otwartym kalendarzu zdarzenie okna `cf:new-event`.
+
 ## Planowane elementy architektury
 
-- `calendar_items(od, do, filtry)`: funkcja w Postgresie łącząca wydarzenia, terminy zadań i terminy contentu. Zwraca `source_type` i `source_id`, więc przeciągnięcie w kalendarzu zmienia rekord źródłowy (Etap 2).
 - Integracje Google na żądanie: krótkotrwały token z okna zgody Google, bez przechowywania tokenów (Etap 5–6).
 - Powiadomienia: tabela powiadomień + `pg_cron` i Edge Function do wysyłki (Etap 3 i 6).
