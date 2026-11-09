@@ -10,6 +10,7 @@ import { cx } from "@/components/ui";
 import { NEW_EVENT } from "@/lib/calendar";
 import type { Workspace } from "@/lib/workspace";
 import { MOBILE_PRIMARY, NAV, SETTINGS, type NavItem } from "./nav";
+import { NotificationsBell, NotificationsProvider } from "./notifications";
 import { ThemeToggle } from "./theme-toggle";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
@@ -30,14 +31,18 @@ export function AppShell({
   const base = `/w/${workspace.slug}`;
   const isActive = (item: NavItem) => pathname === `${base}/${item.href}` || pathname.startsWith(`${base}/${item.href}/`);
 
+  const slugs = Object.fromEntries(workspaces.map((w) => [w.id, w.slug]));
+
   return (
+    <NotificationsProvider slugs={slugs}>
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
       {/* Desktop: panel boczny */}
-      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-surface lg:flex">
-        <div className="flex h-14 items-center px-5">
+      <aside className="sticky top-0 z-40 hidden h-dvh flex-col border-r border-line bg-surface lg:flex">
+        <div className="flex h-14 items-center justify-between pr-2 pl-5">
           <Link href="/" className="rounded-md">
             <Logo />
           </Link>
+          <NotificationsBell variant="popover" />
         </div>
         <div className="px-3">
           <WorkspaceSwitcher current={workspace} workspaces={workspaces} />
@@ -59,6 +64,7 @@ export function AppShell({
         <div className="min-w-0 flex-1">
           <WorkspaceSwitcher current={workspace} workspaces={workspaces} compact />
         </div>
+        <NotificationsBell variant="sheet" />
         <Avatar user={user} />
       </header>
 
@@ -66,6 +72,7 @@ export function AppShell({
 
       <MobileTabBar base={base} isActive={isActive} user={user} />
     </div>
+    </NotificationsProvider>
   );
 }
 

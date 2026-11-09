@@ -4,6 +4,19 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Etap 3: Plan dnia i zadania (2026-11-09)
+
+### Dodano
+- „Dziś” to teraz plan dnia: lista do odhaczania z paskiem postępu, kolejność zmieniana przeciąganiem, pole „Co dziś zrobisz?”.
+- Plan dnia pokazuje zadania ze wszystkich workspace'ów.
+- „Z poprzednich dni”: nieodhaczone zadania z wcześniejszych planów, z przeniesieniem na dziś lub odłożeniem.
+- Kolumna obok planu: wydarzenia dnia z „Dołącz” i „Kopiuj link”, terminy na dziś, zaległe zadania, publikacje tygodnia.
+- Moduł Zadania: grupy według terminu, zakładka „Ukończone”, filtr klienta, szybkie dodawanie, dodawanie do planu dnia ikoną słońca.
+- Szczegóły zadania: priorytet, status, klient, termin oddania z godziną lub bez, „Kiedy to zrobisz”, opis, checklista.
+- Przypomnienia o wydarzeniach z wyborem czasu; przesuwają się razem z wydarzeniem.
+- Dzwonek powiadomień z licznikiem, listą i „Oznacz wszystkie”; dymek, gdy nadejdzie przypomnienie.
+- Termin zadania w kalendarzu ma przycisk „Otwórz zadanie”.
+
 ## Etap 2: Kalendarz (2026-11-09)
 
 ### Dodano

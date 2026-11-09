@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/coming-soon";
+import { getRefs } from "@/lib/refs";
+import { getWorkspace } from "@/lib/workspace";
+import { TasksLoader } from "./tasks-loader";
 
 export const metadata: Metadata = { title: "Zadania" };
 
-export default function Page() {
+export default async function TasksPage({ params }: PageProps<"/w/[slug]/zadania">) {
+  const { slug } = await params;
+  const [ws, refs] = await Promise.all([getWorkspace(slug), getRefs()]);
   return (
-    <ComingSoon
-      title="Zadania"
-      description="Co trzeba zrobić i do kiedy."
-      stage="3"
-      points={["Priorytety, terminy i statusy", "Podzadania i checklisty", "Powiązanie z klientem, projektem lub materiałem", "Terminy widoczne w kalendarzu jako znaczniki, nie jako zajęty czas"]}
+    <TasksLoader
+      workspace={{ id: ws.id, name: ws.name, slug: ws.slug, color: ws.color }}
+      workspaces={refs.workspaces}
+      clients={refs.clients}
     />
   );
 }

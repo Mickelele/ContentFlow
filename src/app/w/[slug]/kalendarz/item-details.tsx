@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { Dialog } from "@/components/dialog";
+import { buttonClass } from "@/components/ui";
 import { CATEGORIES, PLATFORMS, formatRange, type CalendarItem, type Layer } from "@/lib/calendar";
 import { colorVars } from "@/lib/palette";
 
@@ -12,7 +14,17 @@ const SOURCE_LABEL: Record<CalendarItem["source_type"], string> = {
 };
 
 /** Szczegóły terminu pochodzącego z zadania lub materiału (edycja w ich modułach — Etap 3 i 4). */
-export function ItemDetails({ item, layer, onClose }: { item: CalendarItem | null; layer?: Layer; onClose: () => void }) {
+export function ItemDetails({
+  item,
+  layer,
+  workspaceSlug,
+  onClose,
+}: {
+  item: CalendarItem | null;
+  layer?: Layer;
+  workspaceSlug?: string;
+  onClose: () => void;
+}) {
   const start = item ? new Date(item.starts_at) : null;
   const c = layer ? colorVars(layer.color) : null;
   const Icon = item ? (CATEGORIES[item.category]?.icon ?? CATEGORIES.other.icon) : null;
@@ -51,9 +63,15 @@ export function ItemDetails({ item, layer, onClose }: { item: CalendarItem | nul
             ) : null}
           </dl>
           {item.description ? <p className="text-sm whitespace-pre-line text-ink-2">{item.description}</p> : null}
-          <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink-2">
-            Termin przesuniesz, przeciągając go w kalendarzu. Pełna edycja będzie w module {item.source_type === "task" ? "Zadania" : "Content"}.
-          </p>
+          {item.source_type === "task" && workspaceSlug ? (
+            <Link href={`/w/${workspaceSlug}/zadania?zadanie=${item.source_id}`} className={buttonClass("primary", "self-start")}>
+              Otwórz zadanie
+            </Link>
+          ) : (
+            <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink-2">
+              Termin przesuniesz, przeciągając go w kalendarzu. Pełna edycja będzie w module Content.
+            </p>
+          )}
         </div>
       ) : null}
     </Dialog>

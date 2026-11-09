@@ -68,6 +68,7 @@ function blankDraft(
     location: "",
     url: "",
     description: "",
+    reminder: range.allDay ? null : 10,
   };
 }
 
@@ -320,10 +321,23 @@ export function CalendarApp({ groups: initialGroups, currentWorkspaceId }: { gro
       url: d.url.trim() || null,
       description: d.description.trim() || null,
     };
-    const { error } = d.id
-      ? await supabase.from("events").update(row).eq("id", d.id)
-      : await supabase.from("events").insert(row);
-    if (error) return "Nie udało się zapisać wydarzenia. Spróbuj ponownie.";
+    const { data: saved, error } = d.id
+      ? await supabase.from("events").update(row).eq("id", d.id).select("id").single()
+      : await supabase.from("events").insert(row).select("id").single();
+    if (error || !saved) return "Nie udało się zapisać wydarzenia. Spróbuj ponownie.";
+
+    // Przypomnienie (własne dla zalogowanej osoby): czas liczy trigger z offsetu.
+    if (d.reminder !== undefined) {
+      await supabase.from("reminders").delete().eq("event_id", saved.id);
+      if (d.reminder !== null) {
+        const { error: remErr } = await supabase.from("reminders").insert({
+          event_id: saved.id,
+          offset_minutes: d.reminder,
+          remind_at: new Date(d.start.getTime() - d.reminder * 60000).toISOString(),
+        });
+        if (remErr) setError("Wydarzenie zapisane, ale przypomnienia nie udało się ustawić.");
+      }
+    }
     setDraft(null);
     if (range) await load(range);
     return null;
@@ -489,7 +503,12 @@ export function CalendarApp({ groups: initialGroups, currentWorkspaceId }: { gro
       </Dialog>
 
       <EventEditor key={editorKey} draft={draft} groups={groups} onClose={() => setDraft(null)} onSave={saveDraft} onDelete={deleteEvent} />
-      <ItemDetails item={details} layer={details ? layerById.get(details.calendar_id) : undefined} onClose={() => setDetails(null)} />
+      <ItemDetails
+        item={details}
+        layer={details ? layerById.get(details.calendar_id) : undefined}
+        workspaceSlug={details ? groups.find((g) => g.id === details.workspace_id)?.slug : undefined}
+        onClose={() => setDetails(null)}
+      />
     </div>
   );
 }

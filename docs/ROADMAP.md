@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **3 — Plan dnia i zadania** (nierozpoczęty)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **4 — Content, notatki i pomysły** (nierozpoczęty)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -38,13 +38,19 @@ Zakończony 2026-11-09 · migracja `20261109150000_calendar.sql`
 - ✅ „+ → Wydarzenie” w dolnym pasku otwiera edytor od razu
 - ➡️ Przypisanie wydarzenia do **projektu** przeniesione do Etapu 4 (razem z modułem projektów)
 
-## ⏳ Etap 3: Plan dnia i zadania
-- ⏳ „Dziś” jako plan dnia: lista do odhaczania, własna kolejność, szybkie dodawanie
-- ⏳ Rozróżnienie „zrobię dziś” (`planned_on`) i „termin oddania” (`due_at`)
-- ⏳ Nieodhaczone zadania z poprzednich dni z pytaniem „przenieść na dziś?”
-- ⏳ Zadania: priorytety, terminy, statusy, podzadania i checklisty (`TASK-01..06`)
-- ⏳ Zaległe zadania i nadchodzące publikacje na „Dziś” (`DASH-01..05`)
-- ⏳ **Powiadomienia w aplikacji:** dzwonek z listą przypomnień i zaległości (`CAL-10`)
+## ✅ Etap 3: Plan dnia i zadania
+Zakończony 2026-11-09 · migracja `20261109180000_day_plan.sql`
+
+- ✅ „Dziś” jako plan dnia: lista do odhaczania z postępem, kolejność przeciąganiem (mysz, palec, klawiatura), szybkie dodawanie
+- ✅ Plan dnia ze wszystkich workspace'ów naraz, z odznaką firmy przy zadaniu
+- ✅ Rozróżnienie „zrobię dziś” (`planned_on`) i „termin oddania” (`due_at`)
+- ✅ „Z poprzednich dni”: przenieś na dziś (pojedynczo lub wszystkie) albo odłóż
+- ✅ Zadania: priorytety, terminy (z godziną lub bez), statusy, klient, opis, checklista (`TASK-01..06`, zob. D-15)
+- ✅ Moduł Zadania: grupy Zaległe / Dziś / Jutro / 7 dni / Później / Bez terminu, ukończone, filtr klienta, „do planu dnia” jednym kliknięciem
+- ✅ „Dziś”: wydarzenia z „Dołącz” i „Kopiuj link”, terminy na dziś, zaległe, publikacje tygodnia (`DASH-01..05`)
+- ✅ Przypomnienia o wydarzeniach (od „w chwili rozpoczęcia” do „1 dzień przed”), przesuwają się razem z wydarzeniem (`CAL-10`)
+- ✅ **Powiadomienia w aplikacji:** dzwonek z przypomnieniami, terminami, zaległościami, publikacjami i akceptacjami; dymek przy nowym przypomnieniu
+- ✅ Z kalendarza termin zadania otwiera się w module Zadania
 
 ## ⏳ Etap 4: Content, notatki i pomysły
 - ⏳ Materiały: rolka, post, grafika, film, karuzela (`CON-01..03`)

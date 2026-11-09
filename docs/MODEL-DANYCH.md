@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -23,10 +23,11 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `shots` | Ujęcie do nagrania | `content_id`, `description`, `done`, `position` |
 | `events` | Wydarzenie | `calendar_id`, `client_id`, `project_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `rrule`, `external_id` |
 | `event_content` | Wydarzenie ↔ materiały (n:m) | `event_id`, `content_id` |
-| `tasks` | Zadanie | `parent_id`, `client_id`, `project_id`, `content_id`, `title`, `status`, `priority`, `due_at`, `due_all_day`, `completed_at`, `position` |
+| `tasks` | Zadanie | `parent_id` (nieużywane, D-15), `client_id`, `project_id`, `content_id`, `title`, `status`, `priority`, `due_at`, `due_all_day`, `planned_on` (plan dnia), `completed_at`, `position` (kolejność w planie dnia) |
 | `checklist_items` | Pozycja checklisty zadania | `task_id`, `label`, `done`, `position` |
 | `attachments` | Załącznik (link do Dysku) | `entity_type`, `entity_id`, `drive_file_id`, `name`, `mime_type`, `url` |
-| `reminders` | Przypomnienie | `user_id`, jedno z: `event_id` / `task_id` / `publication_id`, `remind_at`, `sent_at` |
+| `reminders` | Przypomnienie (per osoba) | `user_id`, jedno z: `event_id` / `task_id` / `publication_id`, `offset_minutes`, `remind_at` (liczone triggerem), `sent_at` |
+| `notification_reads` | Przeczytane powiadomienia | `user_id`, `key`, `read_at` |
 | `integrations` | Podłączone konto zewnętrzne | `provider`, `account_email`, `scopes`, `status`, `vault_secret_id` |
 
 ## Relacje
@@ -54,6 +55,10 @@ tasks      1─n checklist_items
 | `clients_sync_calendar` | nowy / zmieniony klient | tworzy warstwę klienta i synchronizuje jej nazwę i kolor |
 | `touch_row` | aktualizacja | `updated_at = now()`, `version + 1` |
 | `events_from_calendar` | nowe wydarzenie / zmiana warstwy | ustawia `workspace_id` i `client_id` z warstwy (D-13) |
+| `tasks_completed_at` | zmiana statusu zadania | ustawia / czyści `completed_at` |
+| `checklist_from_task` | nowa pozycja checklisty | ustawia `workspace_id` z zadania |
+| `reminders_from_event` | nowe / zmienione przypomnienie | `workspace_id` z wydarzenia, `remind_at = starts_at − offset_minutes` |
+| `events_move_reminders` | przesunięcie wydarzenia | przelicza przypomnienia wszystkich osób (SECURITY DEFINER) |
 
 ## Funkcje do odczytu
 
@@ -70,6 +75,19 @@ Wszystko, co ma datę w podanym zakresie, ze wszystkich workspace'ów użytkowni
 Kolumny: `source_type`, `source_id`, `workspace_id`, `calendar_id`, `client_id`, `content_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `description`, `platform`.
 Przeciągnięcie w kalendarzu aktualizuje tabelę wskazaną przez `source_type` (D-02).
 
+### `notifications_feed()`
+Powiadomienia zalogowanej osoby, liczone na bieżąco (D-14). „Dziś” wg `profiles.timezone`.
+
+| `kind` | Kiedy | Klucz |
+|---|---|---|
+| `reminder` | `reminders.remind_at ≤ now()`, wydarzenie nie starsze niż doba, nieanulowane | `reminder:<id>:<remind_at>` |
+| `due_today` | niezrobione zadanie z terminem dziś | `due:<id>:<due_at>` |
+| `overdue` | niezrobione zadanie z terminem przed dziś | `overdue:<id>:<due_at>` |
+| `publication` | zaplanowana publikacja dziś | `pub:<id>:<publish_at>` |
+| `approval` | akceptacja materiału z terminem dziś lub wcześniej, niezrobiona | `approval:<id>:<due_at>` |
+
+Kolumna `read` mówi, czy klucz jest w `notification_reads`.
+
 ## Zasady biznesowe zapisane w schemacie
 
 - Termin zadania (`due_at`) to znacznik, nie rezerwacja czasu (`due_all_day` domyślnie `true`).
@@ -81,6 +99,5 @@ Przeciągnięcie w kalendarzu aktualizuje tabelę wskazaną przez `source_type` 
 
 | Etap | Zmiana |
 |---|---|
-| 3 | `tasks.planned_on date`, czyli „zrobię dziś”, osobno od terminu; tabela `notifications` |
 | 4 | Tabele `notes` i `ideas` (tagi, klient, powiązanie z wydarzeniem) |
 | 6 | `calendars.google_account_email`, `calendars.last_imported_at`; tabela powiązań eksportu (`event_id` ↔ `google_event_id`) |

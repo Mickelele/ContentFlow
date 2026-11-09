@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Copy, ExternalLink, Trash2, Video } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, Check, Copy, ExternalLink, Trash2, Video } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/dialog";
 import { Button, Field, Input, Textarea, buttonClass, cx, inputClass } from "@/components/ui";
 import {
@@ -32,7 +33,20 @@ export type EventDraft = {
   location: string;
   url: string;
   description: string;
+  /** Przypomnienie: minuty przed początkiem; null = brak; undefined = jeszcze nie wczytane. */
+  reminder?: number | null;
 };
+
+export const REMINDER_OPTIONS: { value: number | null; label: string }[] = [
+  { value: null, label: "Bez przypomnienia" },
+  { value: 0, label: "W chwili rozpoczęcia" },
+  { value: 5, label: "5 min przed" },
+  { value: 10, label: "10 min przed" },
+  { value: 15, label: "15 min przed" },
+  { value: 30, label: "30 min przed" },
+  { value: 60, label: "1 godz. przed" },
+  { value: 1440, label: "1 dzień przed" },
+];
 
 export function useCopy() {
   const [copied, setCopied] = useState<string | null>(null);
@@ -66,6 +80,23 @@ export function EventEditor({
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { copied, copy } = useCopy();
+
+  // Przypomnienie istniejącego wydarzenia wczytujemy przy otwarciu (jest osobne dla każdej osoby).
+  const eventId = draft?.id;
+  const needsReminder = draft?.reminder === undefined;
+  useEffect(() => {
+    if (!eventId || !needsReminder) return;
+    let alive = true;
+    createClient()
+      .from("reminders")
+      .select("offset_minutes")
+      .eq("event_id", eventId)
+      .maybeSingle()
+      .then(({ data }) => alive && setD((p) => (p ? { ...p, reminder: data?.offset_minutes ?? null } : p)));
+    return () => {
+      alive = false;
+    };
+  }, [eventId, needsReminder]);
 
   const set = <K extends keyof EventDraft>(k: K, v: EventDraft[K]) => setD((p) => (p ? { ...p, [k]: v } : p));
   const meeting = d ? findMeeting(d.url, d.location, d.description) : null;
@@ -250,6 +281,25 @@ export function EventEditor({
               )}
             </div>
           </fieldset>
+
+          <Field label="Przypomnienie" htmlFor="ev-reminder">
+            <div className="relative">
+              <Bell className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
+              <select
+                id="ev-reminder"
+                className={cx(inputClass, "pl-9")}
+                disabled={d.reminder === undefined}
+                value={d.reminder === undefined || d.reminder === null ? "" : String(d.reminder)}
+                onChange={(e) => set("reminder", e.target.value === "" ? null : Number(e.target.value))}
+              >
+                {REMINDER_OPTIONS.map((o) => (
+                  <option key={o.label} value={o.value === null ? "" : String(o.value)}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </Field>
 
           <Field label="Link do spotkania lub materiałów" htmlFor="ev-url">
             <Input

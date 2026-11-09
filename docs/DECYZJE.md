@@ -5,6 +5,22 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-16 · Przypomnienia są osobne dla każdej osoby
+2026-11-09
+- **Decyzja:** przypomnienie (`reminders`) należy do użytkownika i zapisuje przesunięcie w minutach (`offset_minutes`). Trigger liczy z niego `remind_at`, a przesunięcie wydarzenia przelicza przypomnienia wszystkich osób.
+- **Dlaczego:** w jednym workspace może pracować kilka osób, a każda chce być powiadomiona kiedy indziej.
+
+### D-15 · Checklista zamiast podzadań
+2026-11-09
+- **Decyzja:** wymaganie „podzadania i checklisty” (`TASK-06`) realizuje checklista w zadaniu. Kolumna `tasks.parent_id` zostaje na przyszłość, ale interfejs jej nie używa.
+- **Dlaczego:** dwie prawie identyczne listy (podzadania i checklista) myliłyby się ze sobą. Gdy krok wymaga własnego terminu, staje się osobnym zadaniem.
+
+### D-14 · Powiadomienia liczone na bieżąco, bez kolejki
+2026-11-09
+- **Decyzja:** listę powiadomień zwraca funkcja `notifications_feed()` wyliczana z danych (przypomnienia, terminy, zaległości, publikacje, akceptacje). Tabela `notification_reads` pamięta tylko, co przeczytano. Aplikacja odpytuje co minutę i po powrocie do karty.
+- **Dlaczego:** nie trzeba crona ani kolejki w Supabase, a powiadomienie nie może się „zgubić” ani zdublować. Powiadomienia systemowe (Web Push) wymagają wysyłki z serwera, więc dojdą w Etapie 6 z `pg_cron`.
+- **Skutek:** klucz powiadomienia zawiera termin (np. `overdue:<id>:<czas>`), więc przesunięte i znów zaległe zadanie wraca jako nowe.
+
 ### D-13 · Klient wydarzenia = klient jego warstwy
 2026-11-09
 - **Decyzja:** wydarzenie nie ma osobnego wyboru klienta. Trigger `events_from_calendar` ustawia `workspace_id` i `client_id` na podstawie warstwy.
