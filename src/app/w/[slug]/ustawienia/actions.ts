@@ -53,6 +53,50 @@ export async function removeSlackAction(slug: string): Promise<Result> {
   return { ok: true, message: "Slack odłączony." };
 }
 
+export async function setSlackRemindersAction(slug: string, enabled: boolean): Promise<Result> {
+  const ws = await getWorkspace(slug);
+  if (ws.role !== "owner") return { ok: false, error: "Tylko właściciel może zmieniać to ustawienie." };
+  const { supabase } = await getSession();
+  const { error } = await supabase.rpc("set_slack_reminders", { ws: ws.id, enabled });
+  if (error) return { ok: false, error: "Nie udało się zapisać ustawienia." };
+  return { ok: true, message: enabled ? "Przypomnienia będą trafiać na Slacka." : "Przypomnienia na Slacka wyłączone." };
+}
+
+// ─── Powiadomienia push (Web Push) ───────────────────────────
+
+const subSchema = z.object({
+  endpoint: z.string().url().max(1000),
+  keys: z.object({ p256dh: z.string().max(200), auth: z.string().max(100) }),
+});
+
+export async function savePushSubscriptionAction(sub: unknown, userAgent: string): Promise<Result> {
+  const parsed = subSchema.safeParse(sub);
+  if (!parsed.success) return { ok: false, error: "Przeglądarka zwróciła nieprawidłową subskrypcję." };
+  const { supabase, user } = await getSession();
+  const { endpoint, keys } = parsed.data;
+  // Ta sama przeglądarka mogła być wcześniej zapisana — zastępujemy wpis.
+  await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint).eq("user_id", user.id);
+  const { error } = await supabase
+    .from("push_subscriptions")
+    .insert({ endpoint, p256dh: keys.p256dh, auth: keys.auth, user_agent: userAgent.slice(0, 300) });
+  if (error) return { ok: false, error: "Nie udało się zapisać urządzenia." };
+  return { ok: true, message: "Powiadomienia włączone na tym urządzeniu." };
+}
+
+export async function removePushSubscriptionAction(endpoint: string): Promise<Result> {
+  const { supabase, user } = await getSession();
+  await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint).eq("user_id", user.id);
+  return { ok: true, message: "Powiadomienia wyłączone na tym urządzeniu." };
+}
+
+export async function sendTestPushAction(): Promise<Result> {
+  const { user } = await getSession();
+  const { pushToUser, pushConfigured } = await import("@/lib/push");
+  if (!pushConfigured()) return { ok: false, error: "Serwer nie ma kluczy VAPID (zob. docs/KONFIGURACJA.md)." };
+  const sent = await pushToUser(user.id, { title: "ContentFlow", body: "Powiadomienia działają.", url: "/", tag: "test" });
+  return sent ? { ok: true, message: `Wysłano na ${sent} ${sent === 1 ? "urządzenie" : "urządzenia"}.` } : { ok: false, error: "Brak zapisanych urządzeń." };
+}
+
 export async function testSlackAction(slug: string): Promise<Result> {
   const ws = await getWorkspace(slug); // sprawdza członkostwo
   const webhook = await getWorkspaceWebhook(ws.id);

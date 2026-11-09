@@ -12,6 +12,7 @@ import { ChevronLeft, ChevronRight, Layers, Plus, Video } from "lucide-react";
 import { Dialog } from "@/components/dialog";
 import { Button, cx } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { useRealtime } from "@/lib/use-realtime";
 import {
   CATEGORIES,
   CATEGORY_KEYS,
@@ -27,6 +28,7 @@ import {
 import { colorVars, type ClientColor } from "@/lib/palette";
 import type { ProjectRef } from "@/lib/tasks";
 import { EventEditor, type EventDraft } from "./event-editor";
+import { GoogleCalendarDialog, GoogleCalendarMenu } from "./google-dialog";
 import { ItemDetails } from "./item-details";
 import { LayersPanel } from "./layers-panel";
 import "./calendar.css";
@@ -130,6 +132,8 @@ export function CalendarApp({
     return new Set(Array.isArray(saved) ? (saved.filter((c) => c in CATEGORIES) as Category[]) : CATEGORY_KEYS);
   });
   const [layersOpen, setLayersOpen] = useState(false);
+  const [googleMode, setGoogleMode] = useState<"import" | "export" | null>(null);
+  const [googleKey, setGoogleKey] = useState(0);
   // „+ → Wydarzenie” z innego ekranu przychodzi jako ?nowe=1 i od razu otwiera edytor.
   const [draft, setDraft] = useState<EventDraft | null>(() =>
     new URLSearchParams(location.search).has("nowe") ? blankDraft(initialGroups, currentWorkspaceId) : null,
@@ -167,6 +171,11 @@ export function CalendarApp({
     },
     [supabase],
   );
+
+  // Zmiany z innych urządzeń i od innych osób — przeładuj widoczny zakres.
+  useRealtime("calendar", ["events", "tasks", "content_milestones", "content_publications"], () => {
+    if (range) load(range);
+  });
 
   const onDatesSet = (arg: DatesSetArg) => {
     const v = arg.view.type as ViewName;
@@ -461,6 +470,7 @@ export function CalendarApp({
               </span>
             ) : null}
           </Button>
+          <GoogleCalendarMenu onPick={setGoogleMode} />
           <Button variant="primary" className="hidden h-9 px-3 lg:inline-flex" onClick={() => openNew()}>
             <Plus className="size-4" aria-hidden="true" />
             Wydarzenie
@@ -514,6 +524,26 @@ export function CalendarApp({
       </Dialog>
 
       <EventEditor key={editorKey} draft={draft} groups={groups} projects={projects} onClose={() => setDraft(null)} onSave={saveDraft} onDelete={deleteEvent} />
+      <GoogleCalendarDialog
+        key={googleKey}
+        mode={googleMode}
+        groups={groups}
+        currentWorkspaceId={currentWorkspaceId}
+        onClose={() => {
+          setGoogleMode(null);
+          setGoogleKey((k) => k + 1);
+        }}
+        onLayersCreated={(workspaceId, created) =>
+          setGroups((gs) =>
+            gs.map((g) =>
+              g.id === workspaceId
+                ? { ...g, layers: [...g.layers.filter((l) => l.kind !== "tasks"), ...created, ...g.layers.filter((l) => l.kind === "tasks")] }
+                : g,
+            ),
+          )
+        }
+        onDone={() => range && load(range)}
+      />
       <ItemDetails
         item={details}
         layer={details ? layerById.get(details.calendar_id) : undefined}

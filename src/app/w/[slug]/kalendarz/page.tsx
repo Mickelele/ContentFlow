@@ -15,6 +15,7 @@ type CalendarRow = {
   color: ClientColor;
   position: number;
   client_id: string | null;
+  google_calendar_id: string | null;
   clients: { archived_at: string | null } | null;
 };
 
@@ -27,7 +28,7 @@ export default async function CalendarPage({ params }: PageProps<"/w/[slug]/kale
   const [{ data: calendars }, { data: visibility }] = await Promise.all([
     supabase
       .from("calendars")
-      .select("id, workspace_id, kind, name, color, position, client_id, clients(archived_at)")
+      .select("id, workspace_id, kind, name, color, position, client_id, google_calendar_id, clients(archived_at)")
       .in("workspace_id", workspaces.map((w) => w.id)),
     supabase.from("calendar_visibility").select("calendar_id, visible").eq("user_id", user.id),
   ]);
@@ -54,6 +55,7 @@ export default async function CalendarPage({ params }: PageProps<"/w/[slug]/kale
         position: c.position,
         visible: !hidden.has(c.id),
         clientId: c.client_id,
+        googleCalendarId: c.google_calendar_id,
       })),
   }));
 

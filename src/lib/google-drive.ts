@@ -1,6 +1,7 @@
 "use client";
 
 import { DRIVE_SCOPE, google as cfg } from "@/lib/google";
+import { forgetToken, getGoogleToken, loadScript } from "@/lib/google-auth";
 
 /*
  * Dysk Google po stronie przeglądarki, bez przechowywania tokenów (D-08, D-05).
@@ -10,21 +11,10 @@ import { DRIVE_SCOPE, google as cfg } from "@/lib/google";
  * Token trzymamy wyłącznie w pamięci karty.
  */
 
-type TokenResponse = { access_token?: string; expires_in?: number; error?: string };
-type GoogleGlobal = {
-  accounts: {
-    oauth2: {
-      initTokenClient: (o: {
-        client_id: string;
-        scope: string;
-        callback: (r: TokenResponse) => void;
-        error_callback?: (e: { type: string }) => void;
-      }) => { requestAccessToken: (o?: { prompt?: string }) => void };
-    };
-  };
+type GooglePicker = {
   picker: {
     PickerBuilder: new () => PickerBuilder;
-    DocsView: new (viewId?: unknown) => { setIncludeFolders: (v: boolean) => unknown; setMode?: (m: unknown) => unknown };
+    DocsView: new (viewId?: unknown) => { setIncludeFolders: (v: boolean) => unknown };
     ViewId: { DOCS: unknown };
     Feature: { MULTISELECT_ENABLED: unknown };
     Action: { PICKED: string; CANCEL: string };
@@ -45,56 +35,7 @@ type PickerBuilder = {
 };
 type Gapi = { load: (lib: string, cb: () => void) => void };
 
-declare global {
-  interface Window {
-    google?: GoogleGlobal;
-    gapi?: Gapi;
-  }
-}
-
-const scripts = new Map<string, Promise<void>>();
-function loadScript(src: string) {
-  if (!scripts.has(src)) {
-    scripts.set(
-      src,
-      new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = src;
-        s.async = true;
-        s.onload = () => resolve();
-        s.onerror = () => {
-          scripts.delete(src);
-          reject(new Error(`Nie udało się wczytać ${src}`));
-        };
-        document.head.appendChild(s);
-      }),
-    );
-  }
-  return scripts.get(src)!;
-}
-
-let cached: { token: string; expires: number } | null = null;
-
-/** Token z zakresem drive.file. Pierwszy raz otwiera okno zgody Google; potem do wygaśnięcia działa bez okna. */
-export async function getDriveToken(): Promise<string> {
-  if (cached && cached.expires > Date.now() + 60_000) return cached.token;
-  await loadScript("https://accounts.google.com/gsi/client");
-  const g = window.google;
-  if (!g?.accounts) throw new Error("Usługa logowania Google nie odpowiada.");
-  return new Promise((resolve, reject) => {
-    const client = g.accounts.oauth2.initTokenClient({
-      client_id: cfg.clientId,
-      scope: DRIVE_SCOPE,
-      callback: (r) => {
-        if (!r.access_token) return reject(new Error(r.error === "access_denied" ? "Nie udzielono dostępu do Dysku." : "Google nie wydał dostępu."));
-        cached = { token: r.access_token, expires: Date.now() + (r.expires_in ?? 3600) * 1000 };
-        resolve(r.access_token);
-      },
-      error_callback: (e) => reject(new Error(e.type === "popup_closed" ? "Zamknięto okno Google." : "Nie udało się otworzyć okna Google.")),
-    });
-    client.requestAccessToken({ prompt: "" });
-  });
-}
+const getDriveToken = () => getGoogleToken(DRIVE_SCOPE);
 
 export type PickedFile = { id: string; name: string; url: string; mimeType: string };
 
@@ -102,8 +43,9 @@ export type PickedFile = { id: string; name: string; url: string; mimeType: stri
 export async function pickDriveFiles(): Promise<PickedFile[]> {
   const token = await getDriveToken();
   await loadScript("https://apis.google.com/js/api.js");
-  await new Promise<void>((resolve) => window.gapi!.load("picker", resolve));
-  const p = window.google!.picker;
+  const w = window as unknown as { gapi: Gapi; google: GooglePicker };
+  await new Promise<void>((resolve) => w.gapi.load("picker", resolve));
+  const p = w.google.picker;
 
   return new Promise((resolve) => {
     const view = new p.DocsView(p.ViewId.DOCS);
@@ -152,7 +94,7 @@ export async function createGoogleDoc(title: string, html: string): Promise<{ id
     body,
   });
   if (!res.ok) {
-    if (res.status === 401) cached = null;
+    if (res.status === 401) forgetToken(DRIVE_SCOPE);
     throw new Error(res.status === 403 ? "Dysk odmówił dostępu. Sprawdź, czy Drive API jest włączone." : "Nie udało się utworzyć dokumentu.");
   }
   const data = (await res.json()) as { id: string; webViewLink: string };

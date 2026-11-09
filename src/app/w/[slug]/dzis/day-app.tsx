@@ -24,6 +24,7 @@ import { buttonClass, cx } from "@/components/ui";
 import { PLATFORMS, findMeeting, type CalendarItem } from "@/lib/calendar";
 import { colorVars, type ClientColor } from "@/lib/palette";
 import { createClient } from "@/lib/supabase/client";
+import { useRealtime } from "@/lib/use-realtime";
 import {
   TASK_SELECT,
   addDaysKey,
@@ -79,6 +80,7 @@ export function DayApp({
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<TaskDraft | null>(null);
   const [dialogKey, setDialogKey] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
   const today = todayKey();
   const now = new Date();
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients]);
@@ -116,7 +118,9 @@ export function DayApp({
     return () => {
       alive = false;
     };
-  }, [supabase, today]);
+  }, [supabase, today, reloadKey]);
+
+  useRealtime("day", ["tasks", "events", "checklist_items", "content_publications"], () => setReloadKey((k) => k + 1));
 
   // ── Zmiany w zadaniach (optymistycznie) ──
   const update = (fn: (d: Data) => Data) => setData((d) => (d ? fn(d) : d));

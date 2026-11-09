@@ -6,7 +6,8 @@ import { signOut } from "@/app/logowanie/actions";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button, Field, Input, cx } from "@/components/ui";
 import { CLIENT_COLORS, colorVars, type ClientColor } from "@/lib/palette";
-import { removeSlackAction, saveSlackAction, testSlackAction, updateWorkspaceAction, type Result } from "./actions";
+import { removeSlackAction, saveSlackAction, setSlackRemindersAction, testSlackAction, updateWorkspaceAction, type Result } from "./actions";
+import { DeviceCard } from "./device-card";
 
 function Card({ title, description, icon, children }: { title: string; description?: string; icon?: ReactNode; children: ReactNode }) {
   return (
@@ -54,13 +55,14 @@ export function SettingsView({
   account,
 }: {
   workspace: { name: string; slug: string; color: ClientColor; isOwner: boolean };
-  slack: { connected: boolean; channel: string | null };
+  slack: { connected: boolean; channel: string | null; reminders: boolean };
   googleReady: boolean;
   account: { email: string; name: string | null };
 }) {
   return (
     <div className="flex flex-col gap-6">
       <WorkspaceCard workspace={workspace} />
+      <DeviceCard />
 
       <h2 className="mt-4 text-lg font-semibold">Integracje</h2>
       <SlackCard slug={workspace.slug} initial={slack} isOwner={workspace.isOwner} />
@@ -166,8 +168,17 @@ function WorkspaceCard({ workspace }: { workspace: { name: string; slug: string;
   );
 }
 
-function SlackCard({ slug, initial, isOwner }: { slug: string; initial: { connected: boolean; channel: string | null }; isOwner: boolean }) {
+function SlackCard({
+  slug,
+  initial,
+  isOwner,
+}: {
+  slug: string;
+  initial: { connected: boolean; channel: string | null; reminders: boolean };
+  isOwner: boolean;
+}) {
   const [connected, setConnected] = useState(initial.connected);
+  const [reminders, setReminders] = useState(initial.reminders);
   const [channel, setChannel] = useState(initial.channel ?? "");
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<Result | null>(null);
@@ -209,6 +220,24 @@ function SlackCard({ slug, initial, isOwner }: { slug: string; initial: { connec
             ) : null}
             <Feedback result={result} />
           </div>
+          <label className="inline-flex cursor-pointer items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              className="size-4 accent-[var(--ink)]"
+              checked={reminders}
+              disabled={!isOwner || pending}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setReminders(on);
+                start(async () => {
+                  const r = await setSlackRemindersAction(slug, on);
+                  setResult(r);
+                  if (!r.ok) setReminders(!on);
+                });
+              }}
+            />
+            Wysyłaj na kanał przypomnienia o wydarzeniach
+          </label>
           <p className="text-sm text-ink-3">Plan dnia wyślesz przyciskiem „Na Slacka” na ekranie „Dziś”.</p>
         </div>
       ) : isOwner ? (

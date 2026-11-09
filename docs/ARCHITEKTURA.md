@@ -1,6 +1,6 @@
 # Architektura
 
-> Ostatnia aktualizacja: 2026-11-09 (Etap 5)
+> Ostatnia aktualizacja: 2026-11-09 (Etap 6)
 
 ## Stos
 
@@ -11,6 +11,7 @@
 | Ikony | lucide-react | |
 | Kalendarz | FullCalendar 6.1.22 (daygrid, timegrid, interaction) | wersje przypięte, zob. D-11 |
 | Przeciąganie list | dnd-kit (core, sortable) | kolejność planu dnia; mysz, dotyk, klawiatura |
+| Powiadomienia push | web-push 3.6.7 (VAPID) | wysyłka z `/api/cron/reminders`, zob. D-25 |
 | Edytor tekstu | Tiptap 3.31.4 (StarterKit, task list) | scenariusze i notatki, zob. D-17 |
 | Klasy CSS | tailwind-merge | `cx()` w `components/ui.tsx`: przy konflikcie wygrywa późniejsza klasa |
 | Walidacja | zod 4 | w server actions |
@@ -164,7 +165,15 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - **Google:** skrypty `accounts.google.com/gsi/client` i `apis.google.com/js/api.js` ładowane na żądanie. Token z zakresem `drive.file` trzymany w pamięci do wygaśnięcia. Bez kompletu `NEXT_PUBLIC_GOOGLE_*` przyciski się nie renderują.
 - **ChatGPT:** czysty link `chatgpt.com/?q=` — bez kluczy i bez serwera.
 
+## PWA, push i synchronizacja (Etap 6)
+
+- `app/manifest.ts` + `app/pwa-icon/[size]` (ikony generowane `ImageResponse`) + `public/sw.js` (instalacja, push, kliknięcie powiadomienia). Service worker rejestruje `AppShell`. Proxy przepuszcza `sw.js`, `manifest.webmanifest`, `pwa-icon/` i `api/cron/` bez sesji.
+- Subskrypcja push: Ustawienia → „To urządzenie” (`device-card.tsx`) → server action zapisuje `push_subscriptions`. `lib/push.ts` wysyła i usuwa martwe subskrypcje (404/410).
+- `/api/cron/reminders` (Bearer `CRON_SECRET`, klucz serwisowy): przypomnienia z ostatnich 2 godzin → push do osoby + Slack raz na wydarzenie.
+- `lib/use-realtime.ts`: kanał Supabase Realtime na tabele widoku → odświeżenie z opóźnieniem; używają go kalendarz, „Dziś” i zadania.
+- Google Calendar: `lib/google-auth.ts` (wspólny token GIS dla Dysku i Kalendarza, wybór konta przy kalendarzu), `lib/google-calendar.ts` (lista, wydarzenia, wstawianie, aktualizacja), `kalendarz/google-dialog.tsx`.
+- Trello: `zadania/trello-import.tsx` czyta plik JSON w przeglądarce i robi `upsert` po `(workspace_id, external_id)`.
+
 ## Planowane elementy architektury
 
-- Google Calendar (import i eksport na żądanie): ten sam mechanizm tokenu co Dysk, zakresy kalendarza (Etap 6).
-- Powiadomienia systemowe (Web Push): `pg_cron` + Edge Function wysyłające przypomnienia z `reminders` (Etap 6).
+- Praca offline: kolejka zmian w IndexedDB i wskaźnik „czeka na synchronizację”.

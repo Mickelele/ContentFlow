@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: { default: "ContentFlow", template: "%s · ContentFlow" },
   description: "Kalendarz i planer pracy dla twórców i marketingowców.",
   applicationName: "ContentFlow",
+  icons: { apple: "/pwa-icon/180" },
+  // Po dodaniu do ekranu głównego iPhone'a aplikacja otwiera się bez paska Safari.
+  appleWebApp: { capable: true, title: "ContentFlow", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

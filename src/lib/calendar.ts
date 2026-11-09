@@ -15,6 +15,8 @@ export type Layer = {
   position: number;
   visible: boolean;
   clientId: string | null;
+  /** Kalendarz Google, z którego warstwa była importowana (ponowny import trafia do niej). */
+  googleCalendarId?: string | null;
 };
 
 export type WorkspaceLayers = { id: string; name: string; slug: string; color: ClientColor; layers: Layer[] };

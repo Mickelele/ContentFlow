@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus, Sun } from "lucide-react";
+import { Plus, Sun, Upload } from "lucide-react";
 import { Button, PageHeader, cx, inputClass } from "@/components/ui";
 import { QuickAdd } from "@/components/tasks/quick-add";
 import { TaskDialog, type TaskDraft } from "@/components/tasks/task-dialog";
 import { TaskRow } from "@/components/tasks/task-row";
 import { createClient } from "@/lib/supabase/client";
+import { useRealtime } from "@/lib/use-realtime";
+import { TrelloImportDialog } from "./trello-import";
 import {
   TASK_SELECT,
   addDaysKey,
@@ -60,6 +62,8 @@ export function TasksApp({
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<TaskDraft | null>(null);
   const [dialogKey, setDialogKey] = useState(0);
+  const [trelloOpen, setTrelloOpen] = useState(false);
+  const [trelloKey, setTrelloKey] = useState(0);
   const today = todayKey();
   const wsClients = clients.filter((c) => c.workspace_id === workspace.id);
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients]);
@@ -103,6 +107,8 @@ export function TasksApp({
       }
     });
   }, [fetchList, supabase]);
+
+  useRealtime("tasks", ["tasks", "checklist_items"], () => load(tab));
 
   const switchTab = (t: Tab) => {
     setTab(t);
@@ -184,10 +190,16 @@ export function TasksApp({
         title="Zadania"
         description={`Wszystko do zrobienia w ${workspace.name}. Słoneczko dodaje zadanie do planu dnia.`}
         actions={
+          <>
+          <Button variant="secondary" onClick={() => (setTrelloKey((k) => k + 1), setTrelloOpen(true))}>
+            <Upload className="size-4" aria-hidden="true" />
+            <span className="max-sm:sr-only">Z Trello</span>
+          </Button>
           <Button variant="primary" onClick={() => open({ workspace_id: workspace.id, client_id: clientFilter || null })}>
             <Plus className="size-4" aria-hidden="true" />
             Nowe zadanie
           </Button>
+          </>
         }
       />
 
@@ -267,6 +279,14 @@ export function TasksApp({
         </div>
       )}
 
+      <TrelloImportDialog
+        key={trelloKey}
+        open={trelloOpen}
+        onClose={() => setTrelloOpen(false)}
+        workspace={workspace}
+        clients={clients.filter((c) => c.workspace_id === workspace.id)}
+        onImported={() => load(tab)}
+      />
       <TaskDialog
         key={dialogKey}
         draft={draft}

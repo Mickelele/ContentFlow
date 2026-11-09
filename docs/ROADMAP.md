@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **6 — Google Calendar, Trello, PWA** (nierozpoczęty)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **6 — Google Calendar, Trello, PWA** (kod gotowy, konfiguracja i testy)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -84,16 +84,24 @@ Zakończony 2026-11-09 · migracja `20261110120000_integrations.sql`
 - ✅ Produkcja na Vercelu: https://contentflow-pi-ten.vercel.app (2026-11-09), automatyczne wdrażanie z `main`
 - ✅ Logowanie Google i Dysk działają na produkcji
 
-## ⏳ Etap 6: Google Calendar, Trello, PWA
-- ⏳ **Import z Google** na żądanie: wybór konta, kalendarzy, okresu i warstwy docelowej; bez duplikatów przy ponownym imporcie
-- ⏳ **Eksport do Google** na żądanie: wybór okresu, warstw i kalendarza docelowego; opcjonalnie link Google Meet
-- ⏳ Trello: import kart jako zadań na żądanie
-- ⏳ PWA: instalacja na telefonie, powiadomienia systemowe (Web Push), praca offline z kolejką zmian
-- ⏳ Synchronizacja na żywo między telefonem a laptopem (Supabase Realtime)
+## 🔨 Etap 6: Google Calendar, Trello, PWA
+Kod gotowy 2026-11-09 · migracja `20261110150000_push_sync.sql` · czeka na konfigurację i testy na żywo
+
+- ✅ **Import z Google Calendar** na żądanie: wybór konta, kalendarzy, warstwy docelowej (nowa lub istniejąca) i okresu; ponowny import aktualizuje bez duplikatów (`CAL-11`)
+- ✅ **Eksport do Google Calendar** na żądanie: kalendarz docelowy, warstwy, okres; ponowny eksport aktualizuje wysłane wydarzenia; zaimportowane z Google nie wracają
+- ✅ **Trello:** import z pliku JSON tablicy (karty → zadania, listy kontrolne → checklisty, lista „Done” → ukończone), bez duplikatów
+- ✅ **PWA:** manifest, ikony, service worker, instalacja na telefonie i komputerze
+- ✅ **Powiadomienia push** o wydarzeniach (Web Push) — także przy zamkniętej aplikacji; włączane per urządzenie w Ustawieniach
+- ✅ **Przypomnienia na Slacka** z serwera (opcja workspace'u), jedno na wydarzenie
+- ✅ **Synchronizacja na żywo** (Supabase Realtime): kalendarz, „Dziś” i zadania odświeżają się po zmianie na innym urządzeniu
+- ⚙️ Wymaga: migracji, harmonogramu `pg_cron` w Supabase, kluczy VAPID i `CRON_SECRET` w Vercelu, Google Calendar API (`docs/KONFIGURACJA.md`)
+- ➡️ Praca offline z kolejką zmian (`NFR`, spec. 3.3) przeniesiona do „Później”
 
 ---
 
 ## Później (P1/P2 ze specyfikacji)
+- 💤 Praca offline z kolejką zmian i wskaźnikiem „czeka na synchronizację”
+- 💤 Weryfikacja aplikacji w Google (zakresy kalendarza) i polityka prywatności / regulamin
 - 💤 Wydarzenia cykliczne (`CAL-09`), wykrywanie konfliktów (`CAL-12`)
 - 💤 Kanban contentu (`CON-11`), wersjonowanie (`CON-12`), akceptacja przez klienta (`CON-13`)
 - 💤 Planer sesji nagraniowych (`REC-01..08`)

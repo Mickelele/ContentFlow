@@ -4,8 +4,16 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Etap 6: Google Calendar, Trello, PWA (2026-11-09)
+
 ### Dodano
 - Wersja produkcyjna na Vercelu: https://contentflow-pi-ten.vercel.app
+- Kalendarz → „Google”: import wydarzeń z Google Calendar i wysyłanie planu do Google, na żądanie, bez duplikatów.
+- Zadania → „Z Trello”: import tablicy z pliku JSON (karty, listy kontrolne, terminy).
+- Instalacja ContentFlow jako aplikacji na telefonie i komputerze (PWA) z własną ikoną.
+- Powiadomienia push o wydarzeniach na wybranych urządzeniach (Ustawienia → To urządzenie).
+- Automatyczne przypomnienia o wydarzeniach na kanale Slacka (opcja w Ustawieniach).
+- Zmiany z innych urządzeń pojawiają się od razu w kalendarzu, na „Dziś” i w zadaniach.
 
 ## Etap 5: Integracje (2026-11-09)
 

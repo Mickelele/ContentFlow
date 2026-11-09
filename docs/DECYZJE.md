@@ -5,6 +5,28 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-27 · Synchronizacja na żywo = ponowne pobranie po zmianie
+2026-11-09
+- **Decyzja:** Supabase Realtime powiadamia o zmianach w tabelach (z RLS), a widok pobiera dane od nowa (z opóźnieniem 0,5 s, także po powrocie do karty). Nie scalamy zmian po kawałku.
+- **Dlaczego:** proste i odporne — jedno źródło prawdy (zapytanie widoku), brak rozjazdów przy złożonych danych (`calendar_items`, plan dnia).
+- **Skutek:** praca offline z kolejką zmian zostaje na później.
+
+### D-26 · Trello przez plik JSON, nie przez API
+2026-11-09
+- **Decyzja:** import tablicy z eksportu JSON (dostępnego w każdej tablicy Trello). `tasks.external_id = trello:<id karty>` chroni przed duplikatami.
+- **Dlaczego:** zero konfiguracji, żadnych kluczy ani tokenów Trello do przechowywania; zgodne z zasadą „na żądanie”.
+
+### D-25 · Przypomnienia z serwera: pg_cron → endpoint w Vercelu
+2026-11-09
+- **Decyzja:** co minutę `pg_cron` + `pg_net` w Supabase wywołuje `/api/cron/reminders` (nagłówek `Bearer CRON_SECRET`). Endpoint wysyła Web Push (VAPID, biblioteka `web-push`) i opcjonalnie Slacka, oznacza `reminders.sent_at` i `events.slack_notified_at`.
+- **Dlaczego:** cron w darmowym planie Vercela działa tylko raz dziennie; Supabase ma cron co minutę bez dodatkowych usług.
+- **Skutek:** przypomnienia starsze niż 2 godziny są pomijane (po awarii nie zasypujemy powiadomieniami).
+
+### D-24 · PWA bez pamięci podręcznej stron
+2026-11-09
+- **Decyzja:** service worker (`public/sw.js`) służy instalacji i powiadomieniom push; nie przechowuje stron ani danych.
+- **Dlaczego:** dane muszą być aktualne między urządzeniami; cache stron w aplikacji z sesją i RLS to ryzyko pokazania starych lub cudzych danych.
+
 ### D-23 · Hosting na Vercelu z automatycznym wdrażaniem z main
 2026-11-09
 - **Decyzja:** aplikacja działa na Vercelu (`contentflow-pi-ten.vercel.app`), każdy push na `main` wdraża nową wersję. Lokalna praca i produkcja korzystają z tej samej bazy Supabase.

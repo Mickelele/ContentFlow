@@ -8,6 +8,7 @@ import { signOut } from "@/app/logowanie/actions";
 import { Logo } from "@/components/logo";
 import { cx } from "@/components/ui";
 import { NEW_EVENT } from "@/lib/calendar";
+import { registerServiceWorker } from "@/lib/pwa";
 import type { Workspace } from "@/lib/workspace";
 import { MOBILE_PRIMARY, NAV, SETTINGS, type NavItem } from "./nav";
 import { NotificationsBell, NotificationsProvider } from "./notifications";
@@ -32,6 +33,11 @@ export function AppShell({
   const isActive = (item: NavItem) => pathname === `${base}/${item.href}` || pathname.startsWith(`${base}/${item.href}/`);
 
   const slugs = Object.fromEntries(workspaces.map((w) => [w.id, w.slug]));
+
+  // Service worker: instalacja jako aplikacja i powiadomienia push.
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
 
   return (
     <NotificationsProvider slugs={slugs}>

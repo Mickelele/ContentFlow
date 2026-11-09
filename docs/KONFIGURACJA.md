@@ -76,12 +76,52 @@ Konfiguruje właściciel workspace'u w **Ustawieniach** aplikacji:
 
 Adresu webhooka nie da się odczytać przez API aplikacji (tabela `workspace_secrets` bez polityki SELECT). Wiadomości wysyła serwer kluczem `SUPABASE_SECRET_KEY`, więc ta zmienna musi być ustawiona na serwerze.
 
+## Google Calendar — import i eksport (Etap 6)
+
+1. Google Cloud → **APIs & Services → Library:** włącz **Google Calendar API**.
+2. **Google Auth Platform → Data access → Add or remove scopes:** dodaj
+   - `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
+   - `https://www.googleapis.com/auth/calendar.events`
+3. To zakresy **wrażliwe**: w trybie *Testing* działają dla kont z listy testerów; publicznie wymagają weryfikacji aplikacji przez Google (domena, polityka prywatności, regulamin, nagranie demo).
+
+Przycisk „Google” w kalendarzu pojawia się, gdy ustawione jest `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
+
+## Powiadomienia push i przypomnienia z serwera (Etap 6)
+
+**Zmienne** (lokalnie w `.env.local`, na produkcji w Vercelu → Settings → Environment Variables):
+
+| Zmienna | Skąd |
+|---|---|
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | `npx web-push generate-vapid-keys` (raz; ta sama para lokalnie i na produkcji, inaczej zapisane urządzenia przestaną działać) |
+| `VAPID_SUBJECT` | adres aplikacji, np. `https://contentflow-pi-ten.vercel.app` |
+| `CRON_SECRET` | długi losowy ciąg (`node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"`) |
+
+**Harmonogram** — co minutę Supabase woła `/api/cron/reminders`, który wysyła push i (jeśli włączone) Slacka:
+1. Supabase → **Integrations**: włącz **Cron** (`pg_cron`) i **pg_net**.
+2. **SQL Editor** (sekretu nie zapisujemy w repozytorium — wstaw swój `CRON_SECRET`):
+   ```sql
+   select cron.schedule(
+     'contentflow-reminders', '* * * * *',
+     $$ select net.http_get(
+          url := 'https://contentflow-pi-ten.vercel.app/api/cron/reminders',
+          headers := jsonb_build_object('Authorization', 'Bearer <CRON_SECRET>')
+        ) $$
+   );
+   ```
+3. Sprawdzenie: `select * from cron.job_run_details order by start_time desc limit 5;`
+
+Na iPhonie powiadomienia działają tylko w aplikacji dodanej do ekranu początkowego (iOS 16.4+).
+
+## Trello (Etap 6)
+
+Bez konfiguracji. W Trello: menu tablicy → **Drukuj, eksportuj i udostępniaj → Eksportuj jako JSON**, a w ContentFlow: **Zadania → Z Trello** i wskazanie pliku.
+
 ## Wdrożenie (Vercel)
 
 Produkcja: **https://contentflow-pi-ten.vercel.app** · projekt Vercel połączony z `Mickelele/ContentFlow`, gałąź `main` wdraża się automatycznie po każdym pushu.
 
 1. [vercel.com/new](https://vercel.com/new) → import repozytorium. Ustawienia domyślne (Next.js, `next build`, Node 22).
-2. **Environment Variables:** te same 6 zmiennych co w `.env.local` (`SUPABASE_SECRET_KEY` jako sekret).
+2. **Environment Variables:** te same zmienne co w `.env.local` — 6 podstawowych oraz 4 do powiadomień (`NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET`); sekrety (`SUPABASE_SECRET_KEY`, `VAPID_PRIVATE_KEY`, `CRON_SECRET`) oznacz jako *Sensitive*.
 3. **Settings → Functions → Function Region:** region najbliższy bazie Supabase.
 4. Adres produkcyjny dopisać w trzech miejscach (inaczej logowanie i Dysk nie zadziałają):
 
