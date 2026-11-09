@@ -63,6 +63,10 @@ ContentFlow prosi o dostęp do Dysku dopiero przy pierwszym użyciu („Z Dysku�
 
 Dopóki te trzy zmienne są puste, przyciski Dysku i Docs są ukryte.
 
+**Tryb Testing:** samo logowanie działa dla każdego, ale dostęp do Dysku Google wyda tylko kontom z listy **Audience → Test users**. Inni zobaczą „Błąd 403: access_denied — aplikacja nie przeszła weryfikacji”. Rozwiązanie: dopisać konto do testerów albo opublikować aplikację (**Publish app** → *In production*; `drive.file` nie jest zakresem wrażliwym). Konta firmowe i uczelniane może dodatkowo blokować administrator organizacji.
+
+Numer projektu (`NEXT_PUBLIC_GOOGLE_APP_ID`) to liczba — ta sama, którą zaczyna się Client ID (`757723447090-…`), a nie identyfikator projektu (`contentflow-514213`).
+
 ## Slack (Etap 5)
 
 Konfiguruje właściciel workspace'u w **Ustawieniach** aplikacji:

@@ -77,7 +77,7 @@ Zakończony 2026-11-09 · migracja `20261110120000_integrations.sql`
 - ✅ **ChatGPT:** gotowe polecenia przy materiale (hooki, scenariusz, opis z hashtagami, lista ujęć) i pomyśle (rozwinięcie, seria)
 - ✅ **Slack:** webhook podłączany w Ustawieniach (z wiadomością testową), „Na Slacka” na „Dziś” wysyła plan dnia
 - ✅ **Ustawienia:** nazwa i kolor workspace'u, stan integracji, konto
-- ⚙️ Dysk i Docs wymagają klucza API Google i numeru projektu (`docs/KONFIGURACJA.md`) — do tego czasu przyciski są ukryte
+- ✅ Dysk i Docs skonfigurowane i sprawdzone 2026-11-09 (wybór pliku z Dysku i eksport scenariusza do Google Docs); w trybie Testing tylko dla kont z listy testerów
 - ➡️ Automatyczne przypomnienia na Slacka (bez klikania) dojdą w Etapie 6 razem z wysyłką z serwera (`pg_cron`)
 
 ## ⏳ Etap 6: Google Calendar, Trello, PWA
