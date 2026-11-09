@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Archive, ArrowRight, ExternalLink, Search, Sparkles } from "lucide-react";
+import { Archive, ArrowRight, Search, Sparkles } from "lucide-react";
+import { ChatGptMenu } from "@/components/chatgpt-menu";
+import { LinkIcon } from "@/components/link-chip";
+import { ideaPrompts } from "@/lib/prompts";
+import { linkInfo } from "@/lib/links";
 import { Dialog } from "@/components/dialog";
 import { ClientChip } from "@/components/tasks/task-row";
 import { QuickAdd } from "@/components/tasks/quick-add";
@@ -208,9 +212,9 @@ export function IdeasView({ workspace, clients }: { workspace: WorkspaceRef; cli
                       <span key={t}>#{t}</span>
                     ))}
                     {i.link ? (
-                      <span className="inline-flex items-center gap-1">
-                        <ExternalLink className="size-3" aria-hidden="true" />
-                        inspiracja
+                      <span className="inline-flex items-center gap-1.5">
+                        <LinkIcon url={i.link} size={18} />
+                        {linkInfo(i.link).service}
                       </span>
                     ) : null}
                   </span>
@@ -319,6 +323,12 @@ function IdeaDialog({
           <Button variant="danger" className="h-9 px-3" onClick={() => (confirm ? onDelete() : setConfirm(true))}>
             {confirm ? "Na pewno usunąć?" : "Usuń"}
           </Button>
+          <ChatGptMenu
+            align="left"
+            items={() =>
+              ideaPrompts({ title: f.title, description: f.description, client: clients.find((c) => c.id === f.client_id)?.name })
+            }
+          />
           <div className="ml-auto flex gap-2">
             <Button variant="ghost" className="h-9 px-3" onClick={onClose}>
               Anuluj

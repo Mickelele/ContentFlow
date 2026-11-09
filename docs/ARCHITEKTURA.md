@@ -1,6 +1,6 @@
 # Architektura
 
-> Ostatnia aktualizacja: 2026-11-09 (Etap 4)
+> Ostatnia aktualizacja: 2026-11-09 (Etap 5)
 
 ## Stos
 
@@ -56,9 +56,15 @@ src/
         notes-app.tsx       widoki „Notatki” i „Pomysły” (tylko przeglądarka)
         notes-view.tsx      lista + edytor notatki z zapisem automatycznym
         ideas-view.tsx      bank pomysłów, „Zrób materiał”
-      klienci/ ustawienia/
+      ustawienia/
+        settings-view.tsx   workspace, Slack, stan Dysku i ChatGPT, konto
+        actions.ts          zapis workspace'u i webhooka, test Slacka (server actions)
+      klienci/
   components/
     editor/                 RichText (Tiptap), useAutosave + wskaźnik zapisu
+    link-chip.tsx           ikona i wiersz linku z rozpoznanym serwisem
+    chatgpt-menu.tsx        menu gotowych poleceń ChatGPT
+    google-buttons.tsx      „Z Dysku” i „Do Google Docs”
     shell/                  AppShell, nawigacja, przełącznik workspace'ów, motyw
       notifications.tsx     dostawca powiadomień, dzwonek, dymki
     tasks/                  wiersz zadania, okno szczegółów z checklistą, szybkie dodawanie
@@ -73,6 +79,11 @@ src/
     refs.ts                 workspace'y, aktywni klienci i projekty użytkownika (server-only)
     content.ts              rodzaje materiałów, etapy, platformy, szablon rolki
     projects.ts             statusy i typy projektów
+    links.ts                rozpoznawanie serwisu po adresie, normalizacja linków
+    prompts.ts              polecenia ChatGPT dla materiału i pomysłu
+    google.ts / google-drive.ts  konfiguracja Google; token GIS, Picker, tworzenie Docs (przeglądarka)
+    slack.ts                wysyłka na Slacka, odczyt webhooka (server-only)
+    supabase/admin.ts       klient z kluczem serwisowym (server-only)
     workspace.ts            sesja, lista workspace'ów, bieżący workspace (server-only)
     supabase/               klient przeglądarkowy, serwerowy i do proxy
 supabase/migrations/        schemat bazy (SQL)
@@ -147,7 +158,13 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - Zapisy pól materiału, ujęć, publikacji i linków idą od razu przez `supabase-js`; `workspace_id` danych materiału ustawia trigger.
 - Stałe i typy używane w komponentach serwerowych trzymamy w `lib/` (nie w plikach `"use client"`), bo eksporty z modułów klienckich są dla serwera tylko referencjami.
 
+## Integracje
+
+- **Slack:** przeglądarka nie zna webhooka. Server action sprawdza członkostwo (`getWorkspace`), czyta webhook kluczem serwisowym i wysyła wiadomość. Daty planu dnia formatuje przeglądarka (jej strefa), serwer składa bloki Slacka.
+- **Google:** skrypty `accounts.google.com/gsi/client` i `apis.google.com/js/api.js` ładowane na żądanie. Token z zakresem `drive.file` trzymany w pamięci do wygaśnięcia. Bez kompletu `NEXT_PUBLIC_GOOGLE_*` przyciski się nie renderują.
+- **ChatGPT:** czysty link `chatgpt.com/?q=` — bez kluczy i bez serwera.
+
 ## Planowane elementy architektury
 
-- Integracje Google na żądanie: krótkotrwały token z okna zgody Google, bez przechowywania tokenów (Etap 5–6).
+- Google Calendar (import i eksport na żądanie): ten sam mechanizm tokenu co Dysk, zakresy kalendarza (Etap 6).
 - Powiadomienia systemowe (Web Push): `pg_cron` + Edge Function wysyłające przypomnienia z `reminders` (Etap 6).

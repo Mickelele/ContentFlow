@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -30,7 +30,8 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `notification_reads` | Przeczytane powiadomienia | `user_id`, `key`, `read_at` |
 | `notes` | Notatka | `client_id`, `project_id`, `event_id` (notatka ze spotkania), `title`, `body` (jsonb, Tiptap), `body_text` (do wyszukiwania), `pinned` |
 | `ideas` | Pomysł | `client_id`, `title`, `description`, `link`, `type`, `tags` (text[]), `status` (`new`/`converted`/`archived`), `content_id` |
-| `integrations` | Podłączone konto zewnętrzne | `provider`, `account_email`, `scopes`, `status`, `vault_secret_id` |
+| `workspace_secrets` | Sekrety integracji (bez odczytu przez API, D-20) | `workspace_id`, `slack_webhook_url`, `slack_channel` |
+| `integrations` | Podłączone konto zewnętrzne (nieużywane — Google bez zapisu tokenów) | `provider`, `account_email`, `scopes`, `status`, `vault_secret_id` |
 
 ## Relacje
 
@@ -82,6 +83,9 @@ Wszystko, co ma datę w podanym zakresie, ze wszystkich workspace'ów użytkowni
 
 Kolumny: `source_type`, `source_id`, `workspace_id`, `calendar_id`, `client_id`, `content_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `description`, `platform`.
 Przeciągnięcie w kalendarzu aktualizuje tabelę wskazaną przez `source_type` (D-02).
+
+### `integration_status(ws)` i `set_slack_webhook(ws, url, channel)`
+`integration_status` zwraca `slack_connected` i `slack_channel` dla członków (bez adresu). `set_slack_webhook` zapisuje lub czyści webhook — tylko właściciel (SECURITY DEFINER).
 
 ### `notifications_feed()`
 Powiadomienia zalogowanej osoby, liczone na bieżąco (D-14). „Dziś” wg `profiles.timezone`.

@@ -14,7 +14,8 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowRight, Check, Copy, ExternalLink, GripVertical, Send, Sun, Undo2, Video } from "lucide-react";
+import { ArrowRight, Check, Copy, ExternalLink, GripVertical, Hash, Send, Sun, Undo2, Video } from "lucide-react";
+import { sendDayPlanAction } from "./actions";
 import { WorkspaceBadge } from "@/components/shell/workspace-switcher";
 import { QuickAdd } from "@/components/tasks/quick-add";
 import { TaskDialog, type TaskDraft } from "@/components/tasks/task-dialog";
@@ -64,12 +65,14 @@ export function DayApp({
   clients,
   projects,
   firstName,
+  slackConnected,
 }: {
   workspace: WorkspaceRef;
   workspaces: WorkspaceRef[];
   clients: ClientRef[];
   projects: ProjectRef[];
   firstName: string | null;
+  slackConnected: boolean;
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [data, setData] = useState<Data | null>(null);
@@ -190,6 +193,24 @@ export function DayApp({
   const publications = (data?.items ?? []).filter((i) => i.source_type === "publication").sort((a, b) => a.starts_at.localeCompare(b.starts_at));
   const hasClients = clients.some((c) => c.workspace_id === workspace.id);
 
+  // Plan dnia na Slacka: daty formatujemy tutaj (strefa przeglądarki), serwer składa wiadomość.
+  const [slackState, setSlackState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const sendToSlack = async () => {
+    setSlackState("sending");
+    const res = await sendDayPlanAction(workspace.slug, {
+      dateLabel: dayFmt.format(now),
+      tasks: plan.map((t) => ({ title: t.title, done: t.status === "done", client: t.client_id ? (clientById.get(t.client_id)?.name ?? null) : null })),
+      events: todayEvents.map((e) => ({
+        time: e.all_day ? "cały dzień" : `${timeFmt.format(new Date(e.starts_at))}–${timeFmt.format(new Date(e.ends_at))}`,
+        title: e.title,
+        link: findMeeting(e.url, e.location, e.description)?.url ?? null,
+      })),
+    });
+    setSlackState(res.ok ? "sent" : "error");
+    if (!res.ok) setError(res.error);
+    setTimeout(() => setSlackState("idle"), 3000);
+  };
+
   return (
     <div className="mx-auto max-w-6xl">
       <header className="pb-8">
@@ -226,15 +247,29 @@ export function DayApp({
         {/* ── Plan dnia ── */}
         <div className="flex flex-col gap-8">
           <section aria-labelledby="plan-h">
-            <div className="mb-3 flex items-baseline justify-between gap-3">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <h2 id="plan-h" className="text-xl font-semibold">
                 Plan dnia
               </h2>
-              {plan.length > 0 ? (
-                <p className="tabular text-sm text-ink-2">
-                  {doneCount} z {plan.length} zrobione
-                </p>
-              ) : null}
+              <div className="flex items-center gap-3">
+                {plan.length > 0 ? (
+                  <p className="tabular text-sm text-ink-2">
+                    {doneCount} z {plan.length} zrobione
+                  </p>
+                ) : null}
+                {slackConnected && data ? (
+                  <button
+                    type="button"
+                    disabled={slackState === "sending"}
+                    onClick={sendToSlack}
+                    className={buttonClass("ghost", "h-8 px-2.5 text-[13px]")}
+                    aria-live="polite"
+                  >
+                    <Hash className="size-3.5" aria-hidden="true" />
+                    {slackState === "sending" ? "Wysyłam…" : slackState === "sent" ? "Wysłano" : slackState === "error" ? "Nie wysłano" : "Na Slacka"}
+                  </button>
+                ) : null}
+              </div>
             </div>
             {plan.length > 0 ? (
               <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">

@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **5 — Integracje** (nierozpoczęty)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **6 — Google Calendar, Trello, PWA** (nierozpoczęty)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -68,12 +68,17 @@ Zakończony 2026-11-09 · migracja `20261110090000_content_notes.sql`
 - ✅ Z kalendarza i „Dziś” termin produkcji / publikacja otwiera materiał
 - ➡️ Kanban materiałów (`CON-11`), wersjonowanie scenariuszy (`CON-12`) zostają w „Później”
 
-## ⏳ Etap 5: Integracje
-- ⏳ **Inteligentne linki:** wklejony link pokazuje ikonę i nazwę serwisu (Docs, Dysk, Trello, Slack i inne)
-- ⏳ **Dysk Google:** wybieranie plików oknem Google (zakres `drive.file`)
-- ⏳ **Google Docs:** „Utwórz scenariusz w Docs” z szablonu
-- ⏳ **ChatGPT:** przycisk „Otwórz w ChatGPT” z gotowym poleceniem; później AI wbudowane w aplikację
-- ⏳ **Slack:** przypomnienia i podsumowanie dnia na wybrany kanał
+## ✅ Etap 5: Integracje
+Zakończony 2026-11-09 · migracja `20261110120000_integrations.sql`
+
+- ✅ **Inteligentne linki:** wklejony link pokazuje ikonę i nazwę serwisu (Docs, Sheets, Slides, Dysk, Trello, Slack, Canva, Figma, Notion, YouTube, Instagram, TikTok i inne); nazwa domyślna = serwis
+- ✅ **Dysk Google:** „Z Dysku” przy plikach materiału, okno wyboru Google, zakres `drive.file`, bez zapisywania tokenów
+- ✅ **Google Docs:** „Do Google Docs” tworzy dokument ze scenariusza (nagłówki, listy) i dodaje link do materiału
+- ✅ **ChatGPT:** gotowe polecenia przy materiale (hooki, scenariusz, opis z hashtagami, lista ujęć) i pomyśle (rozwinięcie, seria)
+- ✅ **Slack:** webhook podłączany w Ustawieniach (z wiadomością testową), „Na Slacka” na „Dziś” wysyła plan dnia
+- ✅ **Ustawienia:** nazwa i kolor workspace'u, stan integracji, konto
+- ⚙️ Dysk i Docs wymagają klucza API Google i numeru projektu (`docs/KONFIGURACJA.md`) — do tego czasu przyciski są ukryte
+- ➡️ Automatyczne przypomnienia na Slacka (bez klikania) dojdą w Etapie 6 razem z wysyłką z serwera (`pg_cron`)
 
 ## ⏳ Etap 6: Google Calendar, Trello, PWA
 - ⏳ **Import z Google** na żądanie: wybór konta, kalendarzy, okresu i warstwy docelowej; bez duplikatów przy ponownym imporcie

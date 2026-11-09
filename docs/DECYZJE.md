@@ -5,6 +5,23 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-22 · ChatGPT przez gotowe polecenia, bez klucza API
+2026-11-09
+- **Decyzja:** integracja z ChatGPT to linki `chatgpt.com/?q=…` z poleceniem zbudowanym z danych materiału lub pomysłu (oraz kopiowanie polecenia). AI wbudowane w aplikację (własny klucz API, odpowiedź wklejana od razu w scenariusz) zostaje na później.
+- **Dlaczego:** działa od ręki, bez kosztów i bez przechowywania klucza; użytkownik korzysta ze swojego konta ChatGPT.
+
+### D-21 · Dysk i Docs po stronie przeglądarki, zakres drive.file
+2026-11-09
+- **Decyzja:** Google Identity Services wydaje krótkotrwały token w przeglądarce (bez zapisu), Picker wybiera pliki, Drive API tworzy Google Docs z HTML scenariusza. Zakres tylko `drive.file`.
+- **Dlaczego:** spójne z D-05 i D-08 — nic nie przechowujemy, a `drive.file` nie wymaga audytu jak pełny dostęp do Dysku.
+- **Skutek:** potrzebny klucz API (ograniczony do domeny) i numer projektu; bez nich przyciski są ukryte.
+
+### D-20 · Webhook Slacka jako sekret bez odczytu
+2026-11-09
+- **Decyzja:** webhook leży w `workspace_secrets` bez polityki SELECT. Zapis tylko przez funkcję `set_slack_webhook` (właściciel), stan przez `integration_status` (bez ujawniania adresu). Wysyłka z server actions kluczem serwisowym po sprawdzeniu członkostwa.
+- **Dlaczego:** kto zna webhook, może pisać na kanał. Członkowie mają móc wysyłać plan dnia, ale nie poznać adresu.
+- **Skutek:** zmienna `SUPABASE_SECRET_KEY` musi być ustawiona na serwerze produkcyjnym.
+
 ### D-19 · Klient projektu przechodzi na materiał i zadanie
 2026-11-09
 - **Decyzja:** trigger `project_client_check` pilnuje, żeby projekt był z tego samego workspace'u, a materiał lub zadanie bez klienta przejmuje klienta projektu.

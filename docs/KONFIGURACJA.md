@@ -45,6 +45,33 @@ W odpowiedzi `external.google` powinno mieć wartość `true`.
 - Integracje z kalendarzem (Etap 6) używają zakresów „wrażliwych”. Powyżej 100 użytkowników wymagają weryfikacji Google: domeny, polityki prywatności, regulaminu i nagrania demo.
 - Dodaj adres produkcyjny do *JavaScript origins* w Google i do *Redirect URLs* w Supabase.
 
+## Dysk Google i Google Docs (Etap 5)
+
+ContentFlow prosi o dostęp do Dysku dopiero przy pierwszym użyciu („Z Dysku”, „Do Google Docs”), z zakresem `drive.file`: widzi tylko pliki wskazane w oknie Google albo utworzone przez siebie. Tokenów nie zapisujemy.
+
+1. Google Cloud Console → projekt `ContentFlow` → **APIs & Services → Library**: włącz **Google Drive API** i **Google Picker API**.
+2. **APIs & Services → Credentials → Create credentials → API key.** Potem **Edit API key**:
+   - *Application restrictions:* **Websites**, dodaj `http://localhost:3000/*` (na produkcji także `https://<domena>/*`)
+   - *API restrictions:* **Restrict key** → zaznacz **Google Picker API** i **Google Drive API**
+3. Numer projektu: **IAM & Admin → Settings → Project number**.
+4. **Google Auth Platform → Data access → Add or remove scopes:** dodaj `https://www.googleapis.com/auth/drive.file` → **Update** → **Save**.
+5. W `.env.local`:
+   - `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — Client ID z logowania (to samo co w Supabase)
+   - `NEXT_PUBLIC_GOOGLE_API_KEY` — klucz z kroku 2
+   - `NEXT_PUBLIC_GOOGLE_APP_ID` — numer projektu z kroku 3
+6. Uruchom ponownie `npm run dev` (zmienne `NEXT_PUBLIC_*` są wczytywane przy starcie).
+
+Dopóki te trzy zmienne są puste, przyciski Dysku i Docs są ukryte.
+
+## Slack (Etap 5)
+
+Konfiguruje właściciel workspace'u w **Ustawieniach** aplikacji:
+1. [api.slack.com/apps](https://api.slack.com/apps?new_app=1) → **Create New App → From scratch** → wybierz swój Slack.
+2. **Incoming Webhooks** → włącz → **Add New Webhook to Workspace** → wybierz kanał.
+3. Skopiuj adres `https://hooks.slack.com/services/…` i wklej go w Ustawieniach ContentFlow.
+
+Adresu webhooka nie da się odczytać przez API aplikacji (tabela `workspace_secrets` bez polityki SELECT). Wiadomości wysyła serwer kluczem `SUPABASE_SECRET_KEY`, więc ta zmienna musi być ustawiona na serwerze.
+
 ## Uruchomienie lokalne
 
 ```bash

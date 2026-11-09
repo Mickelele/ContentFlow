@@ -4,6 +4,16 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Etap 5: Integracje (2026-11-09)
+
+### Dodano
+- Inteligentne linki: ikona i nazwa serwisu przy plikach materiału i inspiracjach pomysłów.
+- ChatGPT: gotowe polecenia przy materiale (hooki, scenariusz, opis i hashtagi, lista ujęć) i pomyśle (rozwinięcie, seria); otwierają chatgpt.com albo kopiują polecenie.
+- Ustawienia: nazwa i kolor workspace'u, integracje, konto.
+- Slack: podłączenie webhookiem z wiadomością testową, „Wyślij test”, „Odłącz”, przycisk „Na Slacka” z planem dnia na „Dziś”.
+- Dysk Google: „Z Dysku” przy plikach materiału (po skonfigurowaniu klucza API).
+- Google Docs: „Do Google Docs” zamienia scenariusz w dokument i dodaje do niego link (po skonfigurowaniu klucza API).
+
 ## Etap 4: Content, notatki i pomysły (2026-11-09)
 
 ### Dodano

@@ -7,7 +7,8 @@ export const metadata: Metadata = { title: "Dziś" };
 
 export default async function TodayPage({ params }: PageProps<"/w/[slug]/dzis">) {
   const { slug } = await params;
-  const [ws, refs, { profile }] = await Promise.all([getWorkspace(slug), getRefs(), getSession()]);
+  const [ws, refs, { profile, supabase }] = await Promise.all([getWorkspace(slug), getRefs(), getSession()]);
+  const { data: status } = await supabase.rpc("integration_status", { ws: ws.id }).maybeSingle<{ slack_connected: boolean }>();
 
   // Bieżący workspace pierwszy — do niego trafiają zadania z szybkiego dodawania.
   const workspaces = [...refs.workspaces].sort((a, b) => Number(b.id === ws.id) - Number(a.id === ws.id));
@@ -18,6 +19,7 @@ export default async function TodayPage({ params }: PageProps<"/w/[slug]/dzis">)
       clients={refs.clients}
       projects={refs.projects}
       firstName={profile?.full_name?.split(" ")[0] ?? null}
+      slackConnected={Boolean(status?.slack_connected)}
     />
   );
 }

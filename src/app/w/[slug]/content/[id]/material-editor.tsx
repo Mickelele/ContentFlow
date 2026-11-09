@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowLeft, ExternalLink, Link2, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { DrivePickButton, ExportDocButton } from "@/components/google-buttons";
+import { ArrowLeft, Plus, Trash2, X } from "lucide-react";
+import { ChatGptMenu } from "@/components/chatgpt-menu";
+import { LinkRow } from "@/components/link-chip";
+import { defaultLinkName, normalizeUrl } from "@/lib/links";
+import { materialPrompts } from "@/lib/prompts";
 import { RichText, type Editor, type JSONContent } from "@/components/editor/rich-text";
 import { SaveIndicator, useAutosave } from "@/components/editor/use-autosave";
 import { TaskCheckbox } from "@/components/tasks/task-row";
@@ -29,6 +34,7 @@ type Milestone = { id: string; kind: MilestoneKind; due_at: string; done_at: str
 type Publication = { id: string; platform: Platform; publish_at: string; caption: string | null; hashtags: string[]; status: "planned" | "published" | "cancelled" };
 type Shot = { id: string; description: string; done: boolean; position: number };
 type Attachment = { id: string; name: string; url: string };
+type InsertLink = (row: { name: string; url: string; drive_file_id?: string; mime_type?: string }) => Promise<void>;
 
 export type Material = {
   id: string;
@@ -47,6 +53,14 @@ export type Material = {
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
+/** Czysty tekst z dokumentu Tiptap (JSON). */
+function docText(doc: JSONContent | null): string {
+  if (!doc) return "";
+  const own = doc.text ?? "";
+  const inner = (doc.content ?? []).map(docText).join(doc.type === "doc" ? "\n" : " ");
+  return (own + inner).trim();
+}
+
 const toLocalInput = (iso: string) => {
   const d = new Date(iso);
   return `${dateKey(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -90,6 +104,19 @@ export function MaterialEditor({
   };
 
   const clientProjects = projects.filter((p) => !m.client_id || !p.client_id || p.client_id === m.client_id);
+
+  // Aktualny tekst scenariusza i platformy — do poleceń ChatGPT.
+  const scriptText = useRef(docText(material.script));
+  const addLink = useRef<InsertLink | null>(null);
+  const platforms = useRef(material.content_publications.map((p) => p.platform));
+  const prompts = () =>
+    materialPrompts({
+      title: m.title,
+      type: m.type,
+      client: clients.find((c) => c.id === m.client_id)?.name,
+      platforms: [...new Set(platforms.current)],
+      script: scriptText.current,
+    });
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -136,7 +163,8 @@ export function MaterialEditor({
               ))}
             </select>
           ) : null}
-          <Button variant="danger" className="ml-auto h-9 px-3" onClick={remove}>
+          <ChatGptMenu items={prompts} className="ml-auto" />
+          <Button variant="danger" className="h-9 px-3" onClick={remove}>
             <Trash2 className="size-4" aria-hidden="true" />
             {confirmDelete ? "Na pewno usunąć?" : "Usuń"}
           </Button>
@@ -153,13 +181,41 @@ export function MaterialEditor({
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-10">
         <div className="flex min-w-0 flex-col gap-8">
-          <ScriptSection contentId={m.id} initial={m.script} />
+          <ScriptSection
+            contentId={m.id}
+            initial={m.script}
+            onText={(t) => (scriptText.current = t)}
+            exportTitle={`${m.title} — scenariusz`}
+            onError={setError}
+            onExported={async (doc) => {
+              await addLink.current?.({ name: "Scenariusz (Google Docs)", url: doc.url, drive_file_id: doc.id, mime_type: "application/vnd.google-apps.document" });
+            }}
+          />
           <ShotsSection contentId={m.id} initial={m.shots} onError={setError} />
         </div>
         <div className="flex min-w-0 flex-col gap-8">
           <MilestonesSection contentId={m.id} initial={m.content_milestones} onError={setError} />
-          <PublicationsSection contentId={m.id} initial={m.content_publications} onError={setError} />
-          <LinksSection contentId={m.id} workspaceId={m.workspace_id} initial={m.attachments} onError={setError} />
+          <PublicationsSection
+            contentId={m.id}
+            initial={m.content_publications}
+            onError={setError}
+            onPlatforms={(list) => (platforms.current = list)}
+          />
+          <LinksSection
+            contentId={m.id}
+            workspaceId={m.workspace_id}
+            initial={m.attachments}
+            onError={setError}
+            onInsertReady={(fn) => (addLink.current = fn)}
+            extra={(insert) => (
+              <DrivePickButton
+                onError={setError}
+                onPicked={async (files) => {
+                  for (const f of files) await insert({ name: f.name, url: f.url, drive_file_id: f.id, mime_type: f.mimeType });
+                }}
+              />
+            )}
+          />
         </div>
       </div>
     </div>
@@ -224,7 +280,21 @@ function StageStepper({ stage, onChange }: { stage: ContentStage; onChange: (s: 
 
 // ─── Scenariusz ─────────────────────────────────────────────
 
-function ScriptSection({ contentId, initial }: { contentId: string; initial: JSONContent | null }) {
+function ScriptSection({
+  contentId,
+  initial,
+  onText,
+  exportTitle,
+  onExported,
+  onError,
+}: {
+  contentId: string;
+  initial: JSONContent | null;
+  onText: (text: string) => void;
+  exportTitle: string;
+  onExported: (doc: { id: string; url: string }) => Promise<void>;
+  onError: (m: string) => void;
+}) {
   const supabase = useMemo(() => createClient(), []);
   const editorRef = useRef<Editor | null>(null);
   const [empty, setEmpty] = useState(!initial || !(initial.content?.length ?? 0) || JSON.stringify(initial) === JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }));
@@ -242,6 +312,7 @@ function ScriptSection({ contentId, initial }: { contentId: string; initial: JSO
         onReady={(e) => (editorRef.current = e)}
         onChange={(doc, text) => {
           setEmpty(!text.trim());
+          onText(text);
           schedule(doc);
         }}
         toolbarExtra={
@@ -261,7 +332,14 @@ function ScriptSection({ contentId, initial }: { contentId: string; initial: JSO
             >
               Szablon rolki
             </button>
-          ) : null
+          ) : (
+            <ExportDocButton
+              title={exportTitle}
+              getHtml={() => editorRef.current?.getHTML() ?? ""}
+              onCreated={onExported}
+              onError={onError}
+            />
+          )
         }
       />
     </Section>
@@ -398,9 +476,26 @@ function MilestonesSection({ contentId, initial, onError }: { contentId: string;
 
 // ─── Publikacje ─────────────────────────────────────────────
 
-function PublicationsSection({ contentId, initial, onError }: { contentId: string; initial: Publication[]; onError: (m: string) => void }) {
+function PublicationsSection({
+  contentId,
+  initial,
+  onError,
+  onPlatforms,
+}: {
+  contentId: string;
+  initial: Publication[];
+  onError: (m: string) => void;
+  onPlatforms: (list: Platform[]) => void;
+}) {
   const supabase = useMemo(() => createClient(), []);
-  const [items, setItems] = useState([...initial].sort((a, b) => a.publish_at.localeCompare(b.publish_at)));
+  const [items, setItemsState] = useState([...initial].sort((a, b) => a.publish_at.localeCompare(b.publish_at)));
+  // Każda zmiana listy aktualizuje platformy używane w poleceniach ChatGPT.
+  const setItems = (fn: (xs: Publication[]) => Publication[]) =>
+    setItemsState((xs) => {
+      const next = fn(xs);
+      onPlatforms(next.map((p) => p.platform));
+      return next;
+    });
 
   const add = async () => {
     const used = new Set(items.map((p) => p.platform));
@@ -541,62 +636,67 @@ function LinksSection({
   workspaceId,
   initial,
   onError,
+  extra,
+  onInsertReady,
 }: {
   contentId: string;
   workspaceId: string;
   initial: Attachment[];
   onError: (m: string) => void;
+  /** Dodatkowe przyciski w nagłówku sekcji (np. Dysk Google); dostają funkcję dodającą link. */
+  extra?: (insert: InsertLink) => ReactNode;
+  /** Udostępnia funkcję dodawania linku innym sekcjom (np. eksport scenariusza do Docs). */
+  onInsertReady?: (insert: InsertLink) => void;
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [items, setItems] = useState(initial);
   const [url, setUrl] = useState("");
   const [name, setName] = useState("");
 
-  const add = async () => {
-    let u = url.trim();
-    if (!u) return;
-    if (!/^https?:\/\//i.test(u)) u = `https://${u}`;
-    let label = name.trim();
-    if (!label) {
-      try {
-        label = new URL(u).hostname.replace(/^www\./, "");
-      } catch {
-        return onError("To nie wygląda na poprawny link.");
-      }
-    }
+  const insert: InsertLink = async (row) => {
     const { data, error } = await supabase
       .from("attachments")
-      .insert({ workspace_id: workspaceId, entity_type: "content", entity_id: contentId, name: label, url: u })
+      .insert({ workspace_id: workspaceId, entity_type: "content", entity_id: contentId, ...row })
       .select("id, name, url")
       .single();
     if (error || !data) return onError("Nie udało się dodać linku.");
     setItems((xs) => [...xs, data as Attachment]);
+  };
+  useEffect(() => {
+    onInsertReady?.(insert);
+  });
+
+  const add = async () => {
+    const u = normalizeUrl(url);
+    if (!u) return onError("To nie wygląda na poprawny link.");
+    await insert({ name: name.trim() || defaultLinkName(u), url: u });
     setUrl("");
     setName("");
   };
 
   return (
-    <Section title="Pliki i linki">
+    <Section title="Pliki i linki" aside={extra?.(insert)}>
       {items.length > 0 ? (
         <ul className="mb-3 flex flex-col">
           {items.map((a) => (
-            <li key={a.id} className="group flex items-center gap-3 rounded-lg py-1.5">
-              <Link2 className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
-              <a href={a.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-sm underline decoration-line-strong underline-offset-4 hover:decoration-ink">
-                {a.name}
-              </a>
-              <ExternalLink className="size-3.5 shrink-0 text-ink-3" aria-hidden="true" />
-              <button
-                type="button"
-                aria-label={`Usuń link: ${a.name}`}
-                onClick={async () => {
-                  setItems((xs) => xs.filter((x) => x.id !== a.id));
-                  await supabase.from("attachments").delete().eq("id", a.id);
-                }}
-                className="rounded-md p-1.5 text-ink-3 hover:bg-surface-2 hover:text-ink sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-              >
-                <X className="size-4" aria-hidden="true" />
-              </button>
+            <li key={a.id}>
+              <LinkRow
+                url={a.url}
+                name={a.name}
+                trailing={
+                  <button
+                    type="button"
+                    aria-label={`Usuń link: ${a.name}`}
+                    onClick={async () => {
+                      setItems((xs) => xs.filter((x) => x.id !== a.id));
+                      await supabase.from("attachments").delete().eq("id", a.id);
+                    }}
+                    className="rounded-md p-1.5 text-ink-3 hover:bg-surface-2 hover:text-ink sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                  >
+                    <X className="size-4" aria-hidden="true" />
+                  </button>
+                }
+              />
             </li>
           ))}
         </ul>
