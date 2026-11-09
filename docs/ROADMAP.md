@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **6 — Google Calendar, Trello, PWA** (kod gotowy, konfiguracja i testy)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **plan etapów 1–6 zrealizowany** — dalej „Później” (P1/P2)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -84,8 +84,8 @@ Zakończony 2026-11-09 · migracja `20261110120000_integrations.sql`
 - ✅ Produkcja na Vercelu: https://contentflow-pi-ten.vercel.app (2026-11-09), automatyczne wdrażanie z `main`
 - ✅ Logowanie Google i Dysk działają na produkcji
 
-## 🔨 Etap 6: Google Calendar, Trello, PWA
-Kod gotowy 2026-11-09 · migracja `20261110150000_push_sync.sql` · czeka na konfigurację i testy na żywo
+## ✅ Etap 6: Google Calendar, Trello, PWA
+Zakończony 2026-11-09 · migracje `20261110150000_push_sync.sql`, `20261110180000_task_board.sql` · sprawdzone na produkcji: harmonogram, push (Windows, iPhone), przypomnienie z serwera, import i eksport Google, tablica Kanban; import z Trello jeszcze nie przetestowany na prawdziwej tablicy
 
 - ✅ **Import z Google Calendar** na żądanie: wybór konta, kalendarzy, warstwy docelowej (nowa lub istniejąca) i okresu; ponowny import aktualizuje bez duplikatów (`CAL-11`)
 - ✅ **Eksport do Google Calendar** na żądanie: kalendarz docelowy, warstwy, okres; ponowny eksport aktualizuje wysłane wydarzenia; zaimportowane z Google nie wracają
@@ -95,7 +95,7 @@ Kod gotowy 2026-11-09 · migracja `20261110150000_push_sync.sql` · czeka na kon
 - ✅ **Przypomnienia na Slacka** z serwera (opcja workspace'u), jedno na wydarzenie
 - ✅ **Tablica Kanban zadań** (jak w Jirze): Do zrobienia / W trakcie / Ukończone, przeciąganie między kolumnami i w kolumnie, szybkie dodawanie, przełącznik Tablica/Lista
 - ✅ **Synchronizacja na żywo** (Supabase Realtime): kalendarz, „Dziś” i zadania odświeżają się po zmianie na innym urządzeniu
-- ⚙️ Wymaga: migracji, harmonogramu `pg_cron` w Supabase, kluczy VAPID i `CRON_SECRET` w Vercelu, Google Calendar API (`docs/KONFIGURACJA.md`)
+- ✅ Skonfigurowane: `pg_cron` + `pg_net`, klucze VAPID i `CRON_SECRET` w Vercelu, Google Calendar API (`docs/KONFIGURACJA.md`)
 - ➡️ Praca offline z kolejką zmian (`NFR`, spec. 3.3) przeniesiona do „Później”
 
 ---
