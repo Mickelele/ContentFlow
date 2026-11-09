@@ -11,6 +11,7 @@ Skopiuj `.env.example` do `.env.local`. Plik `.env.local` nie trafia do repozyto
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API Keys | przeglądarka i serwer |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | jw. (*Publishable key*) | przeglądarka i serwer |
 | `SUPABASE_SECRET_KEY` | jw. (*Secret key*) | tylko serwer, omija RLS. Nigdy z prefiksem `NEXT_PUBLIC_` |
+| `ANTHROPIC_API_KEY` | [Claude Console](https://platform.claude.com) → API Keys | tylko serwer, Pomocnik AI. Nigdy z prefiksem `NEXT_PUBLIC_` |
 
 ## Supabase
 
@@ -115,6 +116,15 @@ Na iPhonie powiadomienia działają tylko w aplikacji dodanej do ekranu początk
 ## Trello (Etap 6)
 
 Bez konfiguracji. W Trello: menu tablicy → **Drukuj, eksportuj i udostępniaj → Eksportuj jako JSON**, a w ContentFlow: **Zadania → Z Trello** i wskazanie pliku.
+
+## Pomocnik AI (Claude)
+
+1. [Claude Console](https://platform.claude.com) → **Settings → API Keys → Create Key**. Klucz zaczyna się od `sk-ant-api…`.
+2. Wpisz go jako `ANTHROPIC_API_KEY` w `.env.local` oraz w Vercelu (**Settings → Environment Variables**, środowisko *Production*), potem zrób **Redeploy**.
+3. W konsoli ustaw **Limits → Spend limit** (np. kilka dolarów miesięcznie). Model `claude-haiku-5-5` kosztuje $0,10 za milion tokenów wejścia i $0,50 za milion wyjścia; jedno pytanie to zwykle ułamek centa.
+4. Bez klucza przycisk „Pomocnik” działa, ale odpowiada komunikatem o braku konfiguracji.
+
+Klucza nie wklejaj do czatów, issue ani commitów. Jeśli wyciekł, usuń go w konsoli i utwórz nowy.
 
 ## Wdrożenie (Vercel)
 

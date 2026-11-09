@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **7 — tablica materiałów, wersje, akceptacja, podsumowanie** (testy)
+> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **Pomocnik AI** (w trakcie)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -100,13 +100,20 @@ Zakończony 2026-11-09 · migracje `20261110150000_push_sync.sql`, `202611101800
 
 ---
 
-## 🔨 Etap 7: Tablica materiałów, wersje, akceptacja, podsumowanie
-Kod gotowy 2026-11-09 · migracja `20261110200000_content_review.sql`
+## ✅ Etap 7: Tablica materiałów, wersje, akceptacja, podsumowanie
+Zakończony 2026-11-09 · migracja `20261110200000_content_review.sql` · sprawdzone na produkcji: przeciąganie na tablicy materiałów, zapis i podgląd wersji, akceptacja i poprawki przez link klienta (etap, status, dzwonek), podsumowanie z nawigacją tygodni
 
-- 🔨 **Tablica Kanban materiałów** (`CON-11`): 7 kolumn = etapy produkcji, przeciąganie zmienia etap, własna kolejność; przełącznik Tablica/Lista
-- 🔨 **Wersje scenariuszy** (`CON-12`): zapis wersji z nazwą, podgląd, przywracanie (bieżący tekst trafia do historii)
-- 🔨 **Akceptacja przez klienta** (`CON-13`): link bez logowania z migawką scenariusza, publikacjami i plikami; „Akceptuję” / „Proszę o poprawki” z komentarzem; odpowiedź zmienia etap, odhacza termin akceptacji, przychodzi jako push i w dzwonku
-- 🔨 **Podsumowanie** (`DASH-06`, `DASH-07`): tydzień po tygodniu — ukończone zadania (dzień po dniu, porównanie z poprzednim tygodniem), terminy dotrzymane, publikacje, produkcja, czas w kalendarzu, podział na klientów; tekst podsumowania do skopiowania i na Slacka
+- ✅ **Tablica Kanban materiałów** (`CON-11`): 7 kolumn = etapy produkcji, przeciąganie zmienia etap, własna kolejność; przełącznik Tablica/Lista
+- ✅ **Wersje scenariuszy** (`CON-12`): zapis wersji z nazwą, podgląd, przywracanie (bieżący tekst trafia do historii)
+- ✅ **Akceptacja przez klienta** (`CON-13`): link bez logowania z migawką scenariusza, publikacjami i plikami; „Akceptuję” / „Proszę o poprawki” z komentarzem; odpowiedź zmienia etap, odhacza termin akceptacji (jeśli ma datę), przychodzi jako push i w dzwonku
+- ✅ **Podsumowanie** (`DASH-06`, `DASH-07`): tydzień po tygodniu — ukończone zadania (dzień po dniu, porównanie z poprzednim tygodniem), terminy dotrzymane, publikacje, produkcja, czas w kalendarzu, podział na klientów; tekst podsumowania do skopiowania i na Slacka
+
+## 🔨 Pomocnik AI
+Rozpoczęty 2026-11-09
+
+- 🔨 Przewodnik dla użytkowników `docs/PRZEWODNIK.md` — źródło wiedzy Pomocnika
+- 🔨 Czat „Pomocnik” w powłoce aplikacji (Claude Haiku 5.5, odpowiedź strumieniem, kontekst bieżącej strony)
+- ⏳ Klucz `ANTHROPIC_API_KEY` w Vercelu i test na produkcji
 
 ## Później (P1/P2 ze specyfikacji)
 - 💤 Praca offline z kolejką zmian i wskaźnikiem „czeka na synchronizację”

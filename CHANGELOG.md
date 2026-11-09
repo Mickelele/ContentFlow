@@ -5,6 +5,12 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 ## [Nieopublikowane]
 
 ### Dodano
+- Pomocnik: czat z asystentem AI (przycisk „Pomocnik” w panelu bocznym, na telefonie ikona dymku na górnym pasku). Podpowiada krok po kroku, jak coś zrobić w aplikacji, i uwzględnia stronę, na której jesteś.
+- Przewodnik po aplikacji dla użytkowników: `docs/PRZEWODNIK.md`.
+
+## Etap 7: Tablica materiałów, wersje, akceptacja, podsumowanie (2026-11-09)
+
+### Dodano
 - Content: tablica Kanban z kolumnami etapów produkcji, przeciąganiem i własną kolejnością; przełącznik Tablica/Lista.
 - Wersje scenariusza: „Wersje” w edytorze — zapis z nazwą, podgląd, przywracanie.
 - Akceptacja przez klienta: link bez logowania (scenariusz, publikacje, pliki), odpowiedź „Akceptuję” / „Proszę o poprawki”; status w materiale, w dzwonku i jako powiadomienie push.

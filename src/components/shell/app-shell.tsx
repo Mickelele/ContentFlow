@@ -10,6 +10,7 @@ import { cx } from "@/components/ui";
 import { NEW_EVENT } from "@/lib/calendar";
 import { registerServiceWorker } from "@/lib/pwa";
 import type { Workspace } from "@/lib/workspace";
+import { AssistantButton } from "./assistant";
 import { MOBILE_PRIMARY, NAV, SETTINGS, type NavItem } from "./nav";
 import { NotificationsBell, NotificationsProvider } from "./notifications";
 import { ThemeToggle } from "./theme-toggle";
@@ -59,6 +60,7 @@ export function AppShell({
           ))}
         </nav>
         <div className="flex flex-col gap-0.5 border-t border-line px-3 py-3">
+          <AssistantButton variant="side" />
           <SideLink item={SETTINGS} href={`${base}/${SETTINGS.href}`} active={isActive(SETTINGS)} />
           <ThemeToggle />
           <UserRow user={user} />
@@ -70,6 +72,7 @@ export function AppShell({
         <div className="min-w-0 flex-1">
           <WorkspaceSwitcher current={workspace} workspaces={workspaces} compact />
         </div>
+        <AssistantButton variant="icon" />
         <NotificationsBell variant="sheet" />
         <Avatar user={user} />
       </header>

@@ -1,6 +1,6 @@
 # Architektura
 
-> Ostatnia aktualizacja: 2026-11-09 (Etap 6)
+> Ostatnia aktualizacja: 2026-11-09 (Pomocnik AI)
 
 ## Stos
 
@@ -17,6 +17,7 @@
 | Walidacja | zod 4 | w server actions |
 | Backend | Supabase: Postgres, Auth, RLS, Realtime | klient `@supabase/ssr` |
 | Pliki | Google Drive (tylko linki i identyfikatory) | brak własnego storage |
+| AI | `@anthropic-ai/sdk` 1.3.0, model `claude-haiku-5-5` | Pomocnik, zob. D-31 |
 
 ## Struktura katalogów
 
@@ -181,6 +182,12 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - `content/[id]/script-versions.tsx`: migawki dokumentu edytora; przywrócenie = `setContent` + automatyczny zapis.
 - `content/[id]/approval-section.tsx` → `approval_requests`; publiczna strona `app/akceptacja/[token]` (proxy przepuszcza `/akceptacja`), HTML scenariusza z `lib/doc-html.ts` (własny bezpieczny renderer JSON → HTML), odpowiedź w `akceptacja/[token]/actions.ts` (klucz serwisowy, push do autora prośby).
 - `podsumowanie/stats-app.tsx`: zapytania z zakresu tygodnia, agregacja w przeglądarce, wykres słupkowy w HTML (jedna seria, kolor atramentu, wartość po najechaniu/fokusie, opis dla czytników).
+
+## Pomocnik AI
+
+- `components/shell/assistant.tsx`: przycisk (panel boczny / górny pasek na telefonie) i panel czatu (natywny `<dialog>`, z prawej na komputerze, od dołu na telefonie). Historia rozmowy żyje w stanie `AppShell`, wysyłane jest ostatnie 19 wiadomości. Odpowiedź czytana strumieniem (`fetch` + `ReadableStream`), przerwanie przez `AbortController`. Własny minimalny renderer Markdown (akapity, listy, pogrubienia) bez wstawiania HTML.
+- `app/api/pomocnik/route.ts`: sprawdza sesję (`getClaims`), waliduje treść (zod), limit w pamięci, wywołuje `@anthropic-ai/sdk` (`messages.stream`) i przekazuje `text_delta` jako czysty tekst. Błędy API zamienia na polskie komunikaty w strumieniu.
+- `lib/assistant.ts` (server-only): model, instrukcja, wczytanie `docs/PRZEWODNIK.md` i `CHANGELOG.md` z dysku (raz na instancję). Pliki dołącza do funkcji `outputFileTracingIncludes` w `next.config.ts`.
 
 ## Planowane elementy architektury
 

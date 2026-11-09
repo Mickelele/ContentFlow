@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-31 · Pomocnik AI: Claude Haiku 5.5 z przewodnikiem w prompcie
+2026-11-09
+- **Decyzja:** Pomocnik to czat w powłoce aplikacji. Endpoint `/api/pomocnik` (tylko dla zalogowanych) wysyła do `claude-haiku-5-5` prompt systemowy z instrukcją i pełną treścią `docs/PRZEWODNIK.md` + `CHANGELOG.md` (z cache'owaniem promptu), effort `low`, odpowiedź strumieniem tekstu. Bieżąca strona trafia do ostatniego pytania. Pomocnik nie ma dostępu do danych użytkownika ani narzędzi.
+- **Dlaczego:** dokumentacja jest mała (kilka tysięcy tokenów), więc cała mieści się w prompcie i nie potrzeba wyszukiwania (RAG). Haiku wybrał użytkownik: szybki i tani. Bez narzędzi nie ma ryzyka, że AI coś zmieni.
+- **Skutek:** każda zmiana widoczna dla użytkownika wymaga aktualizacji `docs/PRZEWODNIK.md`, inaczej Pomocnik będzie podpowiadał nieaktualnie. Limit 40 pytań na godzinę na osobę i instancję serwera; twardy limit wydatków ustawia się w konsoli Anthropic.
+
 ### D-30 · Statystyki liczone w przeglądarce, tydzień od poniedziałku
 2026-11-09
 - **Decyzja:** podsumowanie pobiera surowe dane tygodnia (zadania, publikacje, terminy, wydarzenia) i liczy w przeglądarce, w jej strefie czasowej. Porównanie zawsze z poprzednim tygodniem.

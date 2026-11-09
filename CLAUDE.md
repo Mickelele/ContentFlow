@@ -14,6 +14,7 @@ Każda zmiana w kodzie idzie razem z aktualizacją dokumentacji, **w tym samym c
 | zmienia się schemat bazy | nowa migracja w `supabase/migrations/` + `docs/MODEL-DANYCH.md` |
 | zmienia się struktura, stos lub wzorzec | `docs/ARCHITEKTURA.md` |
 | zmienia się konfiguracja lub zmienne środowiskowe | `docs/KONFIGURACJA.md` + `.env.example` |
+| zmienia się coś, co użytkownik klika lub widzi | `docs/PRZEWODNIK.md` (z niego korzysta Pomocnik AI) |
 
 Po zamknięciu etapu przenieś wpisy z „Nieopublikowane” w `CHANGELOG.md` pod nagłówek etapu z datą.
 
