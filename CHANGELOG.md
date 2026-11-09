@@ -4,6 +4,8 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Pomocnik AI (2026-11-09)
+
 ### Dodano
 - Pomocnik: czat z asystentem AI (przycisk „Pomocnik” w panelu bocznym, na telefonie ikona dymku na górnym pasku). Podpowiada krok po kroku, jak coś zrobić w aplikacji, i uwzględnia stronę, na której jesteś.
 - Przewodnik po aplikacji dla użytkowników: `docs/PRZEWODNIK.md`.
