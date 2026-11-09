@@ -1,6 +1,8 @@
 # ContentFlow
 
-Kalendarz i planer pracy dla twórców i marketingowców: nagrania, montaże, publikacje, zadania i notatki wszystkich klientów w jednym miejscu. Next.js 16 + Supabase.
+Kalendarz i planer pracy dla twórców i marketingowców: nagrania, montaże, publikacje, zadania i notatki wszystkich klientów w jednym miejscu. Next.js 16 + Supabase, wdrożenie na Vercelu.
+
+Produkcja: https://contentflow-pi-ten.vercel.app
 
 ## Start
 

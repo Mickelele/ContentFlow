@@ -4,6 +4,9 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Dodano
+- Wersja produkcyjna na Vercelu: https://contentflow-pi-ten.vercel.app
+
 ## Etap 5: Integracje (2026-11-09)
 
 ### Dodano

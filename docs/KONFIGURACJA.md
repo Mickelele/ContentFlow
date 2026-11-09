@@ -76,6 +76,24 @@ Konfiguruje właściciel workspace'u w **Ustawieniach** aplikacji:
 
 Adresu webhooka nie da się odczytać przez API aplikacji (tabela `workspace_secrets` bez polityki SELECT). Wiadomości wysyła serwer kluczem `SUPABASE_SECRET_KEY`, więc ta zmienna musi być ustawiona na serwerze.
 
+## Wdrożenie (Vercel)
+
+Produkcja: **https://contentflow-pi-ten.vercel.app** · projekt Vercel połączony z `Mickelele/ContentFlow`, gałąź `main` wdraża się automatycznie po każdym pushu.
+
+1. [vercel.com/new](https://vercel.com/new) → import repozytorium. Ustawienia domyślne (Next.js, `next build`, Node 22).
+2. **Environment Variables:** te same 6 zmiennych co w `.env.local` (`SUPABASE_SECRET_KEY` jako sekret).
+3. **Settings → Functions → Function Region:** region najbliższy bazie Supabase.
+4. Adres produkcyjny dopisać w trzech miejscach (inaczej logowanie i Dysk nie zadziałają):
+
+| Gdzie | Pole | Wartość |
+|---|---|---|
+| Supabase → Authentication → URL Configuration | Site URL | `https://contentflow-pi-ten.vercel.app` |
+| jw. | Redirect URLs | `https://contentflow-pi-ten.vercel.app/auth/callback` (zostaw też `http://localhost:3000/auth/callback`) |
+| Google Cloud → Clients → klient Web | Authorized JavaScript origins | `https://contentflow-pi-ten.vercel.app` |
+| Google Cloud → Credentials → klucz API | Website restrictions | `https://contentflow-pi-ten.vercel.app/*` |
+
+Zmiana zmiennych w Vercelu wymaga ponownego wdrożenia (**Deployments → ⋯ → Redeploy**), bo `NEXT_PUBLIC_*` są wbudowywane w kod podczas builda.
+
 ## Uruchomienie lokalne
 
 ```bash

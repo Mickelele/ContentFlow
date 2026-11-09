@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-23 · Hosting na Vercelu z automatycznym wdrażaniem z main
+2026-11-09
+- **Decyzja:** aplikacja działa na Vercelu (`contentflow-pi-ten.vercel.app`), każdy push na `main` wdraża nową wersję. Lokalna praca i produkcja korzystają z tej samej bazy Supabase.
+- **Dlaczego:** Vercel to natywne środowisko Next.js (proxy, server actions, Cache Components działają bez konfiguracji), a wdrażanie z GitHuba nie wymaga żadnych skryptów.
+- **Skutek:** przed pushem na `main` musi przechodzić `npm run build`. Wspólna baza oznacza, że dane testowe z pracy lokalnej widać na produkcji — przy pierwszych prawdziwych klientach warto założyć osobny projekt Supabase na środowisko deweloperskie.
+
 ### D-22 · ChatGPT przez gotowe polecenia, bez klucza API
 2026-11-09
 - **Decyzja:** integracja z ChatGPT to linki `chatgpt.com/?q=…` z poleceniem zbudowanym z danych materiału lub pomysłu (oraz kopiowanie polecenia). AI wbudowane w aplikację (własny klucz API, odpowiedź wklejana od razu w scenariusz) zostaje na później.

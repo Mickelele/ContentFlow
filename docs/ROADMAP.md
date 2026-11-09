@@ -80,6 +80,10 @@ Zakończony 2026-11-09 · migracja `20261110120000_integrations.sql`
 - ✅ Dysk i Docs skonfigurowane i sprawdzone 2026-11-09 (wybór pliku z Dysku i eksport scenariusza do Google Docs); w trybie Testing tylko dla kont z listy testerów
 - ➡️ Automatyczne przypomnienia na Slacka (bez klikania) dojdą w Etapie 6 razem z wysyłką z serwera (`pg_cron`)
 
+## ✅ Wdrożenie
+- ✅ Produkcja na Vercelu: https://contentflow-pi-ten.vercel.app (2026-11-09), automatyczne wdrażanie z `main`
+- ✅ Logowanie Google i Dysk działają na produkcji
+
 ## ⏳ Etap 6: Google Calendar, Trello, PWA
 - ⏳ **Import z Google** na żądanie: wybór konta, kalendarzy, okresu i warstwy docelowej; bez duplikatów przy ponownym imporcie
 - ⏳ **Eksport do Google** na żądanie: wybór okresu, warstw i kalendarza docelowego; opcjonalnie link Google Meet
