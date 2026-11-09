@@ -20,30 +20,34 @@ function lastTurns(all: Msg[]) {
   return tail[0]?.role === "assistant" ? tail.slice(1) : tail;
 }
 
-/** Przycisk „Pomocnik” + panel czatu. Stan rozmowy żyje, dopóki otwarta jest aplikacja. */
-export function AssistantButton({ variant }: { variant: "side" | "icon" }) {
+/**
+ * Pływający dymek „Pomocnik” w prawym dolnym rogu (jak czat na stronach) + okno czatu.
+ * Okno nie blokuje strony: można czytać odpowiedź i jednocześnie klikać w aplikacji.
+ * Stan rozmowy żyje, dopóki otwarta jest aplikacja.
+ */
+export function AssistantBubble() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      {variant === "side" ? (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink"
-        >
-          <MessageCircleQuestion className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-          Pomocnik
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Pomocnik"
-          className="pressable rounded-full p-2 text-ink-2 active:bg-surface-2"
-        >
-          <MessageCircleQuestion className="size-[22px]" strokeWidth={1.8} aria-hidden="true" />
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label={open ? "Zamknij Pomocnika" : "Pomocnik: zapytaj, jak coś zrobić"}
+        aria-expanded={open}
+        title="Pomocnik"
+        className={cx(
+          "pressable fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 inline-flex size-13 items-center justify-center rounded-full bg-primary text-on-primary shadow-lg shadow-black/25",
+          "transition-[scale,opacity] duration-200 ease-out hover:scale-105 lg:right-6 lg:bottom-6 lg:size-14",
+          // Na telefonie otwarte okno zasłania dymek, więc go chowamy.
+          open && "pointer-events-none scale-90 opacity-0 sm:pointer-events-auto sm:scale-100 sm:opacity-100",
+        )}
+      >
+        {open ? (
+          <X className="size-6" aria-hidden="true" />
+        ) : (
+          <MessageCircleQuestion className="size-6" strokeWidth={2} aria-hidden="true" />
+        )}
+      </button>
       <AssistantPanel open={open} onClose={() => setOpen(false)} />
     </>
   );
@@ -63,7 +67,8 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
     const d = ref.current;
     if (!d) return;
     if (open && !d.open) {
-      d.showModal();
+      // show(), nie showModal(): okno nie blokuje reszty aplikacji.
+      d.show();
       inputRef.current?.focus();
     }
     if (!open && d.open) d.close();
@@ -131,17 +136,24 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
     <dialog
       ref={ref}
       onClose={onClose}
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
+      // Okno niemodalne nie dostaje „cancel”, więc Esc obsługujemy sami.
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          onClose();
+        }
       }}
-      onClick={(e) => e.target === ref.current && onClose()}
       aria-label="Pomocnik"
       className={cx(
-        "bg-surface p-0 text-ink backdrop:bg-black/30",
-        "transition-[translate] duration-300 ease-[var(--ease-drawer)]",
-        "m-0 mt-auto h-[88dvh] max-h-none w-full max-w-none rounded-t-2xl starting:translate-y-full",
-        "sm:mt-0 sm:ml-auto sm:h-dvh sm:w-[420px] sm:rounded-none sm:border-l sm:border-line sm:starting:translate-x-full sm:starting:translate-y-0",
+        "fixed z-50 m-0 overflow-hidden border border-line bg-surface p-0 text-ink shadow-2xl shadow-black/30",
+        "transition-[translate,opacity,scale] duration-300 ease-[var(--ease-drawer)]",
+        // Telefon: arkusz od dołu na większość ekranu.
+        "inset-x-0 top-auto bottom-0 h-[85dvh] max-h-none w-full max-w-none rounded-t-2xl border-b-0 starting:translate-y-full",
+        // Komputer: okienko nad dymkiem, jak czat na stronach.
+        "sm:inset-x-auto sm:right-4 sm:bottom-[calc(8.5rem+env(safe-area-inset-bottom))] sm:h-[min(640px,calc(100dvh-12rem))] sm:w-[400px]",
+        "lg:right-6 lg:bottom-24 lg:h-[min(640px,calc(100dvh-8rem))]",
+        "sm:origin-bottom-right sm:rounded-2xl sm:border-b",
+        "sm:starting:translate-y-2 sm:starting:scale-95 sm:starting:opacity-0",
       )}
     >
       <div className="flex h-full flex-col">

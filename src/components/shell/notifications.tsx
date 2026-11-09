@@ -135,7 +135,7 @@ export function NotificationsProvider({ slugs, children }: { slugs: Record<strin
       {children}
       <div
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-end gap-2 lg:inset-x-auto lg:right-6 lg:bottom-6"
+        className="pointer-events-none fixed inset-x-4 bottom-[calc(9rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-end gap-2 lg:inset-x-auto lg:right-6 lg:bottom-24"
       >
         {toasts.map((t) => (
           <div

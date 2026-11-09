@@ -4,6 +4,12 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Zmieniono
+- Pomocnik to teraz pływający dymek w prawym dolnym rogu, jak czat na stronach. Okno czatu nie blokuje aplikacji.
+
+### Naprawiono
+- Górny pasek na iPhonie (aplikacja na ekranie początkowym): linia paska nie najeżdża już na przyciski pod wycięciem ekranu.
+
 ## Pomocnik AI (2026-11-09)
 
 ### Dodano

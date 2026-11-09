@@ -14,7 +14,7 @@ ContentFlow to planer dla twórców treści, marketerów i agencji. Kalendarz, z
 - **Menu (telefon):** dolny pasek: Dziś, Kalendarz, „+” (szybkie dodawanie: wydarzenie, zadanie, materiał, klient), Content, „Więcej” (pozostałe moduły, Ustawienia, motyw, wylogowanie).
 - **Motyw:** jasny, ciemny lub systemowy. Przełącznik „Motyw” w panelu bocznym albo w „Więcej”.
 - **Kolor = klient, ikona = kategoria.** Każdy klient ma swój kolor, który widać w kalendarzu, zadaniach i materiałach. Rodzaj wpisu (nagranie, montaż, publikacja, spotkanie…) pokazuje ikona.
-- **Pomocnik:** przycisk „Pomocnik” (ikona dymku) otwiera czat z asystentem, który podpowiada, jak coś zrobić w aplikacji.
+- **Pomocnik:** okrągły dymek w prawym dolnym rogu ekranu (na telefonie nad dolnym paskiem) otwiera czat z asystentem, który podpowiada, jak coś zrobić w aplikacji. Okno czatu nie blokuje strony, więc możesz czytać podpowiedź i jednocześnie klikać. Zamykasz je „×” albo klawiszem Esc. „Nowa rozmowa” czyści czat.
 
 ## Dziś (plan dnia)
 

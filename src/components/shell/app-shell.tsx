@@ -10,7 +10,7 @@ import { cx } from "@/components/ui";
 import { NEW_EVENT } from "@/lib/calendar";
 import { registerServiceWorker } from "@/lib/pwa";
 import type { Workspace } from "@/lib/workspace";
-import { AssistantButton } from "./assistant";
+import { AssistantBubble } from "./assistant";
 import { MOBILE_PRIMARY, NAV, SETTINGS, type NavItem } from "./nav";
 import { NotificationsBell, NotificationsProvider } from "./notifications";
 import { ThemeToggle } from "./theme-toggle";
@@ -60,7 +60,6 @@ export function AppShell({
           ))}
         </nav>
         <div className="flex flex-col gap-0.5 border-t border-line px-3 py-3">
-          <AssistantButton variant="side" />
           <SideLink item={SETTINGS} href={`${base}/${SETTINGS.href}`} active={isActive(SETTINGS)} />
           <ThemeToggle />
           <UserRow user={user} />
@@ -68,18 +67,19 @@ export function AppShell({
       </aside>
 
       {/* Telefon: górny pasek */}
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface/95 px-4 pt-[env(safe-area-inset-top)] lg:hidden">
+      {/* Wysokość = 56 px treści + wycięcie ekranu (notch), inaczej na iPhonie przyciski wychodzą poza pasek. */}
+      <header className="sticky top-0 z-30 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center gap-3 border-b border-line bg-surface/95 px-4 pt-[env(safe-area-inset-top)] lg:hidden">
         <div className="min-w-0 flex-1">
           <WorkspaceSwitcher current={workspace} workspaces={workspaces} compact />
         </div>
-        <AssistantButton variant="icon" />
         <NotificationsBell variant="sheet" />
         <Avatar user={user} />
       </header>
 
-      <main className="min-w-0 px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:pt-8 lg:pb-12">{children}</main>
+      <main className="min-w-0 px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:pt-8 lg:pb-24">{children}</main>
 
       <MobileTabBar base={base} isActive={isActive} user={user} />
+      <AssistantBubble />
     </div>
     </NotificationsProvider>
   );

@@ -185,7 +185,7 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 
 ## Pomocnik AI
 
-- `components/shell/assistant.tsx`: przycisk (panel boczny / górny pasek na telefonie) i panel czatu (natywny `<dialog>`, z prawej na komputerze, od dołu na telefonie). Historia rozmowy żyje w stanie `AppShell`, wysyłane jest ostatnie 19 wiadomości. Odpowiedź czytana strumieniem (`fetch` + `ReadableStream`), przerwanie przez `AbortController`. Własny minimalny renderer Markdown (akapity, listy, pogrubienia) bez wstawiania HTML.
+- `components/shell/assistant.tsx`: pływający dymek (`fixed`, prawy dolny róg; na telefonie nad dolnym paskiem) i okno czatu: niemodalny `<dialog>` otwierany `show()`, Esc obsługiwany ręcznie; na komputerze okienko nad dymkiem, na telefonie arkusz od dołu. Dymki powiadomień są przesunięte wyżej, żeby się nie nakładały. Historia rozmowy żyje w stanie `AppShell`, wysyłane jest ostatnie 19 wiadomości. Odpowiedź czytana strumieniem (`fetch` + `ReadableStream`), przerwanie przez `AbortController`. Własny minimalny renderer Markdown (akapity, listy, pogrubienia) bez wstawiania HTML.
 - `app/api/pomocnik/route.ts`: sprawdza sesję (`getClaims`), waliduje treść (zod), limit w pamięci, wywołuje `@anthropic-ai/sdk` (`messages.stream`) i przekazuje `text_delta` jako czysty tekst. Błędy API zamienia na polskie komunikaty w strumieniu.
 - `lib/assistant.ts` (server-only): model, instrukcja, wczytanie `docs/PRZEWODNIK.md` i `CHANGELOG.md` z dysku (raz na instancję). Pliki dołącza do funkcji `outputFileTracingIncludes` w `next.config.ts`.
 
