@@ -4,6 +4,10 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Dodano
+- Publiczne strony „Polityka prywatności” (/polityka-prywatnosci) i „Regulamin” (/regulamin), z linkami na stronie logowania.
+- Strona logowania opisuje aplikację i to, do czego służy konto Google.
+
 ## Wygląd „Planner”, zdjęcia w wydarzeniach (2026-11-10)
 
 ### Dodano

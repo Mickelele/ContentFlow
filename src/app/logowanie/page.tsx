@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { isConfigured } from "@/lib/env";
 import { colorVars, type ClientColor } from "@/lib/palette";
@@ -31,8 +32,22 @@ export default async function LoginPage({ searchParams }: PageProps<"/logowanie"
             </p>
           ) : null}
           <LoginForm next={next} initialError={blad} />
+          {/* Opis dla odwiedzających i weryfikacji Google: czym jest aplikacja i po co jej dane z Google. */}
+          <p className="mt-8 text-sm leading-relaxed text-ink-3">
+            ContentFlow to planer dla twórców treści i agencji: kalendarz, plan dnia, zadania, produkcja materiałów i akceptacja przez klientów. Konto Google
+            służy do logowania, a na Twoje żądanie także do wybierania plików z Dysku, eksportu scenariusza do Google Docs oraz importu i eksportu wydarzeń
+            Kalendarza Google. Szczegóły w <Link href="/polityka-prywatnosci" className="underline underline-offset-4 hover:text-ink">polityce prywatności</Link>.
+          </p>
         </div>
-        <p className="text-sm text-ink-3">ContentFlow · planer dla twórców</p>
+        <footer className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-3">
+          <span>ContentFlow · planer dla twórców</span>
+          <Link href="/polityka-prywatnosci" className="hover:text-ink">
+            Polityka prywatności
+          </Link>
+          <Link href="/regulamin" className="hover:text-ink">
+            Regulamin
+          </Link>
+        </footer>
       </section>
 
       <WeekPreview />

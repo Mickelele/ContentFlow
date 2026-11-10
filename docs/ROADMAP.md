@@ -133,7 +133,7 @@ Zakończony 2026-11-10 · migracja `20261111120000_event_photos.sql` · sprawdzo
 
 ## Później (P1/P2 ze specyfikacji)
 - 💤 Praca offline z kolejką zmian i wskaźnikiem „czeka na synchronizację”
-- 💤 Weryfikacja aplikacji w Google (zakresy kalendarza) i polityka prywatności / regulamin
+- 🔨 Weryfikacja aplikacji w Google (zakresy kalendarza): ✅ polityka prywatności i regulamin (2026-11-10), ⏳ potwierdzenie domeny w Search Console, nagranie demo i wysłanie do weryfikacji
 - 💤 Wydarzenia cykliczne (`CAL-09`), wykrywanie konfliktów (`CAL-12`)
 - 💤 Planer sesji nagraniowych (`REC-01..08`)
 - 💤 Pakiety usług i licznik materiałów (`CLI-08..09`), raporty (`CLI-11`)

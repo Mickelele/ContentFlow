@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-37 · Polityka prywatności i regulamin jako strony w aplikacji
+2026-11-10
+- **Decyzja:** dokumenty są publicznymi, statycznymi stronami aplikacji (`/polityka-prywatnosci`, `/regulamin`) po polsku. Administrator: Michał Czycza, kontakt: michal_czycza@wp.pl. Polityka wymienia każdy zakres Google i jego cel, zawiera oświadczenie o zgodności z Google API Services User Data Policy (Limited Use) oraz listę dostawców (Supabase, Vercel, Google, Anthropic, Trello, Slack, usługi push).
+- **Dlaczego:** Google wymaga publicznych linków do polityki prywatności i warunków korzystania przed publikacją aplikacji i weryfikacją zakresów kalendarza. Trzymanie ich w repozytorium wymusza aktualizację razem z kodem.
+- **Skutek:** każda nowa integracja, zakres Google albo dostawca danych wymaga zmiany polityki (punkty 3 i 5) w tym samym commicie. Teksty nie są poradą prawną; przed szerszym startem warto dać je do przejrzenia prawnikowi.
+
 ### D-36 · Wygląd „Planner”: 3 warianty i 6 kolorów akcentu
 2026-11-10
 - **Decyzja:** wygląd wzorowany na plannerach (Notion „student planner”): nagłówki szeryfowe Fraunces (kursywa w wariantach Delikatny i Ciepły beżowy), pastelowe tła sekcji w kolorze akcentu (`--band`), tytuł strony z pionową kreską akcentu, cytat dnia na „Dziś”. Warianty: Delikatny, Kontrastowy, Ciepły beżowy; akcenty: róż (domyślny), liliowy, szałwia, błękit, brzoskwinia, grafit. Atrybuty `data-style` i `data-accent` na `<html>`, ustawiane skryptem przed pierwszym malowaniem; wybór w Ustawieniach → Wygląd, zapamiętany na urządzeniu (localStorage).

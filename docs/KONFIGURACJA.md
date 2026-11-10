@@ -43,6 +43,18 @@ curl -s "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/settings" -H "apikey: $NEXT_PUBLIC_SU
 W odpowiedzi `external.google` powinno mieć wartość `true`.
 
 ### Przed publicznym startem
+
+**Ekran zgody OAuth (Google Auth Platform → Branding):**
+
+| Pole | Wartość |
+|---|---|
+| Strona główna aplikacji | `https://contentflow-pi-ten.vercel.app/logowanie` |
+| Link do polityki prywatności | `https://contentflow-pi-ten.vercel.app/polityka-prywatnosci` |
+| Link do warunków korzystania | `https://contentflow-pi-ten.vercel.app/regulamin` |
+| Autoryzowane domeny | `contentflow-pi-ten.vercel.app` (potwierdź własność w Google Search Console) |
+
+Treść obu stron jest w `src/app/polityka-prywatnosci/page.tsx` i `src/app/regulamin/page.tsx`, dane administratora i e-mail w `src/lib/legal.ts`. Przy zmianie zakresów Google, dostawców albo integracji zaktualizuj politykę prywatności (punkty 3 i 5) i datę w `LEGAL.updatedAt`.
+
 - Zmień w *Audience* status aplikacji na **In production**. Same podstawowe zakresy nie wymagają weryfikacji.
 - Integracje z kalendarzem (Etap 6) używają zakresów „wrażliwych”. Powyżej 100 użytkowników wymagają weryfikacji Google: domeny, polityki prywatności, regulaminu i nagrania demo.
 - Dodaj adres produkcyjny do *JavaScript origins* w Google i do *Redirect URLs* w Supabase.

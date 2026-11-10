@@ -137,6 +137,10 @@ ContentFlow zastępuje Google Calendar, a synchronizacja działa tylko na żąda
   - **ChatGPT:** nie wymaga konfiguracji. Polecenia otwierają chatgpt.com.
 - **Konto:** dane konta i wylogowanie.
 
+## Polityka prywatności i regulamin
+
+- Polityka prywatności: `/polityka-prywatnosci`, regulamin: `/regulamin`. Linki są na dole strony logowania. Kontakt w sprawie danych i konta: michal_czycza@wp.pl (np. prośba o usunięcie konta).
+
 ## Najczęstsze problemy
 
 - **Nie widzę wydarzeń klienta w kalendarzu:** sprawdź checkbox klienta i workspace'u w panelu warstw oraz filtr kategorii.

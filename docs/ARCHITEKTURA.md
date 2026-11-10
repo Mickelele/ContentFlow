@@ -196,6 +196,10 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - Wygląd (D-36): `globals.css` — warianty `[data-style]` i akcenty `[data-accent]` na `<html>`; tokeny `--accent`, `--accent-strong`, `--band` (Tailwind: `bg-band`, `text-accent`, `border-accent`), zaokrąglenia przez `--radius-lg/xl/2xl`. Nagłówki `h1`, `h2` i `.font-display` w Fraunces (`next/font`, zmienna `--font-fraunces`). `lib/appearance.ts`: stałe, odczyt i zapis w localStorage, skrypt w `<head>` (zastępuje dawny skrypt motywu). Ustawienia → `appearance-card.tsx` (miniatury wariantów: `data-preview` + `data-style` na elemencie).
 - Zdjęcia wydarzeń (D-35): `lib/event-photos.ts` (pomniejszanie w canvasie, wysyłka do Storage, podpisane adresy, usuwanie), `kalendarz/event-photos.tsx` (siatka w edytorze wydarzenia; w nowym wydarzeniu pliki czekają w `EventDraft.photos` i wysyła je `saveDraft` po zapisie).
 
+## Strony publiczne
+
+- `/logowanie` (opis aplikacji i linki), `/polityka-prywatnosci`, `/regulamin` (statyczne, wspólny układ `components/legal-page.tsx`, dane w `lib/legal.ts`), `/akceptacja/[token]`. Proxy przepuszcza je bez sesji (`PUBLIC_PATHS` w `lib/supabase/proxy.ts`).
+
 ## Pomocnik AI
 
 - `components/shell/assistant.tsx`: pływający dymek (`fixed`, prawy dolny róg; na telefonie nad dolnym paskiem) i okno czatu: niemodalny `<dialog>` otwierany `show()`, Esc obsługiwany ręcznie; na komputerze okienko nad dymkiem, na telefonie arkusz od dołu. Dymki powiadomień są przesunięte wyżej, żeby się nie nakładały. Historia rozmowy żyje w stanie `AppShell`, wysyłane jest ostatnie 19 wiadomości. Odpowiedź czytana strumieniem (`fetch` + `ReadableStream`), przerwanie przez `AbortController`. Własny minimalny renderer Markdown (akapity, listy, pogrubienia) bez wstawiania HTML.
