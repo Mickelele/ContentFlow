@@ -287,16 +287,34 @@ function Column({
             onChange={(e) => setTitle(e.target.value)}
             onBlur={() => !title.trim() && setAdding(false)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault();
                 e.currentTarget.form?.requestSubmit();
               }
               if (e.key === "Escape") setAdding(false);
             }}
-            placeholder="Co trzeba zrobić? Enter dodaje"
+            placeholder="Co trzeba zrobić?"
             aria-label={`Nowe zadanie w kolumnie ${label}`}
             className="w-full resize-none rounded-xl border border-line-strong bg-surface p-3 text-sm placeholder:text-ink-3 focus:border-focus focus:outline-none"
           />
+          {/* Widoczny przycisk: na telefonie (np. klawiatura Androida) Enter nie zawsze wysyła formularz. */}
+          <div className="mt-1.5 flex items-center gap-2">
+            <button
+              type="submit"
+              onMouseDown={(e) => e.preventDefault()}
+              className="pressable inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-medium text-on-primary"
+            >
+              Dodaj
+            </button>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => (setTitle(""), setAdding(false))}
+              className="inline-flex h-8 items-center rounded-lg px-2.5 text-sm text-ink-2 hover:bg-surface-3"
+            >
+              Anuluj
+            </button>
+          </div>
         </form>
       ) : (
         <button

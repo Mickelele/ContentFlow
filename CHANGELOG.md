@@ -4,10 +4,15 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Wygląd „Planner”, zdjęcia w wydarzeniach (2026-11-10)
+
 ### Dodano
 - Nowy wygląd w stylu plannera: nagłówki szeryfowe, pastelowe paski sekcji, cytat dnia na „Dziś”. W Ustawieniach → Wygląd do wyboru 3 style (Delikatny, Kontrastowy, Ciepły beżowy) i 6 kolorów.
 - Zdjęcia w wydarzeniach kalendarza: do 12 zdjęć na wydarzenie, także przy tworzeniu nowego; podgląd w pełnym rozmiarze, usuwanie.
 - Checklistę można dodać już w nowym zadaniu, przed zapisaniem.
+
+### Naprawiono
+- Tablica zadań: pod polem nowego zadania w kolumnie jest przycisk „Dodaj” (na telefonie Enter nie zawsze dodawał zadanie).
 
 ### Zmieniono
 - Kalendarz pokazuje tylko wydarzenia bieżącego workspace'u. Inny workspace wybierasz przełącznikiem w panelu bocznym.

@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-10 · Obecny etap: **Wygląd, zdjęcia, poprawki** (w trakcie)
+> Ostatnia aktualizacja: 2026-11-10 · Obecny etap: **Wygląd i zdjęcia zakończone** — następny do ustalenia (polecany: zespół i role)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -122,14 +122,14 @@ Zakończony 2026-11-10 · migracja `20261111090000_trello_sync.sql` · sprawdzon
 - ✅ Ustawienia → Trello: autoryzacja konta, wybór tablicy i list, utworzenie list, odłączenie
 - ✅ Klucz API Trello, migracja na bazie, test na prawdziwej tablicy
 
-## 🔨 Wygląd „Planner”, zdjęcia w wydarzeniach, poprawki
-Rozpoczęty 2026-11-10 · migracja `20261111120000_event_photos.sql`
+## ✅ Wygląd „Planner”, zdjęcia w wydarzeniach, poprawki
+Zakończony 2026-11-10 · migracja `20261111120000_event_photos.sql` · sprawdzone na produkcji: wygląd na „Dziś” i w kalendarzu, zdjęcie w nowym wydarzeniu (zapis, podgląd, usunięcie z plikiem), kalendarz tylko z bieżącego workspace'u, dodawanie do pustej kolumny i checklista w nowym zadaniu
 
-- 🔨 Wygląd w stylu plannera: 3 warianty, 6 kolorów, Ustawienia → Wygląd (D-36)
-- 🔨 Zdjęcia w wydarzeniach kalendarza (D-35)
-- 🔨 Kalendarz tylko z bieżącego workspace'u (D-34)
-- 🔨 Checklista w nowym zadaniu przed zapisem
-- ⏳ Błąd: dodawanie pierwszego zadania do pustej kolumny na tablicy (do odtworzenia)
+- ✅ Wygląd w stylu plannera: 3 warianty, 6 kolorów, Ustawienia → Wygląd (D-36)
+- ✅ Zdjęcia w wydarzeniach kalendarza (D-35)
+- ✅ Kalendarz tylko z bieżącego workspace'u (D-34)
+- ✅ Checklista w nowym zadaniu przed zapisem
+- ✅ Dodawanie do pustej kolumny: na komputerze działa; dodany przycisk „Dodaj” na telefon (Enter na klawiaturze Androida nie zawsze wysyła)
 
 ## Później (P1/P2 ze specyfikacji)
 - 💤 Praca offline z kolejką zmian i wskaźnikiem „czeka na synchronizację”

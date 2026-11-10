@@ -80,7 +80,7 @@ ContentFlow zastępuje Google Calendar, a synchronizacja działa tylko na żąda
 ## Zadania
 
 - **Widoki:** „Tablica” (Kanban jak w Jirze: Do zrobienia, W trakcie, Ukończone) i „Lista” (grupy według terminu, zakładka „Ukończone”).
-- **Dodawanie:** pole szybkiego dodawania na górze. Szczegóły otwierasz kliknięciem zadania.
+- **Dodawanie:** na tablicy „Dodaj zadanie” pod kolumną → wpisz nazwę → „Dodaj” (albo Enter). Zadanie trafia do tej kolumny. Przycisk „Nowe zadanie” u góry otwiera pełny formularz. W widoku listy jest pole szybkiego dodawania na górze. Szczegóły otwierasz kliknięciem zadania.
 - **Szczegóły zadania:** priorytet, status, klient, projekt, termin oddania (z godziną lub bez), „Kiedy to zrobisz”, opis, checklista. Pozycje checklisty możesz dodać już w nowym zadaniu: zapiszą się razem z nim.
 - **Ikona słońca** dodaje zadanie do planu dnia na „Dziś”.
 - **Filtr klienta** na górze.
