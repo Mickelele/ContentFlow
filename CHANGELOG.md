@@ -4,6 +4,8 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+## Trello, szybkość, Pomocnik jako dymek (2026-11-10)
+
 ### Dodano
 - Trello: zadania z ContentFlow automatycznie trafiają na wybraną tablicę Trello (tytuł, opis, termin, checklista; kolumna wyznacza listę). Podłączenie w Ustawieniach → Trello.
 
