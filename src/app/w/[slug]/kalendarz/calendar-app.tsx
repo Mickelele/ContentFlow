@@ -603,10 +603,12 @@ function renderEvent(arg: EventContentArg) {
           {extra}
         </p>
       ) : null}
-      {/* Dzień i tydzień: zdjęcie wypełnia resztę wpisu; w krótkim wpisie po prostu się nie zmieści. */}
+      {/* Dzień i tydzień: całe zdjęcie (bez przycinania) w miejscu pod tytułem; w krótkim wpisie się nie zmieści. */}
       {thumb && !compact ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={thumb} alt="" loading="lazy" decoding="async" className="min-h-0 w-full flex-1 rounded-[4px] object-cover" />
+        <div className="flex min-h-0 flex-1 items-start justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={thumb} alt="" loading="lazy" decoding="async" className="max-h-full max-w-full rounded-[4px] object-contain" />
+        </div>
       ) : null}
     </div>
   );
