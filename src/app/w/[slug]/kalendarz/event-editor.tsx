@@ -6,6 +6,7 @@ import { Bell, Check, Copy, ExternalLink, NotebookPen, Trash2, Video } from "luc
 import type { ProjectRef } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/dialog";
+import { EventPhotos } from "./event-photos";
 import { Button, Field, Input, Textarea, buttonClass, cx, inputClass } from "@/components/ui";
 import {
   CATEGORIES,
@@ -39,6 +40,8 @@ export type EventDraft = {
   reminder?: number | null;
   /** Projekt; undefined = jeszcze nie wczytany (istniejące wydarzenie). */
   projectId?: string | null;
+  /** Zdjęcia wybrane w nowym wydarzeniu — wysyłane po jego zapisaniu. */
+  photos?: File[];
 };
 
 export const REMINDER_OPTIONS: { value: number | null; label: string }[] = [
@@ -408,6 +411,13 @@ export function EventEditor({
           <Field label="Opis" htmlFor="ev-desc">
             <Textarea id="ev-desc" rows={3} value={d.description} onChange={(e) => set("description", e.target.value)} />
           </Field>
+
+          <EventPhotos
+            eventId={d.id}
+            workspaceId={layerInfo?.workspace.id ?? null}
+            pending={d.photos ?? []}
+            onPendingChange={(files) => set("photos", files)}
+          />
 
           {d.id ? (
             <fieldset>

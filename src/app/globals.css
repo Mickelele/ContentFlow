@@ -70,7 +70,122 @@
   --c-brown-solid: oklch(0.66 0.05 60);   --c-brown-fill: oklch(0.3 0.02 60);      --c-brown-ink: oklch(0.89 0.02 60);
 }
 
+/*
+  Wygląd „Planner” (D-36): 3 warianty × 6 kolorów akcentu, w jasnym i ciemnym motywie.
+  <html data-style="soft|contrast|warm" data-accent="rose|lilac|sage|sky|peach|graphite" data-theme="light|dark">
+  Akcent miesza się z bazą wariantu przez color-mix, więc nie trzeba 36 osobnych palet.
+  Kolory klientów (--c-*) zostają bez zmian: kolor nadal oznacza klienta (D-03).
+*/
+:root {
+  --accent: oklch(0.66 0.13 355);
+  --accent-strong: oklch(0.5 0.15 355);
+  --r-lg: 0.5rem;
+  --r-xl: 0.75rem;
+  --r-2xl: 1rem;
+  --display-style: italic;
+  --display-weight: 600;
+  --band: color-mix(in oklch, var(--accent) 22%, white);
+}
+:root[data-accent="rose"] { --accent: oklch(0.68 0.12 355); --accent-strong: oklch(0.5 0.15 355); }
+:root[data-accent="lilac"] { --accent: oklch(0.66 0.11 305); --accent-strong: oklch(0.48 0.14 305); }
+:root[data-accent="sage"] { --accent: oklch(0.66 0.07 150); --accent-strong: oklch(0.45 0.09 152); }
+:root[data-accent="sky"] { --accent: oklch(0.68 0.09 235); --accent-strong: oklch(0.48 0.12 245); }
+:root[data-accent="peach"] { --accent: oklch(0.74 0.11 50); --accent-strong: oklch(0.52 0.13 42); }
+:root[data-accent="graphite"] { --accent: oklch(0.6 0.01 85); --accent-strong: oklch(0.28 0.006 85); }
+
+/* Delikatny: róż w tle, białe karty, duże zaokrąglenia, kursywa w nagłówkach. */
+:root[data-style="soft"]:not([data-theme="dark"]),
+[data-preview][data-style="soft"] {
+  --bg: color-mix(in oklch, var(--accent) 6%, oklch(0.99 0.002 85));
+  --surface: oklch(1 0 0);
+  --surface-2: color-mix(in oklch, var(--accent) 12%, oklch(0.975 0.002 85));
+  --surface-3: color-mix(in oklch, var(--accent) 22%, oklch(0.95 0.003 85));
+  --line: color-mix(in oklch, var(--accent) 16%, oklch(0.91 0.004 85));
+  --line-strong: color-mix(in oklch, var(--accent) 26%, oklch(0.84 0.005 85));
+  --band: color-mix(in oklch, var(--accent) 24%, white);
+  --primary: var(--accent-strong);
+  --on-primary: oklch(0.99 0 0);
+  --focus: var(--accent-strong);
+  --r-lg: 0.5rem; --r-xl: 0.75rem; --r-2xl: 1rem;
+}
+
+/* Kontrastowy: białe tło, czarne przyciski i obramowania, mocny pasek akcentu, ostre rogi. */
+:root[data-style="contrast"]:not([data-theme="dark"]),
+[data-preview][data-style="contrast"] {
+  --bg: oklch(1 0 0);
+  --surface: oklch(1 0 0);
+  --surface-2: color-mix(in oklch, var(--accent) 14%, oklch(0.975 0 0));
+  --surface-3: color-mix(in oklch, var(--accent) 26%, oklch(0.95 0 0));
+  --ink: oklch(0.16 0 0);
+  --ink-2: oklch(0.38 0 0);
+  --ink-3: oklch(0.52 0 0);
+  --line: oklch(0.86 0 0);
+  --line-strong: oklch(0.3 0 0);
+  --band: color-mix(in oklch, var(--accent) 48%, white);
+  --primary: oklch(0.16 0 0);
+  --on-primary: oklch(0.99 0 0);
+  --focus: var(--accent-strong);
+  --r-lg: 0.25rem; --r-xl: 0.375rem; --r-2xl: 0.5rem;
+  --display-style: normal;
+  --display-weight: 700;
+}
+
+/* Ciepły beżowy: papierowe tło, akcent przygaszony beżem, kursywa. */
+:root[data-style="warm"]:not([data-theme="dark"]),
+[data-preview][data-style="warm"] {
+  --bg: oklch(0.965 0.016 80);
+  --surface: oklch(0.988 0.009 80);
+  --surface-2: color-mix(in oklch, var(--accent) 12%, oklch(0.945 0.02 78));
+  --surface-3: color-mix(in oklch, var(--accent) 20%, oklch(0.92 0.022 76));
+  --ink: oklch(0.27 0.02 60);
+  --ink-2: oklch(0.46 0.022 60);
+  --ink-3: oklch(0.58 0.02 65);
+  --line: oklch(0.88 0.02 75);
+  --line-strong: oklch(0.8 0.025 72);
+  --band: color-mix(in oklch, var(--accent) 30%, oklch(0.955 0.02 80));
+  --primary: color-mix(in oklch, var(--accent-strong) 80%, oklch(0.35 0.05 55));
+  --on-primary: oklch(0.985 0.01 80);
+  --focus: var(--accent-strong);
+  --r-lg: 0.375rem; --r-xl: 0.625rem; --r-2xl: 0.875rem;
+}
+
+/* Ciemny motyw: ta sama logika, akcent jaśniejszy. */
+:root[data-theme="dark"] {
+  --accent-strong: color-mix(in oklch, var(--accent) 70%, white);
+  --bg: color-mix(in oklch, var(--accent) 5%, oklch(0.17 0.004 85));
+  --surface: color-mix(in oklch, var(--accent) 5%, oklch(0.205 0.004 85));
+  --surface-2: color-mix(in oklch, var(--accent) 10%, oklch(0.235 0.005 85));
+  --surface-3: color-mix(in oklch, var(--accent) 16%, oklch(0.27 0.005 85));
+  --line: color-mix(in oklch, var(--accent) 10%, oklch(0.29 0.005 85));
+  --line-strong: color-mix(in oklch, var(--accent) 14%, oklch(0.36 0.006 85));
+  --band: color-mix(in oklch, var(--accent) 28%, oklch(0.24 0.005 85));
+  --primary: var(--accent);
+  --on-primary: oklch(0.17 0.004 85);
+  --focus: var(--accent);
+}
+:root[data-theme="dark"][data-style="warm"] {
+  --bg: color-mix(in oklch, var(--accent) 5%, oklch(0.19 0.012 70));
+  --surface: color-mix(in oklch, var(--accent) 5%, oklch(0.225 0.012 70));
+  --ink: oklch(0.94 0.012 80);
+}
+:root[data-theme="dark"][data-style="contrast"] {
+  --bg: oklch(0.13 0 0);
+  --surface: oklch(0.17 0 0);
+  --line-strong: oklch(0.7 0 0);
+  --primary: oklch(0.97 0 0);
+  --band: color-mix(in oklch, var(--accent) 45%, oklch(0.2 0 0));
+}
+:root[data-style="contrast"] { --r-lg: 0.25rem; --r-xl: 0.375rem; --r-2xl: 0.5rem; --display-style: normal; --display-weight: 700; }
+:root[data-style="warm"] { --r-lg: 0.375rem; --r-xl: 0.625rem; --r-2xl: 0.875rem; }
+
 @theme inline {
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-band: var(--band);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-2xl: var(--r-2xl);
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -136,6 +251,19 @@ select {
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Nagłówki w stylu plannera: szeryf (Fraunces), kursywa zależnie od wariantu.
+   W warstwie base, żeby klasy Tailwinda (np. rozmiar) nadal je nadpisywały. */
+@layer base {
+  h1,
+  h2,
+  .font-display {
+    font-family: var(--font-display);
+    font-style: var(--display-style);
+    font-optical-sizing: auto;
+    letter-spacing: -0.005em;
+  }
 }
 
 .pressable {

@@ -5,6 +5,24 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-36 · Wygląd „Planner”: 3 warianty i 6 kolorów akcentu
+2026-11-10
+- **Decyzja:** wygląd wzorowany na plannerach (Notion „student planner”): nagłówki szeryfowe Fraunces (kursywa w wariantach Delikatny i Ciepły beżowy), pastelowe tła sekcji w kolorze akcentu (`--band`), tytuł strony z pionową kreską akcentu, cytat dnia na „Dziś”. Warianty: Delikatny, Kontrastowy, Ciepły beżowy; akcenty: róż (domyślny), liliowy, szałwia, błękit, brzoskwinia, grafit. Atrybuty `data-style` i `data-accent` na `<html>`, ustawiane skryptem przed pierwszym malowaniem; wybór w Ustawieniach → Wygląd, zapamiętany na urządzeniu (localStorage).
+- **Dlaczego:** użytkownik chce wyglądu jak w plannerze z wyborem trzech stylów i kilku kolorów. Akcent mieszany z bazą wariantu przez `color-mix` daje 36 kombinacji (×2 tryby) bez osobnych palet; zaokrąglenia zależą od wariantu przez zmienne `--radius-*` Tailwinda.
+- **Skutek:** kolory klientów (D-03) się nie zmieniają. Akcent jest też kolorem przycisków głównych (w Kontrastowym przyciski są czarne). Nowe komponenty: tło sekcji `bg-band`, akcent `text-accent` / `border-accent`, zamiast stałych kolorów. Wybór nie synchronizuje się między urządzeniami.
+
+### D-35 · Zdjęcia w wydarzeniach: Supabase Storage, pomniejszane w przeglądarce
+2026-11-10
+- **Decyzja:** zdjęcia wydarzeń trafiają do prywatnego koszyka Supabase Storage `event-photos` (ścieżka `<workspace_id>/<event_id>/<uuid>.webp`), wiersze do `event_photos`. Przeglądarka pomniejsza zdjęcie do 1600 px (WebP 0,82) przed wysłaniem; wyświetlanie przez podpisane adresy ważne godzinę. Do 12 zdjęć na wydarzenie.
+- **Dlaczego:** dodawanie zdjęcia ma być jednym kliknięciem z telefonu; przez Dysk Google (D-05) wymagałoby okna wyboru i zgody Google za każdym razem. Pomniejszanie trzyma zdjęcie ~200–400 kB, więc darmowy 1 GB wystarcza na tysiące zdjęć.
+- **Skutek:** pierwszy wyjątek od „pliki tylko na Dysku Google” — dotyczy wyłącznie zdjęć wydarzeń. Usunięcie wydarzenia usuwa też pliki (najpierw wydarzenie, potem pliki z koszyka).
+
+### D-34 · Kalendarz pokazuje tylko bieżący workspace
+2026-11-10
+- **Decyzja:** kalendarz w workspace'ie pokazuje wyłącznie jego warstwy i wpisy. Inny workspace = przełącznik w panelu bocznym. Zastępuje część D-07 o pokazywaniu wszystkich workspace'ów naraz.
+- **Dlaczego:** użytkownicy z kilkoma firmami (np. „Ania Nguyen” i „Poligon4x4”) nie chcą widzieć wydarzeń innej firmy w jej kalendarzu.
+- **Skutek:** `calendar_items` nadal zwraca wpisy ze wszystkich workspace'ów (RLS), ale bez warstwy bieżącego workspace'u są pomijane. Plan dnia na „Dziś” dalej zbiera zadania ze wszystkich workspace'ów (D-09).
+
 ### D-33 · Trello: automatyczna wysyłka zadań w jedną stronę przez kolejkę w bazie
 2026-11-10
 - **Decyzja:** zadania (tytuł, opis, termin, status → lista, checklista) trafiają automatycznie na tablicę Trello wybraną dla workspace'u. Triggery na `tasks` i `checklist_items` dopisują zmianę do `trello_outbox`; serwer opróżnia kolejkę od razu po zmianie (przeglądarka wywołuje `/api/trello/flush` po 2 s) i co minutę w cronie przypomnień. Zmiany w Trello nie wracają. Usunięcie zadania archiwizuje kartę. Token konta Trello w `workspace_secrets`, w nagłówku `Authorization: OAuth`.
@@ -153,7 +171,7 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 - **Skutek:** nie przechowujemy tokenów Google, bo zgoda jest jednorazowa, a token ważny około godziny. Odpada problem 7-dniowych tokenów w trybie testowym. Zaimportowane wydarzenia stają się zwykłymi wydarzeniami ContentFlow w wybranej warstwie. `external_id` chroni przed duplikatami.
 - **Zastępuje:** wcześniejszy pomysł podpinania kont Google na stałe z odczytem na żywo.
 
-### D-07 · Kalendarz jak Google Calendar: warstwy z checkboxami
+### D-07 · Kalendarz jak Google Calendar: warstwy z checkboxami (pokazywanie wszystkich workspace'ów zastąpione przez D-34)
 2026-11-09
 - **Decyzja:** jeden widok kalendarza pokazuje wszystkie workspace'y. W panelu bocznym każdy workspace ma swoje warstwy (klienci, „Zadania”, własne), które włącza się i wyłącza checkboxem.
 - **Dlaczego:** tak użytkownik pracuje dziś w Google Calendar. Konflikty terminów powstają między firmami, więc trzeba je widzieć razem.

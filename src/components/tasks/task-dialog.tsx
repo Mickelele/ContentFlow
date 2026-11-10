@@ -110,8 +110,18 @@ export function TaskDialog({
       ? supabase.from("tasks").update(row).eq("id", id)
       : supabase.from("tasks").insert({ ...row, position: Date.now() % 2147483647 });
     const { data, error } = await q.select("id, workspace_id, client_id, project_id, title, description, status, priority, due_at, due_all_day, planned_on, position, board_position, completed_at").single();
+    if (error || !data) {
+      setBusy(false);
+      return setError("Nie udało się zapisać zadania. Spróbuj ponownie.");
+    }
+    // Nowe zadanie: pozycje checklisty dodane przed zapisem trafiają do bazy razem z nim.
+    if (!id && items.length) {
+      const { error: itemsError } = await supabase
+        .from("checklist_items")
+        .insert(items.map((i, n) => ({ task_id: data.id, label: i.label, done: i.done, position: n })));
+      if (itemsError) setError("Zadanie zapisane, ale checklisty nie udało się zapisać.");
+    }
     setBusy(false);
-    if (error || !data) return setError("Nie udało się zapisać zadania. Spróbuj ponownie.");
     onSaved({ ...data, checklist_total: items.length, checklist_done: items.filter((i) => i.done).length } as Task);
   };
 
@@ -128,8 +138,13 @@ export function TaskDialog({
   // ── Checklista (od razu w bazie) ──
   const addItem = async () => {
     const label = newItem.trim();
-    if (!label || !id) return;
+    if (!label) return;
     setNewItem("");
+    // Zadanie jeszcze niezapisane: pozycja czeka lokalnie i zapisze się razem z zadaniem.
+    if (!id) {
+      setItems((xs) => [...xs, { id: `local-${crypto.randomUUID()}`, task_id: "", label, done: false, position: xs.length }]);
+      return;
+    }
     const { data, error } = await supabase
       .from("checklist_items")
       .insert({ task_id: id, label, position: items.length })
@@ -140,11 +155,11 @@ export function TaskDialog({
   };
   const toggleItem = async (item: ChecklistItem) => {
     setItems((xs) => xs.map((x) => (x.id === item.id ? { ...x, done: !x.done } : x)));
-    await supabase.from("checklist_items").update({ done: !item.done }).eq("id", item.id);
+    if (id) await supabase.from("checklist_items").update({ done: !item.done }).eq("id", item.id);
   };
   const deleteItem = async (item: ChecklistItem) => {
     setItems((xs) => xs.filter((x) => x.id !== item.id));
-    await supabase.from("checklist_items").delete().eq("id", item.id);
+    if (id) await supabase.from("checklist_items").delete().eq("id", item.id);
   };
 
   const today = todayKey();
@@ -323,44 +338,38 @@ export function TaskDialog({
               </span>
             ) : null}
           </h3>
-          {id ? (
-            <>
-              <ul className="mt-2 flex flex-col">
-                {items.map((item) => (
-                  <li key={item.id} className="group flex min-h-10 items-center gap-3 rounded-lg px-1 hover:bg-surface-2">
-                    <TaskCheckbox done={item.done} onToggle={() => toggleItem(item)} label={item.label} />
-                    <span className={cx("min-w-0 flex-1 text-sm", item.done && "text-ink-3 line-through")}>{item.label}</span>
-                    <button
-                      type="button"
-                      onClick={() => deleteItem(item)}
-                      aria-label={`Usuń: ${item.label}`}
-                      className="rounded-md p-1.5 text-ink-3 opacity-100 hover:bg-surface-3 hover:text-ink sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-                    >
-                      <X className="size-4" aria-hidden="true" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-1 flex items-center gap-2">
-                <Plus className="ml-1.5 size-4 shrink-0 text-ink-3" aria-hidden="true" />
-                <input
-                  value={newItem}
-                  onChange={(e) => setNewItem(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addItem();
-                    }
-                  }}
-                  placeholder="Dodaj pozycję i naciśnij Enter"
-                  aria-label="Nowa pozycja checklisty"
-                  className="h-10 min-w-0 flex-1 bg-transparent text-sm placeholder:text-ink-3 focus:outline-none"
-                />
-              </div>
-            </>
-          ) : (
-            <p className="mt-1 text-sm text-ink-3">Zapisz zadanie, żeby dodać checklistę.</p>
-          )}
+          <ul className="mt-2 flex flex-col">
+            {items.map((item) => (
+              <li key={item.id} className="group flex min-h-10 items-center gap-3 rounded-lg px-1 hover:bg-surface-2">
+                <TaskCheckbox done={item.done} onToggle={() => toggleItem(item)} label={item.label} />
+                <span className={cx("min-w-0 flex-1 text-sm", item.done && "text-ink-3 line-through")}>{item.label}</span>
+                <button
+                  type="button"
+                  onClick={() => deleteItem(item)}
+                  aria-label={`Usuń: ${item.label}`}
+                  className="rounded-md p-1.5 text-ink-3 opacity-100 hover:bg-surface-3 hover:text-ink sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                >
+                  <X className="size-4" aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-1 flex items-center gap-2">
+            <Plus className="ml-1.5 size-4 shrink-0 text-ink-3" aria-hidden="true" />
+            <input
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addItem();
+                }
+              }}
+              placeholder="Dodaj pozycję i naciśnij Enter"
+              aria-label="Nowa pozycja checklisty"
+              className="h-10 min-w-0 flex-1 bg-transparent text-sm placeholder:text-ink-3 focus:outline-none"
+            />
+          </div>
         </section>
 
         {error ? (

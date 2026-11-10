@@ -1,10 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Fraunces, Geist } from "next/font/google";
+import { DEFAULT_ACCENT, DEFAULT_STYLE, appearanceScript } from "@/lib/appearance";
 import "./globals.css";
 
 const geist = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin", "latin-ext"],
+});
+
+// Nagłówki w stylu plannera (szeryf z kursywą), zob. D-36.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin", "latin-ext"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -26,14 +35,19 @@ export const viewport: Viewport = {
   ],
 };
 
-// Ustawia motyw przed pierwszym malowaniem, żeby nie mignął jasny ekran.
-const themeScript = `(function(){try{var t=localStorage.getItem('cf-theme');var d=t==='dark'||((!t||t==='system')&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}})()`;
+// Motyw, wariant i akcent ustawiamy przed pierwszym malowaniem, żeby nic nie mignęło.
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pl" className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
+    <html
+      lang="pl"
+      className={`${geist.variable} ${fraunces.variable} h-full antialiased`}
+      data-style={DEFAULT_STYLE}
+      data-accent={DEFAULT_ACCENT}
+      suppressHydrationWarning
+    >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: appearanceScript }} />
       </head>
       <body className="min-h-full font-sans">{children}</body>
     </html>

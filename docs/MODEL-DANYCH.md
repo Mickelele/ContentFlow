@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`, `20261110200000_content_review`, `20261111090000_trello_sync`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`, `20261110200000_content_review`, `20261111090000_trello_sync`, `20261111120000_event_photos`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -33,6 +33,7 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `notes` | Notatka | `client_id`, `project_id`, `event_id` (notatka ze spotkania), `title`, `body` (jsonb, Tiptap), `body_text` (do wyszukiwania), `pinned` |
 | `ideas` | Pomysł | `client_id`, `title`, `description`, `link`, `type`, `tags` (text[]), `status` (`new`/`converted`/`archived`), `content_id` |
 | `workspace_secrets` | Sekrety integracji (bez odczytu przez API, D-20) | `workspace_id`, `slack_webhook_url`, `slack_channel`, `slack_reminders`, `trello_token`, `trello_member`, `trello_board_id`, `trello_board_name`, `trello_lists` (jsonb: `todo`, `in_progress`, `done` → id listy), `trello_sync` |
+| `event_photos` | Zdjęcie wydarzenia (D-35) | `event_id` (kaskada), `path` (unikalna, `<workspace_id>/<event_id>/<plik>.webp` w koszyku Storage `event-photos`), `width`, `height`, `position`, `created_by` |
 | `trello_outbox` | Kolejka zmian zadań do wysłania do Trello (tylko serwer, RLS bez polityk) | `task_id` (PK, bez FK), `workspace_id`, `op` (`upsert` / `archive`), `card_id`, `attempts`, `last_error`, `queued_at` |
 | `push_subscriptions` | Urządzenie z włączonymi powiadomieniami (per osoba) | `user_id`, `endpoint` (unikalny), `p256dh`, `auth`, `user_agent` |
 | `event_exports` | Wydarzenie wysłane do Google Calendar | `event_id`, `google_calendar_id`, `google_event_id` (unikalne `event_id + google_calendar_id`) |
@@ -77,11 +78,14 @@ content    1─n attachments           (entity_type = 'content')
 | `events_move_reminders` | przesunięcie wydarzenia | przelicza przypomnienia wszystkich osób (SECURITY DEFINER) |
 | `tasks_trello_queue` | nowe / zmienione (tytuł, opis, status, termin) / usunięte zadanie główne | gdy workspace ma włączone Trello (`trello_enabled`), dopisuje zadanie do `trello_outbox` (`archive` przy usunięciu) |
 | `checklist_trello_queue` | zmiana checklisty | dopisuje zadanie do `trello_outbox` |
+| `event_photos_from_event` | nowe zdjęcie | `workspace_id` z wydarzenia; ścieżka musi zaczynać się od `<workspace_id>/<event_id>/` |
 
 ## Funkcje do odczytu
 
 ### `calendar_items(p_from, p_to)`
-Wszystko, co ma datę w podanym zakresie, ze wszystkich workspace'ów użytkownika (`security invoker`, więc filtruje RLS).
+Wszystko, co ma datę w podanym zakresie, ze wszystkich workspace'ów użytkownika (`security invoker`, więc filtruje RLS). Kalendarz pokazuje z tego tylko wpisy z warstw bieżącego workspace'u (D-34).
+
+Storage: koszyk `event-photos` (prywatny, do 5 MB, obrazy); polityki na `storage.objects` sprawdzają `is_member` po pierwszym członie ścieżki.
 
 | `source_type` | Źródło | Warstwa | Czas |
 |---|---|---|---|

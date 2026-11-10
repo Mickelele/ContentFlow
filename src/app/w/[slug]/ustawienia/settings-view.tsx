@@ -3,10 +3,10 @@
 import { useState, useTransition, type ReactNode } from "react";
 import { Bot, Check, HardDrive, Hash, LogOut, SquareKanban } from "lucide-react";
 import { signOut } from "@/app/logowanie/actions";
-import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button, Field, Input, cx } from "@/components/ui";
 import { CLIENT_COLORS, colorVars, type ClientColor } from "@/lib/palette";
 import { removeSlackAction, saveSlackAction, setSlackRemindersAction, testSlackAction, updateWorkspaceAction, type Result } from "./actions";
+import { AppearanceCard } from "./appearance-card";
 import { DeviceCard } from "./device-card";
 import { TrelloSection, type TrelloState } from "./trello-card";
 
@@ -65,6 +65,7 @@ export function SettingsView({
   return (
     <div className="flex flex-col gap-6">
       <WorkspaceCard workspace={workspace} />
+      <AppearanceCard />
       <DeviceCard />
 
       <h2 className="mt-4 text-lg font-semibold">Integracje</h2>
@@ -116,9 +117,6 @@ export function SettingsView({
       <h2 className="mt-4 text-lg font-semibold">Konto</h2>
       <Card title={account.name ?? account.email} description={account.email}>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="rounded-lg border border-line-strong">
-            <ThemeToggle />
-          </div>
           <form action={signOut}>
             <Button type="submit" variant="secondary">
               <LogOut className="size-4" aria-hidden="true" />

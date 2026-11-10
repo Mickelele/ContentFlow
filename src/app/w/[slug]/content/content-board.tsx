@@ -165,7 +165,7 @@ function Column({
       aria-label={label}
       className={cx("flex w-[78vw] max-w-72 shrink-0 snap-start flex-col rounded-2xl bg-surface-2 p-2.5 transition-colors sm:w-64", isOver && "bg-surface-3")}
     >
-      <header className="flex items-baseline gap-2 px-1.5 pt-1 pb-2.5">
+      <header className="mb-2.5 flex items-baseline gap-2 rounded-lg bg-band px-2.5 py-1.5">
         <h2 className="text-sm font-semibold">{label}</h2>
         <span className="tabular text-sm text-ink-3">{ids.length}</span>
       </header>

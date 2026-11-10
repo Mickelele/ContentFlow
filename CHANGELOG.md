@@ -4,6 +4,14 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Dodano
+- Nowy wygląd w stylu plannera: nagłówki szeryfowe, pastelowe paski sekcji, cytat dnia na „Dziś”. W Ustawieniach → Wygląd do wyboru 3 style (Delikatny, Kontrastowy, Ciepły beżowy) i 6 kolorów.
+- Zdjęcia w wydarzeniach kalendarza: do 12 zdjęć na wydarzenie, także przy tworzeniu nowego; podgląd w pełnym rozmiarze, usuwanie.
+- Checklistę można dodać już w nowym zadaniu, przed zapisaniem.
+
+### Zmieniono
+- Kalendarz pokazuje tylko wydarzenia bieżącego workspace'u. Inny workspace wybierasz przełącznikiem w panelu bocznym.
+
 ## Trello, szybkość, Pomocnik jako dymek (2026-11-10)
 
 ### Dodano

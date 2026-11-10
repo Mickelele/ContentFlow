@@ -12,7 +12,7 @@ ContentFlow to planer dla twórców treści, marketerów i agencji. Kalendarz, z
 - **Workspace** to osobna przestrzeń, np. jedna na firmę albo na klienta. Na jednym koncie może być ich wiele. Przełączasz je przyciskiem z nazwą workspace'u na górze panelu bocznego (na telefonie na górnym pasku). Tam też tworzysz nowy workspace.
 - **Menu (komputer):** panel boczny po lewej: Dziś, Kalendarz, Content, Zadania, Klienci, Projekty, Notatki i pomysły, Podsumowanie. Na dole są Ustawienia, motyw i wylogowanie.
 - **Menu (telefon):** dolny pasek: Dziś, Kalendarz, „+” (szybkie dodawanie: wydarzenie, zadanie, materiał, klient), Content, „Więcej” (pozostałe moduły, Ustawienia, motyw, wylogowanie).
-- **Motyw:** jasny, ciemny lub systemowy. Przełącznik „Motyw” w panelu bocznym albo w „Więcej”.
+- **Wygląd:** Ustawienia → „Wygląd”: styl (Delikatny, Kontrastowy, Ciepły beżowy), kolor (róż, liliowy, szałwia, błękit, brzoskwinia, grafit) i tryb (jasny, ciemny, systemowy). Wybór zapamiętuje się na danym urządzeniu. Tryb przełączysz też przyciskiem „Motyw” w panelu bocznym albo w „Więcej”.
 - **Kolor = klient, ikona = kategoria.** Każdy klient ma swój kolor, który widać w kalendarzu, zadaniach i materiałach. Rodzaj wpisu (nagranie, montaż, publikacja, spotkanie…) pokazuje ikona.
 - **Pomocnik:** okrągły dymek w prawym dolnym rogu ekranu (na telefonie nad dolnym paskiem) otwiera czat z asystentem, który podpowiada, jak coś zrobić w aplikacji. Okno czatu nie blokuje strony, więc możesz czytać podpowiedź i jednocześnie klikać. Zamykasz je „×” albo klawiszem Esc. „Nowa rozmowa” czyści czat.
 
@@ -34,7 +34,9 @@ ContentFlow to planer dla twórców treści, marketerów i agencji. Kalendarz, z
 - **Linki do spotkań** (Google Meet, Zoom, Teams): przyciski „Dołącz” i „Kopiuj link”. We wpisie pojawia się ikona kamery.
 - **„Kopiuj szczegóły”** kopiuje gotowy tekst z datą, godziną i linkiem, do wysłania klientowi.
 - **„Notatka”** w wydarzeniu zakłada notatkę ze spotkania albo otwiera istniejącą.
-- **Warstwy** (panel po lewej, jak w Google Calendar): checkboxy dla każdego workspace'u, klientów, „Zadania” i własnych warstw. Własną warstwę (np. „Urlopy”) dodajesz z wyborem koloru. Widoczność zapamiętuje się na koncie.
+- **Zdjęcia:** w edytorze wydarzenia sekcja „Zdjęcia” → „Dodaj” (można zaznaczyć kilka naraz, do 12). W nowym wydarzeniu zdjęcia zapiszą się razem z nim. Kliknięcie miniatury otwiera zdjęcie w pełnym rozmiarze, „×” je usuwa. Zdjęcia widzą tylko osoby z tego workspace'u.
+- **Tylko bieżący workspace:** kalendarz pokazuje wydarzenia, zadania i publikacje workspace'u, w którym jesteś. Kalendarz innej firmy zobaczysz po przełączeniu workspace'u (przycisk z nazwą na górze panelu bocznego).
+- **Warstwy** (panel po lewej, jak w Google Calendar): checkboxy dla klientów, „Zadania” i własnych warstw tego workspace'u. Własną warstwę (np. „Urlopy”) dodajesz z wyborem koloru. Widoczność zapamiętuje się na koncie.
 - **Filtr kategorii:** pokaż tylko wybrane rodzaje wpisów.
 - W kalendarzu widać też terminy zadań, terminy produkcji i publikacje materiałów. Kliknięcie prowadzi do zadania albo materiału.
 - **Przypomnienia:** w edytorze wydarzenia wybierz czas przypomnienia (np. 10 minut wcześniej). Przypomnienie przesuwa się razem z wydarzeniem. Przychodzi w dzwonku, a jako powiadomienie push na urządzenia włączone w Ustawieniach.
@@ -79,7 +81,7 @@ ContentFlow zastępuje Google Calendar, a synchronizacja działa tylko na żąda
 
 - **Widoki:** „Tablica” (Kanban jak w Jirze: Do zrobienia, W trakcie, Ukończone) i „Lista” (grupy według terminu, zakładka „Ukończone”).
 - **Dodawanie:** pole szybkiego dodawania na górze. Szczegóły otwierasz kliknięciem zadania.
-- **Szczegóły zadania:** priorytet, status, klient, projekt, termin oddania (z godziną lub bez), „Kiedy to zrobisz”, opis, checklista.
+- **Szczegóły zadania:** priorytet, status, klient, projekt, termin oddania (z godziną lub bez), „Kiedy to zrobisz”, opis, checklista. Pozycje checklisty możesz dodać już w nowym zadaniu: zapiszą się razem z nim.
 - **Ikona słońca** dodaje zadanie do planu dnia na „Dziś”.
 - **Filtr klienta** na górze.
 - **„Z Trello”:** import tablicy z pliku JSON wyeksportowanego z Trello (Menu tablicy → Drukuj, eksportuj i udostępniaj → Eksportuj jako JSON). Przenosi karty, listy kontrolne i terminy.

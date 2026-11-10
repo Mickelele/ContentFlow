@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Layer, WorkspaceLayers } from "@/lib/calendar";
 import type { ClientColor } from "@/lib/palette";
 import { getRefs } from "@/lib/refs";
-import { getSession, getWorkspace, getWorkspaces } from "@/lib/workspace";
+import { getSession, getWorkspace } from "@/lib/workspace";
 import { CalendarLoader } from "./calendar-loader";
 
 export const metadata: Metadata = { title: "Kalendarz" };
@@ -23,21 +23,22 @@ const KIND_ORDER: Record<Layer["kind"], number> = { client: 0, custom: 1, google
 
 export default async function CalendarPage({ params }: PageProps<"/w/[slug]/kalendarz">) {
   const { slug } = await params;
-  const [current, workspaces, { supabase, user }] = await Promise.all([getWorkspace(slug), getWorkspaces(), getSession()]);
+  const [current, { supabase, user }] = await Promise.all([getWorkspace(slug), getSession()]);
 
   const [{ data: calendars }, { data: visibility }] = await Promise.all([
     supabase
       .from("calendars")
       .select("id, workspace_id, kind, name, color, position, client_id, google_calendar_id, clients(archived_at)")
-      .in("workspace_id", workspaces.map((w) => w.id)),
+      .eq("workspace_id", current.id),
     supabase.from("calendar_visibility").select("calendar_id, visible").eq("user_id", user.id),
   ]);
 
   const hidden = new Set((visibility ?? []).filter((v) => !v.visible).map((v) => v.calendar_id));
   const rows = ((calendars ?? []) as unknown as CalendarRow[]).filter((c) => !c.clients?.archived_at);
 
-  // Bieżący workspace na górze, potem pozostałe w kolejności dołączenia.
-  const ordered = [current, ...workspaces.filter((w) => w.id !== current.id)];
+  // Tylko bieżący workspace (D-34): wpisy z innych workspace'ów nie mają tu warstw, więc kalendarz ich nie pokaże.
+  // Inny workspace = przełącznik na górze panelu.
+  const ordered = [current];
   const groups: WorkspaceLayers[] = ordered.map((w) => ({
     id: w.id,
     name: w.name,

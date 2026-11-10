@@ -34,7 +34,7 @@ src/
       layout.tsx            powłoka (AppShell)
       page.tsx              zapamiętuje workspace jako ostatni → /dzis
       kalendarz/
-        page.tsx            serwer: warstwy wszystkich workspace'ów + widoczność
+        page.tsx            serwer: warstwy bieżącego workspace'u + widoczność (D-34)
         calendar-loader.tsx ładuje kalendarz tylko w przeglądarce
         calendar-app.tsx    FullCalendar, pobieranie zakresu, przeciąganie, zapis
         layers-panel.tsx    warstwy z checkboxami, nowa warstwa, filtry kategorii
@@ -108,7 +108,7 @@ Logowanie Google prosi tylko o `openid email profile`. Dostęp do kalendarza czy
 - Użytkownik należy do wielu workspace'ów (`workspace_members`). Jeden workspace = jedna firma.
 - Każda tabela z danymi ma `workspace_id`. Polityki RLS sprawdzają członkostwo funkcją `is_member(workspace_id)` (SECURITY DEFINER, żeby uniknąć rekurencji polityk).
 - Adresy mają postać `/w/<slug>/<moduł>`. `getWorkspace(slug)` zwraca 404, jeśli użytkownik nie jest członkiem.
-- Moduły (klienci, content, zadania…) działają w obrębie jednego workspace'u. Kalendarz i „Dziś” będą pokazywać wszystkie workspace'y naraz.
+- Moduły (klienci, content, zadania…) działają w obrębie jednego workspace'u. Kalendarz pokazuje tylko bieżący workspace (D-34); plan dnia na „Dziś” zbiera zadania ze wszystkich.
 
 ## Next.js 16: rzeczy, o których trzeba pamiętać
 
@@ -190,6 +190,11 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - `lib/trello.ts` (server-only): wywołania API (`Authorization: OAuth …`), `flushTrelloOutbox(workspaceIds | null)`: karta = tytuł, opis, termin, `dueComplete`, lista wg statusu; checklista „Checklista” odtwarzana, gdy się różni. Błędy wracają do kolejki (do 5 prób, bez ponawiania przy 401).
 - Opróżnianie: `components/shell/trello-auto-sync.tsx` (Realtime na `tasks` i `checklist_items` → `POST /api/trello/flush` po 2 s, tylko workspace'y zalogowanej osoby) oraz `/api/cron/reminders` co minutę (wszystkie).
 - Ustawienia: `ustawienia/trello-card.tsx` + akcje w `ustawienia/actions.ts` (autoryzacja Trello z powrotem przez `#token=` w adresie, wybór tablicy i list, opcjonalne utworzenie list, odłączenie).
+
+## Wygląd i zdjęcia (2026-11-10)
+
+- Wygląd (D-36): `globals.css` — warianty `[data-style]` i akcenty `[data-accent]` na `<html>`; tokeny `--accent`, `--accent-strong`, `--band` (Tailwind: `bg-band`, `text-accent`, `border-accent`), zaokrąglenia przez `--radius-lg/xl/2xl`. Nagłówki `h1`, `h2` i `.font-display` w Fraunces (`next/font`, zmienna `--font-fraunces`). `lib/appearance.ts`: stałe, odczyt i zapis w localStorage, skrypt w `<head>` (zastępuje dawny skrypt motywu). Ustawienia → `appearance-card.tsx` (miniatury wariantów: `data-preview` + `data-style` na elemencie).
+- Zdjęcia wydarzeń (D-35): `lib/event-photos.ts` (pomniejszanie w canvasie, wysyłka do Storage, podpisane adresy, usuwanie), `kalendarz/event-photos.tsx` (siatka w edytorze wydarzenia; w nowym wydarzeniu pliki czekają w `EventDraft.photos` i wysyła je `saveDraft` po zapisie).
 
 ## Pomocnik AI
 

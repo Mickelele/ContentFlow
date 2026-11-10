@@ -11,6 +11,7 @@ import type { DateClickArg, EventResizeDoneArg } from "@fullcalendar/interaction
 import { ChevronLeft, ChevronRight, Layers, Plus, Video } from "lucide-react";
 import { Dialog } from "@/components/dialog";
 import { Button, cx } from "@/components/ui";
+import { eventPhotoPaths, removePhotoFiles, uploadEventPhotos } from "@/lib/event-photos";
 import { createClient } from "@/lib/supabase/client";
 import { useRealtime } from "@/lib/use-realtime";
 import {
@@ -346,6 +347,13 @@ export function CalendarApp({
       : await supabase.from("events").insert(row).select("id").single();
     if (error || !saved) return "Nie udało się zapisać wydarzenia. Spróbuj ponownie.";
 
+    // Zdjęcia wybrane w nowym wydarzeniu (istniejące wysyłają je od razu).
+    if (!d.id && d.photos?.length) {
+      const ws = groups.find((g) => g.layers.some((l) => l.id === d.calendarId))?.id;
+      const failed = ws ? await uploadEventPhotos(supabase, ws, saved.id, d.photos) : d.photos.length;
+      if (failed) setError(`Wydarzenie zapisane, ale ${failed === d.photos.length ? "zdjęć" : `${failed} zdjęć`} nie udało się dodać.`);
+    }
+
     // Przypomnienie (własne dla zalogowanej osoby): czas liczy trigger z offsetu.
     if (d.reminder !== undefined) {
       await supabase.from("reminders").delete().eq("event_id", saved.id);
@@ -364,7 +372,10 @@ export function CalendarApp({
   };
 
   const deleteEvent = async (id: string) => {
+    // Wiersze event_photos usunie kaskada, a pliki z koszyka usuwamy sami — dopiero po udanym usunięciu wydarzenia.
+    const photoPaths = await eventPhotoPaths(supabase, id);
     const { error } = await supabase.from("events").delete().eq("id", id);
+    if (!error) await removePhotoFiles(supabase, photoPaths);
     if (error) return "Nie udało się usunąć wydarzenia.";
     setDraft(null);
     setItems((xs) => xs.filter((x) => !(x.source_type === "event" && x.source_id === id)));

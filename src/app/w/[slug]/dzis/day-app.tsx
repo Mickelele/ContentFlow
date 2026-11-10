@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowRight, Check, Copy, ExternalLink, GripVertical, Hash, Send, Sun, Undo2, Video } from "lucide-react";
+import { ArrowRight, Check, Copy, ExternalLink, GripVertical, Hash, Heart, Send, Sun, Undo2, Video } from "lucide-react";
 import { sendDayPlanAction } from "./actions";
 import { WorkspaceBadge } from "@/components/shell/workspace-switcher";
 import { QuickAdd } from "@/components/tasks/quick-add";
@@ -41,7 +41,24 @@ import {
 
 const timeFmt = new Intl.DateTimeFormat("pl-PL", { hour: "2-digit", minute: "2-digit" });
 const dayFmt = new Intl.DateTimeFormat("pl-PL", { weekday: "long", day: "numeric", month: "long" });
+
+// Cytaty dnia (własne sformułowania) — jeden na dzień, ten sam przez cały dzień.
+const QUOTES = [
+  "Kiedy masz ochotę odpuścić, wróć myślą do początku: po co to robisz?",
+  "Mały krok dziś to duży postęp za miesiąc.",
+  "Zrób najpierw to jedno, co przybliża Cię do celu.",
+  "Plan to obietnica dana sobie. Dotrzymaj jej choć w połowie.",
+  "Nie musisz robić wszystkiego. Wystarczy, że zrobisz to, co ważne.",
+  "Dobre treści rodzą się z regularności, nie z natchnienia.",
+  "Odpoczynek też jest częścią planu.",
+  "Skończone jest lepsze niż idealne.",
+]
 const shortDay = new Intl.DateTimeFormat("pl-PL", { weekday: "short", day: "numeric" });
+
+function quoteOfDay(now: Date) {
+  const day = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 864e5);
+  return QUOTES[day % QUOTES.length];
+}
 
 function greeting(now: Date) {
   const h = now.getHours();
@@ -217,13 +234,19 @@ export function DayApp({
 
   return (
     <div className="mx-auto max-w-6xl">
-      <header className="pb-8">
+      <header className="pb-6">
         <p className="text-ink-2 first-letter:uppercase">{dayFmt.format(now)}</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="mt-1 border-l-[3px] border-accent pl-3.5 text-3xl leading-tight font-semibold sm:text-4xl">
           {greeting(now)}
           {firstName ? `, ${firstName}` : ""}
         </h1>
       </header>
+
+      {/* Cytat dnia jak w plannerze: pasek w kolorze akcentu, zmienia się codziennie. */}
+      <p className="mb-8 flex items-start gap-2.5 rounded-xl bg-band px-4 py-3 text-[15px] text-ink">
+        <Heart className="mt-0.5 size-4 shrink-0 text-accent-strong" fill="currentColor" aria-hidden="true" />
+        <span className="font-display italic">„{quoteOfDay(now)}”</span>
+      </p>
 
       {!hasClients ? (
         <section className="mb-8 flex flex-col gap-4 rounded-2xl bg-ink p-6 text-bg sm:flex-row sm:items-center sm:justify-between sm:p-8">

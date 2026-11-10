@@ -70,8 +70,9 @@ export function Textarea(props: ComponentProps<"textarea">) {
 export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 pb-6">
-      <div className="min-w-0">
-        <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
+      {/* Tytuł jak w plannerze: szeryf z pionową kreską w kolorze akcentu. */}
+      <div className="min-w-0 border-l-[3px] border-accent pl-3.5">
+        <h1 className="text-[1.75rem] leading-tight font-semibold text-balance sm:text-3xl">{title}</h1>
         {description ? <p className="mt-1 text-sm text-ink-2">{description}</p> : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
