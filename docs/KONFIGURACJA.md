@@ -11,6 +11,7 @@ Skopiuj `.env.example` do `.env.local`. Plik `.env.local` nie trafia do repozyto
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API Keys | przeglądarka i serwer |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | jw. (*Publishable key*) | przeglądarka i serwer |
 | `SUPABASE_SECRET_KEY` | jw. (*Secret key*) | tylko serwer, omija RLS. Nigdy z prefiksem `NEXT_PUBLIC_` |
+| `NEXT_PUBLIC_TRELLO_API_KEY` | Trello → Power-Up → API key | przeglądarka i serwer, wysyłka zadań do Trello. Klucz jest publiczny; tokeny kont zapisuje serwer |
 | `ANTHROPIC_API_KEY` | [Claude Console](https://platform.claude.com) → API Keys | tylko serwer, Pomocnik AI. Nigdy z prefiksem `NEXT_PUBLIC_` |
 
 ## Supabase
@@ -113,9 +114,20 @@ Przycisk „Google” w kalendarzu pojawia się, gdy ustawione jest `NEXT_PUBLIC
 
 Na iPhonie powiadomienia działają tylko w aplikacji dodanej do ekranu początkowego (iOS 16.4+).
 
-## Trello (Etap 6)
+## Trello
+
+### Import z pliku (Etap 6)
 
 Bez konfiguracji. W Trello: menu tablicy → **Drukuj, eksportuj i udostępniaj → Eksportuj jako JSON**, a w ContentFlow: **Zadania → Z Trello** i wskazanie pliku.
+
+### Automatyczna wysyłka zadań na tablicę
+
+1. Zaloguj się do Trello i otwórz [trello.com/power-ups/admin](https://trello.com/power-ups/admin) → **New**: nazwa `ContentFlow`, dowolny workspace Trello, e-mail i autor. W polu *Iframe connector URL* wpisz adres aplikacji: `https://contentflow-pi-ten.vercel.app`. Pole jest obowiązkowe, ale nieużywane: Power-Upa nie dodajemy do żadnej tablicy, służy tylko do wydania klucza API.
+2. W Power-Upie: zakładka **API key** → **Generate a new API key**. Klucz (nie *Secret*) wpisz jako `NEXT_PUBLIC_TRELLO_API_KEY` w `.env.local` i w Vercelu, potem **Redeploy**.
+3. W tej samej zakładce, **Allowed origins**: dodaj `https://contentflow-pi-ten.vercel.app` i `http://localhost:3000`. Bez tego Trello nie wróci do ContentFlow po autoryzacji (zostaje ręczne wklejenie tokenu).
+4. W ContentFlow: **Ustawienia → Trello → Połącz z Trello** (właściciel workspace'u), zgoda na koncie Trello, wybór tablicy i trzech list.
+
+Token Trello trafia tylko do `workspace_secrets` (bez odczytu przez API) i jest wysyłany do Trello w nagłówku. Kolejkę opróżnia przeglądarka zaraz po zmianie (`/api/trello/flush`) oraz cron co minutę (`/api/cron/reminders`), więc nie trzeba dodawać nowego zadania w `pg_cron`.
 
 ## Pomocnik AI (Claude)
 

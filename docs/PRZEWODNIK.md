@@ -83,6 +83,7 @@ ContentFlow zastępuje Google Calendar, a synchronizacja działa tylko na żąda
 - **Ikona słońca** dodaje zadanie do planu dnia na „Dziś”.
 - **Filtr klienta** na górze.
 - **„Z Trello”:** import tablicy z pliku JSON wyeksportowanego z Trello (Menu tablicy → Drukuj, eksportuj i udostępniaj → Eksportuj jako JSON). Przenosi karty, listy kontrolne i terminy.
+- **Trello na bieżąco:** gdy w Ustawieniach podłączysz tablicę Trello, zadania same trafiają do Trello (zob. Ustawienia → Integracje).
 
 ## Klienci
 
@@ -129,6 +130,7 @@ ContentFlow zastępuje Google Calendar, a synchronizacja działa tylko na żąda
 - **To urządzenie:** powiadomienia push.
 - **Integracje:**
   - **Slack:** wklej adres Incoming Webhook (Slack → Apps → Incoming Webhooks → Add to Slack → wybierz kanał → skopiuj Webhook URL). Po podłączeniu przychodzi wiadomość testowa. Dostępne są „Wyślij test”, „Odłącz” i opcja automatycznych przypomnień o wydarzeniach na kanale.
+  - **Trello (wysyłka zadań):** „Połącz z Trello” → zgoda w Trello → „Wybierz tablicę” → przypisz listy do kolumn „Do zrobienia”, „W trakcie”, „Ukończone” (albo „Utwórz na tablicy listy…”) → zaznacz „Wysyłaj zadania do Trello automatycznie” → „Zapisz”. Od tej chwili każde nowe lub zmienione zadanie pojawia się na tablicy po kilku sekundach (najpóźniej po minucie): tytuł, opis, termin i checklista, a przeniesienie na tablicy w ContentFlow przenosi kartę na odpowiednią listę. Usunięte zadanie archiwizuje kartę. Działa w jedną stronę: zmiany zrobione w Trello nie wracają do ContentFlow. Podłączyć może tylko właściciel workspace'u.
   - **Google (Dysk, Docs, Calendar):** dostęp włącza się przy pierwszym użyciu przycisku („Z Dysku”, „Do Google Docs”, „Google” w kalendarzu).
   - **ChatGPT:** nie wymaga konfiguracji. Polecenia otwierają chatgpt.com.
 - **Konto:** dane konta i wylogowanie.

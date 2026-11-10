@@ -3,6 +3,7 @@ import { pushToUser } from "@/lib/push";
 import { postToSlack, slackEscape } from "@/lib/slack";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { findMeeting } from "@/lib/calendar";
+import { flushTrelloOutbox } from "@/lib/trello";
 
 /**
  * Wysyłka przypomnień o wydarzeniach: push na urządzenia + (opcjonalnie) Slack.
@@ -94,5 +95,11 @@ export async function GET(request: NextRequest) {
     await admin.from("reminders").update({ sent_at: now.toISOString() }).eq("id", r.id);
   }
 
-  return NextResponse.json({ checked: rows.length, pushed, slack });
+  // Trello: dobierz z kolejki to, czego nie wysłała przeglądarka (np. zmiany z innego urządzenia, błędy do ponowienia).
+  const trello = await flushTrelloOutbox(null, 40).catch((e) => {
+    console.error("Trello (cron):", e);
+    return { sent: 0, failed: 0 };
+  });
+
+  return NextResponse.json({ checked: rows.length, pushed, slack, trello });
 }

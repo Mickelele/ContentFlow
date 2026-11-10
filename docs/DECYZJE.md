@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-33 · Trello: automatyczna wysyłka zadań w jedną stronę przez kolejkę w bazie
+2026-11-10
+- **Decyzja:** zadania (tytuł, opis, termin, status → lista, checklista) trafiają automatycznie na tablicę Trello wybraną dla workspace'u. Triggery na `tasks` i `checklist_items` dopisują zmianę do `trello_outbox`; serwer opróżnia kolejkę od razu po zmianie (przeglądarka wywołuje `/api/trello/flush` po 2 s) i co minutę w cronie przypomnień. Zmiany w Trello nie wracają. Usunięcie zadania archiwizuje kartę. Token konta Trello w `workspace_secrets`, w nagłówku `Authorization: OAuth`.
+- **Dlaczego:** użytkownik wybrał wariant B (ContentFlow źródłem prawdy, Trello podglądem). Zadania zmienia przeglądarka bezpośrednio w Supabase z wielu miejsc (tablica, lista, plan dnia, import), więc tylko trigger w bazie łapie wszystkie zmiany. Kolejka z `SKIP LOCKED` chroni przed podwójnym wysłaniem, a cron ponawia błędy.
+- **Skutek:** pierwsze włączenie wysyła otwarte zadania i ukończone z 14 dni. Zadania zaimportowane z tej samej tablicy przejmują swoje karty zamiast tworzyć duplikaty. Podzadania nie mają kart. Dwustronna synchronizacja (webhooki Trello) wymagałaby osobnej decyzji.
+
 ### D-32 · Szybkość: funkcje we Frankfurcie, sesja z tokenu, zapytania równolegle
 2026-11-10
 - **Decyzja:** `vercel.json` ustawia region funkcji `fra1` (obok Supabase `eu-central-1`). Serwer bierze użytkownika z `getClaims` (lokalna weryfikacja JWT) zamiast `getUser` (zapytanie do Supabase Auth). Niezależne zapytania na stronach idą przez `Promise.all`; dane powiązane pobieramy w jednym zapytaniu (np. e-mail klienta razem z materiałem).

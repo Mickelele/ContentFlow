@@ -184,6 +184,13 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 - `content/[id]/approval-section.tsx` → `approval_requests`; publiczna strona `app/akceptacja/[token]` (proxy przepuszcza `/akceptacja`), HTML scenariusza z `lib/doc-html.ts` (własny bezpieczny renderer JSON → HTML), odpowiedź w `akceptacja/[token]/actions.ts` (klucz serwisowy, push do autora prośby).
 - `podsumowanie/stats-app.tsx`: zapytania z zakresu tygodnia, agregacja w przeglądarce, wykres słupkowy w HTML (jedna seria, kolor atramentu, wartość po najechaniu/fokusie, opis dla czytników).
 
+## Trello: wysyłka zadań
+
+- Baza: triggery `tasks_trello_queue` i `checklist_trello_queue` → `trello_outbox` (jeden wiersz na zadanie). `claim_trello_outbox` pobiera i usuwa paczkę atomowo.
+- `lib/trello.ts` (server-only): wywołania API (`Authorization: OAuth …`), `flushTrelloOutbox(workspaceIds | null)`: karta = tytuł, opis, termin, `dueComplete`, lista wg statusu; checklista „Checklista” odtwarzana, gdy się różni. Błędy wracają do kolejki (do 5 prób, bez ponawiania przy 401).
+- Opróżnianie: `components/shell/trello-auto-sync.tsx` (Realtime na `tasks` i `checklist_items` → `POST /api/trello/flush` po 2 s, tylko workspace'y zalogowanej osoby) oraz `/api/cron/reminders` co minutę (wszystkie).
+- Ustawienia: `ustawienia/trello-card.tsx` + akcje w `ustawienia/actions.ts` (autoryzacja Trello z powrotem przez `#token=` w adresie, wybór tablicy i list, opcjonalne utworzenie list, odłączenie).
+
 ## Pomocnik AI
 
 - `components/shell/assistant.tsx`: pływający dymek (`fixed`, prawy dolny róg; na telefonie nad dolnym paskiem) i okno czatu: niemodalny `<dialog>` otwierany `show()`, Esc obsługiwany ręcznie; na komputerze okienko nad dymkiem, na telefonie arkusz od dołu. Dymki powiadomień są przesunięte wyżej, żeby się nie nakładały. Historia rozmowy żyje w stanie `AppShell`, wysyłane jest ostatnie 19 wiadomości. Odpowiedź czytana strumieniem (`fetch` + `ReadableStream`), przerwanie przez `AbortController`. Własny minimalny renderer Markdown (akapity, listy, pogrubienia) bez wstawiania HTML.

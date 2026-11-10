@@ -4,6 +4,9 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Dodano
+- Trello: zadania z ContentFlow automatycznie trafiają na wybraną tablicę Trello (tytuł, opis, termin, checklista; kolumna wyznacza listę). Podłączenie w Ustawieniach → Trello.
+
 ### Zmieniono
 - Strony otwierają się szybciej: serwer działa teraz we Frankfurcie, obok bazy danych, i robi mniej zapytań jedno po drugim.
 - Pomocnik to teraz pływający dymek w prawym dolnym rogu, jak czat na stronach. Okno czatu nie blokuje aplikacji.

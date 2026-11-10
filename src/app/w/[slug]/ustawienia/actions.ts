@@ -4,6 +4,18 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { CLIENT_COLORS } from "@/lib/palette";
 import { SLACK_WEBHOOK_RE, getWorkspaceWebhook, postToSlack, slackEscape } from "@/lib/slack";
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  createTrelloList,
+  enqueueExistingTasks,
+  flushTrelloOutbox,
+  getTrelloBoards,
+  getTrelloLists,
+  getTrelloMember,
+  guessLists,
+  trelloConfigured,
+  type TrelloLists,
+} from "@/lib/trello";
 import { getSession, getWorkspace } from "@/lib/workspace";
 
 export type Result = { ok: true; message?: string } | { ok: false; error: string };
@@ -103,4 +115,144 @@ export async function testSlackAction(slug: string): Promise<Result> {
   if (!webhook) return { ok: false, error: "Slack nie jest podłączony." };
   const ok = await postToSlack(webhook, `Test z ContentFlow (${slackEscape(ws.name)}). Wszystko działa.`);
   return ok ? { ok: true, message: "Wysłano wiadomość testową." } : { ok: false, error: "Slack odrzucił wiadomość." };
+}
+
+// ─── Trello (wysyłka zadań na tablicę) ───────────────────────
+
+const TRELLO_TOKEN_RE = /^[A-Za-z0-9]{32,200}$/;
+const TRELLO_ID_RE = /^[0-9a-f]{24}$/;
+
+async function trelloOwner(slug: string) {
+  const ws = await getWorkspace(slug);
+  if (ws.role !== "owner") return { ws, error: "Trello może podłączyć właściciel workspace'u." };
+  if (!trelloConfigured) return { ws, error: "Brakuje klucza NEXT_PUBLIC_TRELLO_API_KEY (zob. docs/KONFIGURACJA.md)." };
+  return { ws, error: null };
+}
+
+async function trelloToken(workspaceId: string) {
+  const { data } = await createAdminClient().from("workspace_secrets").select("trello_token").eq("workspace_id", workspaceId).maybeSingle();
+  return (data?.trello_token as string | null) ?? null;
+}
+
+export type TrelloOption = { id: string; name: string };
+type ListsResult = { ok: true; lists: TrelloOption[]; guess: Partial<TrelloLists> } | { ok: false; error: string };
+
+export async function connectTrelloAction(slug: string, token: string): Promise<Result & { member?: string }> {
+  const { ws, error } = await trelloOwner(slug);
+  if (error) return { ok: false, error };
+  const t = token.trim();
+  if (!TRELLO_TOKEN_RE.test(t)) return { ok: false, error: "To nie wygląda na token Trello. Skopiuj go w całości." };
+  let member: string;
+  try {
+    const me = await getTrelloMember(t);
+    member = me.fullName || me.username;
+  } catch {
+    return { ok: false, error: "Trello nie przyjął tokenu. Autoryzuj ContentFlow jeszcze raz." };
+  }
+  const { error: dbError } = await createAdminClient()
+    .from("workspace_secrets")
+    .upsert({ workspace_id: ws.id, trello_token: t, trello_member: member, updated_at: new Date().toISOString() }, { onConflict: "workspace_id" });
+  if (dbError) return { ok: false, error: "Nie udało się zapisać połączenia." };
+  revalidatePath(`/w/${slug}/ustawienia`);
+  return { ok: true, message: `Połączono z kontem ${member}. Wybierz tablicę.`, member };
+}
+
+export async function trelloBoardsAction(slug: string): Promise<{ ok: true; boards: TrelloOption[] } | { ok: false; error: string }> {
+  const { ws, error } = await trelloOwner(slug);
+  if (error) return { ok: false, error };
+  const token = await trelloToken(ws.id);
+  if (!token) return { ok: false, error: "Najpierw połącz konto Trello." };
+  try {
+    return { ok: true, boards: (await getTrelloBoards(token)).map(({ id, name }) => ({ id, name })) };
+  } catch {
+    return { ok: false, error: "Nie udało się pobrać tablic z Trello. Spróbuj połączyć konto ponownie." };
+  }
+}
+
+export async function trelloListsAction(slug: string, boardId: string, create = false): Promise<ListsResult> {
+  const { ws, error } = await trelloOwner(slug);
+  if (error) return { ok: false, error };
+  if (!TRELLO_ID_RE.test(boardId)) return { ok: false, error: "Nieprawidłowa tablica." };
+  const token = await trelloToken(ws.id);
+  if (!token) return { ok: false, error: "Najpierw połącz konto Trello." };
+  try {
+    // create: dodaj na tablicy trzy listy jak kolumny w ContentFlow.
+    if (create) for (const name of ["Do zrobienia", "W trakcie", "Ukończone"]) await createTrelloList(token, boardId, name);
+    const lists = (await getTrelloLists(token, boardId)).map(({ id, name }) => ({ id, name }));
+    return { ok: true, lists, guess: guessLists(lists) };
+  } catch {
+    return { ok: false, error: create ? "Nie udało się utworzyć list w Trello." : "Nie udało się pobrać list tej tablicy." };
+  }
+}
+
+const trelloBoardSchema = z.object({
+  boardId: z.string().regex(TRELLO_ID_RE),
+  lists: z.object({ todo: z.string().regex(TRELLO_ID_RE), in_progress: z.string().regex(TRELLO_ID_RE), done: z.string().regex(TRELLO_ID_RE) }),
+  sync: z.boolean(),
+});
+
+export async function saveTrelloBoardAction(slug: string, input: { boardId: string; lists: TrelloLists; sync: boolean }): Promise<Result> {
+  const { ws, error } = await trelloOwner(slug);
+  if (error) return { ok: false, error };
+  const parsed = trelloBoardSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Wybierz tablicę i wszystkie trzy listy." };
+  const token = await trelloToken(ws.id);
+  if (!token) return { ok: false, error: "Najpierw połącz konto Trello." };
+
+  // Sprawdzamy w Trello, że listy należą do tej tablicy.
+  let boardName = "";
+  try {
+    const [boards, lists] = await Promise.all([getTrelloBoards(token), getTrelloLists(token, parsed.data.boardId)]);
+    boardName = boards.find((b) => b.id === parsed.data.boardId)?.name ?? "";
+    const ids = new Set(lists.map((l) => l.id));
+    if (!boardName || !Object.values(parsed.data.lists).every((id) => ids.has(id))) {
+      return { ok: false, error: "Wybrane listy nie należą do tej tablicy. Odśwież stronę." };
+    }
+  } catch {
+    return { ok: false, error: "Nie udało się sprawdzić tablicy w Trello." };
+  }
+
+  const admin = createAdminClient();
+  const { data: before } = await admin.from("workspace_secrets").select("trello_sync, trello_board_id").eq("workspace_id", ws.id).maybeSingle();
+  const { error: dbError } = await admin
+    .from("workspace_secrets")
+    .update({
+      trello_board_id: parsed.data.boardId,
+      trello_board_name: boardName,
+      trello_lists: parsed.data.lists,
+      trello_sync: parsed.data.sync,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("workspace_id", ws.id);
+  if (dbError) return { ok: false, error: "Nie udało się zapisać ustawień." };
+
+  // Po włączeniu (albo zmianie tablicy) wysyłamy też zadania, które już są w ContentFlow.
+  let queued = 0;
+  if (parsed.data.sync && (!before?.trello_sync || before.trello_board_id !== parsed.data.boardId)) {
+    queued = await enqueueExistingTasks(ws.id);
+    await flushTrelloOutbox([ws.id], 15).catch(() => null);
+  }
+  revalidatePath(`/w/${slug}/ustawienia`);
+  return {
+    ok: true,
+    message: !parsed.data.sync
+      ? "Zapisano. Wysyłka do Trello jest wyłączona."
+      : queued
+        ? `Zapisano. Wysyłam ${queued} zadań na tablicę „${boardName}”; reszta dotrze w ciągu minuty.`
+        : `Zapisano. Nowe i zmienione zadania trafią na tablicę „${boardName}”.`,
+  };
+}
+
+export async function disconnectTrelloAction(slug: string): Promise<Result> {
+  const { ws, error } = await trelloOwner(slug);
+  if (error) return { ok: false, error };
+  const admin = createAdminClient();
+  const { error: dbError } = await admin
+    .from("workspace_secrets")
+    .update({ trello_token: null, trello_member: null, trello_board_id: null, trello_board_name: null, trello_lists: null, trello_sync: false })
+    .eq("workspace_id", ws.id);
+  if (dbError) return { ok: false, error: "Nie udało się odłączyć Trello." };
+  await admin.from("trello_outbox").delete().eq("workspace_id", ws.id);
+  revalidatePath(`/w/${slug}/ustawienia`);
+  return { ok: true, message: "Trello odłączone. Karty na tablicy zostają." };
 }

@@ -14,6 +14,7 @@ import { AssistantBubble } from "./assistant";
 import { MOBILE_PRIMARY, NAV, SETTINGS, type NavItem } from "./nav";
 import { NotificationsBell, NotificationsProvider } from "./notifications";
 import { ThemeToggle } from "./theme-toggle";
+import { TrelloAutoSync } from "./trello-auto-sync";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
 type User = { name: string; email: string; avatar: string | null };
@@ -80,6 +81,7 @@ export function AppShell({
 
       <MobileTabBar base={base} isActive={isActive} user={user} />
       <AssistantBubble />
+      <TrelloAutoSync />
     </div>
     </NotificationsProvider>
   );

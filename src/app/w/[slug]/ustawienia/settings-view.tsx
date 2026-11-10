@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { Bot, Check, HardDrive, Hash, LogOut } from "lucide-react";
+import { Bot, Check, HardDrive, Hash, LogOut, SquareKanban } from "lucide-react";
 import { signOut } from "@/app/logowanie/actions";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button, Field, Input, cx } from "@/components/ui";
 import { CLIENT_COLORS, colorVars, type ClientColor } from "@/lib/palette";
 import { removeSlackAction, saveSlackAction, setSlackRemindersAction, testSlackAction, updateWorkspaceAction, type Result } from "./actions";
 import { DeviceCard } from "./device-card";
+import { TrelloSection, type TrelloState } from "./trello-card";
 
 function Card({ title, description, icon, children }: { title: string; description?: string; icon?: ReactNode; children: ReactNode }) {
   return (
@@ -51,11 +52,13 @@ const IconBox = ({ children, color }: { children: ReactNode; color: string }) =>
 export function SettingsView({
   workspace,
   slack,
+  trello,
   googleReady,
   account,
 }: {
   workspace: { name: string; slug: string; color: ClientColor; isOwner: boolean };
   slack: { connected: boolean; channel: string | null; reminders: boolean };
+  trello: TrelloState;
   googleReady: boolean;
   account: { email: string; name: string | null };
 }) {
@@ -66,6 +69,17 @@ export function SettingsView({
 
       <h2 className="mt-4 text-lg font-semibold">Integracje</h2>
       <SlackCard slug={workspace.slug} initial={slack} isOwner={workspace.isOwner} />
+      <Card
+        title="Trello"
+        icon={
+          <IconBox color="#0079BF">
+            <SquareKanban className="size-5" />
+          </IconBox>
+        }
+        description="Zadania z ContentFlow automatycznie na wybranej tablicy Trello."
+      >
+        <TrelloSection slug={workspace.slug} initial={trello} isOwner={workspace.isOwner} />
+      </Card>
       <Card
         title="Dysk Google i Google Docs"
         icon={

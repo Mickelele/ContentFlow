@@ -1,6 +1,6 @@
 # Model danych
 
-> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`, `20261110200000_content_review`)
+> Ostatnia aktualizacja: 2026-11-09 · Migracje: `supabase/migrations/` (`…120000_init`, `…150000_calendar`, `…180000_day_plan`, `20261110090000_content_notes`, `20261110120000_integrations`, `20261110150000_push_sync`, `20261110180000_task_board`, `20261110200000_content_review`, `20261111090000_trello_sync`)
 
 Wszystkie tabele są w schemacie `public`, mają włączony RLS i (poza `profiles` i `calendar_visibility`) kolumnę `workspace_id`.
 Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `touch_row`), potrzebne do wykrywania konfliktów przy synchronizacji.
@@ -25,14 +25,15 @@ Tabele edytowane przez użytkownika mają `updated_at` i `version` (trigger `tou
 | `shots` | Ujęcie do nagrania | `content_id`, `description`, `done`, `position` |
 | `events` | Wydarzenie | `calendar_id`, `client_id`, `project_id`, `title`, `category`, `status`, `all_day`, `starts_at`, `ends_at`, `location`, `url`, `rrule`, `external_id` (unikalne z `calendar_id`, np. `gcal:<kalendarz>:<id>`), `slack_notified_at` |
 | `event_content` | Wydarzenie ↔ materiały (n:m) | `event_id`, `content_id` |
-| `tasks` | Zadanie | `parent_id` (nieużywane, D-15), `client_id`, `project_id`, `content_id`, `title`, `status`, `priority`, `due_at`, `due_all_day`, `planned_on` (plan dnia), `completed_at`, `position` (kolejność w planie dnia), `board_position` (kolejność na tablicy Kanban), `external_id` (unikalne z `workspace_id`, np. `trello:<id>`) |
+| `tasks` | Zadanie | `parent_id` (nieużywane, D-15), `client_id`, `project_id`, `content_id`, `title`, `status`, `priority`, `due_at`, `due_all_day`, `planned_on` (plan dnia), `completed_at`, `position` (kolejność w planie dnia), `board_position` (kolejność na tablicy Kanban), `external_id` (unikalne z `workspace_id`, np. `trello:<id>`), `trello_card_id` (karta w Trello, na którą trafia zadanie; D-33) |
 | `checklist_items` | Pozycja checklisty zadania | `task_id`, `label`, `done`, `position` |
 | `attachments` | Załącznik (link do Dysku) | `entity_type`, `entity_id`, `drive_file_id`, `name`, `mime_type`, `url` |
 | `reminders` | Przypomnienie (per osoba) | `user_id`, jedno z: `event_id` / `task_id` / `publication_id`, `offset_minutes`, `remind_at` (liczone triggerem), `sent_at` |
 | `notification_reads` | Przeczytane powiadomienia | `user_id`, `key`, `read_at` |
 | `notes` | Notatka | `client_id`, `project_id`, `event_id` (notatka ze spotkania), `title`, `body` (jsonb, Tiptap), `body_text` (do wyszukiwania), `pinned` |
 | `ideas` | Pomysł | `client_id`, `title`, `description`, `link`, `type`, `tags` (text[]), `status` (`new`/`converted`/`archived`), `content_id` |
-| `workspace_secrets` | Sekrety integracji (bez odczytu przez API, D-20) | `workspace_id`, `slack_webhook_url`, `slack_channel`, `slack_reminders` |
+| `workspace_secrets` | Sekrety integracji (bez odczytu przez API, D-20) | `workspace_id`, `slack_webhook_url`, `slack_channel`, `slack_reminders`, `trello_token`, `trello_member`, `trello_board_id`, `trello_board_name`, `trello_lists` (jsonb: `todo`, `in_progress`, `done` → id listy), `trello_sync` |
+| `trello_outbox` | Kolejka zmian zadań do wysłania do Trello (tylko serwer, RLS bez polityk) | `task_id` (PK, bez FK), `workspace_id`, `op` (`upsert` / `archive`), `card_id`, `attempts`, `last_error`, `queued_at` |
 | `push_subscriptions` | Urządzenie z włączonymi powiadomieniami (per osoba) | `user_id`, `endpoint` (unikalny), `p256dh`, `auth`, `user_agent` |
 | `event_exports` | Wydarzenie wysłane do Google Calendar | `event_id`, `google_calendar_id`, `google_event_id` (unikalne `event_id + google_calendar_id`) |
 | `integrations` | Podłączone konto zewnętrzne (nieużywane — Google bez zapisu tokenów) | `provider`, `account_email`, `scopes`, `status`, `vault_secret_id` |
@@ -74,6 +75,8 @@ content    1─n attachments           (entity_type = 'content')
 | `project_client_check` | projekt w materiale / zadaniu / wydarzeniu | sprawdza workspace projektu; materiał i zadanie bez klienta przejmują klienta projektu (D-19) |
 | `reminders_from_event` | nowe / zmienione przypomnienie | `workspace_id` z wydarzenia, `remind_at = starts_at − offset_minutes` |
 | `events_move_reminders` | przesunięcie wydarzenia | przelicza przypomnienia wszystkich osób (SECURITY DEFINER) |
+| `tasks_trello_queue` | nowe / zmienione (tytuł, opis, status, termin) / usunięte zadanie główne | gdy workspace ma włączone Trello (`trello_enabled`), dopisuje zadanie do `trello_outbox` (`archive` przy usunięciu) |
+| `checklist_trello_queue` | zmiana checklisty | dopisuje zadanie do `trello_outbox` |
 
 ## Funkcje do odczytu
 
@@ -91,7 +94,7 @@ Kolumny: `source_type`, `source_id`, `workspace_id`, `calendar_id`, `client_id`,
 Przeciągnięcie w kalendarzu aktualizuje tabelę wskazaną przez `source_type` (D-02).
 
 ### `integration_status(ws)` i `set_slack_webhook(ws, url, channel)`
-`integration_status` zwraca `slack_connected`, `slack_channel` i `slack_reminders` dla członków (bez adresu). `set_slack_webhook` zapisuje lub czyści webhook — tylko właściciel (SECURITY DEFINER).
+`integration_status` zwraca `slack_connected`, `slack_channel`, `slack_reminders` oraz `trello_connected`, `trello_member`, `trello_board_id`, `trello_board_name`, `trello_lists`, `trello_sync` dla członków (bez adresu i tokenu). `claim_trello_outbox(ws_ids, batch)` pobiera i usuwa paczkę z kolejki (`FOR UPDATE SKIP LOCKED`), tylko dla klucza serwisowego. `set_slack_webhook` zapisuje lub czyści webhook — tylko właściciel (SECURITY DEFINER).
 
 ### `notifications_feed()`
 Powiadomienia zalogowanej osoby, liczone na bieżąco (D-14). „Dziś” wg `profiles.timezone`.

@@ -1,6 +1,6 @@
 # Roadmapa ContentFlow
 
-> Ostatnia aktualizacja: 2026-11-09 · Obecny etap: **Pomocnik AI zakończony** — następny do ustalenia (kandydaci w „Później”)
+> Ostatnia aktualizacja: 2026-11-10 · Obecny etap: **Trello: wysyłka zadań** (w trakcie)
 
 ContentFlow jest **głównym kalendarzem i planerem** użytkownika. Google Calendar to most uruchamiany na żądanie, a nie źródło prawdy.
 Identyfikatory w nawiasach (np. `CAL-01`) odnoszą się do specyfikacji wymagań v1.0.
@@ -114,6 +114,13 @@ Zakończony 2026-11-09 · commit `d7f0f04` · sprawdzone na produkcji: panel cza
 - ✅ Przewodnik dla użytkowników `docs/PRZEWODNIK.md` — źródło wiedzy Pomocnika
 - ✅ Czat „Pomocnik” w powłoce aplikacji (Claude Haiku 5.5, odpowiedź strumieniem, kontekst bieżącej strony)
 - ✅ Klucz `ANTHROPIC_API_KEY` w Vercelu i test na produkcji
+
+## 🔨 Trello: automatyczna wysyłka zadań
+Rozpoczęty 2026-11-10 · migracja `20261111090000_trello_sync.sql`
+
+- 🔨 Kolejka zmian w bazie (triggery na zadaniach i checklistach) i wysyłka na tablicę: tytuł, opis, termin, lista wg statusu, checklista
+- 🔨 Ustawienia → Trello: autoryzacja konta, wybór tablicy i list, utworzenie list, odłączenie
+- ⏳ Klucz API Trello, migracja na bazie, test na prawdziwej tablicy
 
 ## Później (P1/P2 ze specyfikacji)
 - 💤 Praca offline z kolejką zmian i wskaźnikiem „czeka na synchronizację”
