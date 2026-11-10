@@ -34,7 +34,7 @@ ContentFlow to planer dla twórców treści, marketerów i agencji. Kalendarz, z
 - **Linki do spotkań** (Google Meet, Zoom, Teams): przyciski „Dołącz” i „Kopiuj link”. We wpisie pojawia się ikona kamery.
 - **„Kopiuj szczegóły”** kopiuje gotowy tekst z datą, godziną i linkiem, do wysłania klientowi.
 - **„Notatka”** w wydarzeniu zakłada notatkę ze spotkania albo otwiera istniejącą.
-- **Zdjęcia:** w edytorze wydarzenia sekcja „Zdjęcia” → „Dodaj” (można zaznaczyć kilka naraz, do 12). W nowym wydarzeniu zdjęcia zapiszą się razem z nim. Kliknięcie miniatury otwiera zdjęcie w pełnym rozmiarze, „×” je usuwa. Zdjęcia widzą tylko osoby z tego workspace'u.
+- **Zdjęcia:** w edytorze wydarzenia sekcja „Zdjęcia” → „Dodaj” (można zaznaczyć kilka naraz, do 12). W nowym wydarzeniu zdjęcia zapiszą się razem z nim. Kliknięcie miniatury otwiera zdjęcie w pełnym rozmiarze, „×” je usuwa. Pierwsze zdjęcie widać też w samym kalendarzu: w widoku dnia i tygodnia pod tytułem (w krótkich wydarzeniach może się nie zmieścić), w widoku miesiąca jako mała miniatura. Zdjęcia widzą tylko osoby z tego workspace'u.
 - **Tylko bieżący workspace:** kalendarz pokazuje wydarzenia, zadania i publikacje workspace'u, w którym jesteś. Kalendarz innej firmy zobaczysz po przełączeniu workspace'u (przycisk z nazwą na górze panelu bocznego).
 - **Warstwy** (panel po lewej, jak w Google Calendar): checkboxy dla klientów, „Zadania” i własnych warstw tego workspace'u. Własną warstwę (np. „Urlopy”) dodajesz z wyborem koloru. Widoczność zapamiętuje się na koncie.
 - **Filtr kategorii:** pokaż tylko wybrane rodzaje wpisów.

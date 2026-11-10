@@ -60,6 +60,29 @@ export async function listEventPhotos(supabase: SupabaseClient, eventId: string)
   return rows.flatMap((r) => (urlByPath.get(r.path) ? [{ ...r, url: urlByPath.get(r.path)! }] : []));
 }
 
+/** Pierwsze zdjęcie każdego z podanych wydarzeń (do miniatur w kalendarzu): event_id → podpisany adres. */
+export async function firstPhotoUrls(supabase: SupabaseClient, eventIds: string[]): Promise<Map<string, string>> {
+  const result = new Map<string, string>();
+  if (!eventIds.length) return result;
+  const { data } = await supabase
+    .from("event_photos")
+    .select("event_id, path")
+    .in("event_id", eventIds)
+    .order("position")
+    .order("created_at");
+  const first = new Map<string, string>();
+  for (const r of data ?? []) if (!first.has(r.event_id)) first.set(r.event_id, r.path);
+  if (!first.size) return result;
+  // Adres ważny 6 godzin — kalendarz i tak odświeża go przy zmianie widoku.
+  const { data: signed } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls([...first.values()], 6 * 3600);
+  const urlByPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+  for (const [eventId, path] of first) {
+    const url = urlByPath.get(path);
+    if (url) result.set(eventId, url);
+  }
+  return result;
+}
+
 export async function deleteEventPhoto(supabase: SupabaseClient, photo: Pick<EventPhoto, "id" | "path">) {
   const { error } = await supabase.from("event_photos").delete().eq("id", photo.id);
   if (!error) await supabase.storage.from(PHOTO_BUCKET).remove([photo.path]);

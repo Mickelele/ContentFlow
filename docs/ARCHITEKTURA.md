@@ -194,7 +194,7 @@ page.tsx (serwer) ── warstwy + widoczność ──▶ CalendarApp (tylko prz
 ## Wygląd i zdjęcia (2026-11-10)
 
 - Wygląd (D-36): `globals.css` — warianty `[data-style]` i akcenty `[data-accent]` na `<html>`; tokeny `--accent`, `--accent-strong`, `--band` (Tailwind: `bg-band`, `text-accent`, `border-accent`), zaokrąglenia przez `--radius-lg/xl/2xl`. Nagłówki `h1`, `h2` i `.font-display` w Fraunces (`next/font`, zmienna `--font-fraunces`). `lib/appearance.ts`: stałe, odczyt i zapis w localStorage, skrypt w `<head>` (zastępuje dawny skrypt motywu). Ustawienia → `appearance-card.tsx` (miniatury wariantów: `data-preview` + `data-style` na elemencie).
-- Zdjęcia wydarzeń (D-35): `lib/event-photos.ts` (pomniejszanie w canvasie, wysyłka do Storage, podpisane adresy, usuwanie), `kalendarz/event-photos.tsx` (siatka w edytorze wydarzenia; w nowym wydarzeniu pliki czekają w `EventDraft.photos` i wysyła je `saveDraft` po zapisie).
+- Zdjęcia wydarzeń (D-35): `lib/event-photos.ts` (pomniejszanie w canvasie, wysyłka do Storage, podpisane adresy, usuwanie), `kalendarz/event-photos.tsx` (siatka w edytorze wydarzenia; w nowym wydarzeniu pliki czekają w `EventDraft.photos` i wysyła je `saveDraft` po zapisie). Kalendarz po pobraniu zakresu woła `firstPhotoUrls` (jedno zapytanie + podpisane adresy na 6 h) i przekazuje miniaturę w `extendedProps.thumb` do `renderEvent`; Realtime obejmuje też `event_photos`.
 
 ## Strony publiczne
 

@@ -11,7 +11,7 @@ import type { DateClickArg, EventResizeDoneArg } from "@fullcalendar/interaction
 import { ChevronLeft, ChevronRight, Layers, Plus, Video } from "lucide-react";
 import { Dialog } from "@/components/dialog";
 import { Button, cx } from "@/components/ui";
-import { eventPhotoPaths, removePhotoFiles, uploadEventPhotos } from "@/lib/event-photos";
+import { eventPhotoPaths, firstPhotoUrls, removePhotoFiles, uploadEventPhotos } from "@/lib/event-photos";
 import { createClient } from "@/lib/supabase/client";
 import { useRealtime } from "@/lib/use-realtime";
 import {
@@ -117,6 +117,7 @@ export function CalendarApp({
   const calRef = useRef<FullCalendar>(null);
   const [groups, setGroups] = useState(initialGroups);
   const [items, setItems] = useState<CalendarItem[]>([]);
+  const [thumbs, setThumbs] = useState<Map<string, string>>(new Map());
   const [range, setRange] = useState<{ start: Date; end: Date } | null>(null);
   const isMobile = useSyncExternalStore(subscribeMobile, () => mobileQuery().matches, () => false);
   const [initialView] = useState<ViewName>(() => {
@@ -168,13 +169,17 @@ export function CalendarApp({
         return;
       }
       setError(null);
-      setItems((data ?? []) as CalendarItem[]);
+      const list = (data ?? []) as CalendarItem[];
+      setItems(list);
+      // Miniatury: pierwsze zdjęcie każdego wydarzenia w widocznym zakresie (jedno zapytanie).
+      const eventIds = list.filter((it) => it.source_type === "event").map((it) => it.source_id);
+      setThumbs(await firstPhotoUrls(supabase, eventIds));
     },
     [supabase],
   );
 
   // Zmiany z innych urządzeń i od innych osób — przeładuj widoczny zakres.
-  useRealtime("calendar", ["events", "tasks", "content_milestones", "content_publications"], () => {
+  useRealtime("calendar", ["events", "tasks", "content_milestones", "content_publications", "event_photos"], () => {
     if (range) load(range);
   });
 
@@ -224,10 +229,10 @@ export function CalendarApp({
               it.status === "cancelled" ? "cf-cancelled" : "",
               it.status === "done" ? "cf-done" : "",
             ].filter(Boolean),
-            extendedProps: { item: it, solid: c.solid },
+            extendedProps: { item: it, solid: c.solid, thumb: isEvent ? thumbs.get(it.source_id) : undefined },
           } satisfies EventInput;
         }),
-    [items, layerById, categories],
+    [items, layerById, categories, thumbs],
   );
 
   // ── Warstwy ──
@@ -576,11 +581,18 @@ function renderEvent(arg: EventContentArg) {
   const extra = it.source_type === "publication" && it.platform ? PLATFORMS[it.platform] : null;
   const timed = !arg.event.allDay;
   const compact = arg.view.type === "dayGridMonth";
+  const thumb = arg.event.extendedProps.thumb as string | undefined;
 
   return (
     <div className={cx("cf-ev flex h-full min-w-0 gap-1 overflow-hidden", compact ? "items-center" : "flex-col")}>
       <div className="flex min-w-0 items-center gap-1">
-        <Icon className="size-3 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+        {/* Miesiąc: mała miniatura zamiast ikony kategorii. */}
+        {thumb && compact ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={thumb} alt="" loading="lazy" decoding="async" className="size-4 shrink-0 rounded-[3px] object-cover" />
+        ) : (
+          <Icon className="size-3 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+        )}
         <span className="truncate font-medium">{arg.event.title}</span>
         {meeting ? <Video className="ml-auto size-3 shrink-0" aria-label={meeting.provider} /> : null}
       </div>
@@ -590,6 +602,11 @@ function renderEvent(arg: EventContentArg) {
           {timed && extra ? " · " : null}
           {extra}
         </p>
+      ) : null}
+      {/* Dzień i tydzień: zdjęcie wypełnia resztę wpisu; w krótkim wpisie po prostu się nie zmieści. */}
+      {thumb && !compact ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={thumb} alt="" loading="lazy" decoding="async" className="min-h-0 w-full flex-1 rounded-[4px] object-cover" />
       ) : null}
     </div>
   );

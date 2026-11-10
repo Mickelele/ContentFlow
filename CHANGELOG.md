@@ -5,6 +5,7 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 ## [Nieopublikowane]
 
 ### Dodano
+- Kalendarz pokazuje zdjęcie wydarzenia: w widoku dnia i tygodnia pod tytułem wpisu, w widoku miesiąca jako małą miniaturę.
 - Publiczne strony „Polityka prywatności” (/polityka-prywatnosci) i „Regulamin” (/regulamin), z linkami na stronie logowania.
 - Strona logowania opisuje aplikację i to, do czego służy konto Google.
 
