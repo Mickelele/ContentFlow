@@ -28,8 +28,7 @@ const SOCIAL_LABEL: Record<string, string> = {
 export default async function ClientsPage({ params, searchParams }: PageProps<"/w/[slug]/klienci">) {
   const { slug } = await params;
   const archive = (await searchParams).archiwum === "1";
-  const ws = await getWorkspace(slug);
-  const { supabase } = await getSession();
+  const [ws, { supabase }] = await Promise.all([getWorkspace(slug), getSession()]);
 
   let query = supabase
     .from("clients")

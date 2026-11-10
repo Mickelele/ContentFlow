@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-32 · Szybkość: funkcje we Frankfurcie, sesja z tokenu, zapytania równolegle
+2026-11-10
+- **Decyzja:** `vercel.json` ustawia region funkcji `fra1` (obok Supabase `eu-central-1`). Serwer bierze użytkownika z `getClaims` (lokalna weryfikacja JWT) zamiast `getUser` (zapytanie do Supabase Auth). Niezależne zapytania na stronach idą przez `Promise.all`; dane powiązane pobieramy w jednym zapytaniu (np. e-mail klienta razem z materiałem).
+- **Dlaczego:** pomiar na produkcji: funkcje działały w Waszyngtonie (`iad1`), a każde wejście na stronę robiło 3–4 zapytania do bazy po kolei, każde przez Atlantyk (~100 ms). Pełna odpowiedź „Dziś” trwała 1,2–1,7 s.
+- **Skutek:** wylogowanie lub usunięcie sesji na innym urządzeniu serwer zauważy dopiero po wygaśnięciu tokenu (do godziny); tak samo działało już proxy. Nowe strony: nie wywołuj `getUser` i nie czekaj po kolei na niezależne zapytania.
+
 ### D-31 · Pomocnik AI: Claude Haiku 5.5 z przewodnikiem w prompcie
 2026-11-09
 - **Decyzja:** Pomocnik to czat w powłoce aplikacji. Endpoint `/api/pomocnik` (tylko dla zalogowanych) wysyła do `claude-haiku-5-5` prompt systemowy z instrukcją i pełną treścią `docs/PRZEWODNIK.md` + `CHANGELOG.md` (z cache'owaniem promptu), effort `low`, odpowiedź strumieniem tekstu. Bieżąca strona trafia do ostatniego pytania. Pomocnik nie ma dostępu do danych użytkownika ani narzędzi.

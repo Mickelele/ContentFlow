@@ -90,8 +90,7 @@ export async function updateClientAction(
 }
 
 export async function setArchivedAction(slug: string, id: string, archived: boolean) {
-  const ws = await getWorkspace(slug);
-  const { supabase } = await getSession();
+  const [ws, { supabase }] = await Promise.all([getWorkspace(slug), getSession()]);
   await supabase
     .from("clients")
     .update({ archived_at: archived ? new Date().toISOString() : null })

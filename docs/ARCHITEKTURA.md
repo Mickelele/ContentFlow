@@ -99,6 +99,7 @@ docs/                       dokumentacja projektu
 3. `/auth/callback` wymienia kod na sesję (`exchangeCodeForSession`) i zapisuje ją w ciasteczkach.
 4. Trigger `on_auth_user_created` tworzy profil i pierwszy workspace.
 5. `src/proxy.ts` przy każdym żądaniu odświeża token (`getClaims`) i odsyła niezalogowanych na `/logowanie`.
+6. Strony serwerowe biorą użytkownika z `getAuth()` w `lib/workspace.ts`: też `getClaims` (podpis JWT sprawdzany lokalnie kluczami JWKS), bez zapytania do Supabase Auth. Profil (`getSession`) i lista workspace'ów (`getWorkspaces`) pobierają się równolegle; wszystkie trzy mają `cache()` na czas żądania (zob. D-32).
 
 Logowanie Google prosi tylko o `openid email profile`. Dostęp do kalendarza czy Dysku będzie wymagał osobnej, jednorazowej zgody w chwili użycia (zob. [DECYZJE.md](DECYZJE.md)).
 

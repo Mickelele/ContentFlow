@@ -16,7 +16,7 @@ export default async function MaterialPage({ params }: PageProps<"/w/[slug]/cont
     supabase
       .from("content")
       .select(
-        "id, workspace_id, title, type, stage, client_id, project_id, description, content_milestones(id, kind, due_at, done_at), content_publications(id, platform, publish_at, caption, hashtags, status), scripts(body), shots(id, description, done, position)",
+        "id, workspace_id, title, type, stage, client_id, project_id, description, content_milestones(id, kind, due_at, done_at), content_publications(id, platform, publish_at, caption, hashtags, status), scripts(body), shots(id, description, done, position), clients(email)",
       )
       .eq("id", id)
       .eq("workspace_id", ws.id)
@@ -25,7 +25,10 @@ export default async function MaterialPage({ params }: PageProps<"/w/[slug]/cont
   ]);
   if (!content) notFound();
 
-  const raw = content as unknown as Omit<Material, "script" | "attachments"> & { scripts: { body: Material["script"] } | { body: Material["script"] }[] | null };
+  const { clients: clientRow, ...raw } = content as unknown as Omit<Material, "script" | "attachments"> & {
+    scripts: { body: Material["script"] } | { body: Material["script"] }[] | null;
+    clients: { email: string | null } | null;
+  };
   const script = Array.isArray(raw.scripts) ? raw.scripts[0]?.body : raw.scripts?.body;
   const material: Material = {
     ...raw,
@@ -34,13 +37,9 @@ export default async function MaterialPage({ params }: PageProps<"/w/[slug]/cont
     shots: [...(raw.shots ?? [])].sort((a, b) => a.position - b.position),
   };
 
-  const { data: clientRow } = material.client_id
-    ? await supabase.from("clients").select("email").eq("id", material.client_id).maybeSingle()
-    : { data: null };
-
   return (
     <MaterialLoader
-      clientEmail={(clientRow?.email as string | null) ?? null}
+      clientEmail={clientRow?.email ?? null}
       material={material}
       workspace={{ id: ws.id, name: ws.name, slug: ws.slug, color: ws.color }}
       clients={refs.clients.filter((c) => c.workspace_id === ws.id)}

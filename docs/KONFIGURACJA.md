@@ -132,7 +132,7 @@ Produkcja: **https://contentflow-pi-ten.vercel.app** · projekt Vercel połączo
 
 1. [vercel.com/new](https://vercel.com/new) → import repozytorium. Ustawienia domyślne (Next.js, `next build`, Node 22).
 2. **Environment Variables:** te same zmienne co w `.env.local` — 6 podstawowych oraz 4 do powiadomień (`NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET`); sekrety (`SUPABASE_SECRET_KEY`, `VAPID_PRIVATE_KEY`, `CRON_SECRET`) oznacz jako *Sensitive*.
-3. **Settings → Functions → Function Region:** region najbliższy bazie Supabase.
+3. **Region funkcji:** ustawiony w repozytorium w `vercel.json` (`"regions": ["fra1"]`, Frankfurt, obok bazy Supabase `eu-central-1`). Domyślny region Vercela to Waszyngton (`iad1`): wtedy każde zapytanie do bazy leci przez Atlantyk. Region sprawdzisz w nagłówku odpowiedzi `x-vercel-id` funkcji (np. `arn1::fra1::…`; drugi człon to region funkcji).
 4. Adres produkcyjny dopisać w trzech miejscach (inaczej logowanie i Dysk nie zadziałają):
 
 | Gdzie | Pole | Wartość |

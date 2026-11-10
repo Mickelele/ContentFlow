@@ -12,8 +12,7 @@ export const metadata: Metadata = { title: "Klient" };
 export default async function ClientPage({ params }: PageProps<"/w/[slug]/klienci/[id]">) {
   const { slug, id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
-  const ws = await getWorkspace(slug);
-  const { supabase } = await getSession();
+  const [ws, { supabase }] = await Promise.all([getWorkspace(slug), getSession()]);
 
   const [{ data: client }, { data: others }] = await Promise.all([
     supabase

@@ -9,8 +9,7 @@ export const metadata: Metadata = { title: "Nowy klient" };
 
 export default async function NewClientPage({ params }: PageProps<"/w/[slug]/klienci/nowy">) {
   const { slug } = await params;
-  const ws = await getWorkspace(slug);
-  const { supabase } = await getSession();
+  const [ws, { supabase }] = await Promise.all([getWorkspace(slug), getSession()]);
   const { data } = await supabase.from("clients").select("color").eq("workspace_id", ws.id).is("archived_at", null);
 
   return (
