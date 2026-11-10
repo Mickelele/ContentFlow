@@ -6,7 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import type { ClientColor } from "@/lib/palette";
 
 export type Workspace = { id: string; name: string; slug: string; color: ClientColor; role: "owner" | "member" };
-export type Profile = { id: string; email: string; full_name: string | null; avatar_url: string | null; last_workspace_id: string | null };
+export type Profile = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  last_workspace_id: string | null;
+  settings: Record<string, unknown> | null;
+};
 
 export type SessionUser = { id: string; email: string | null };
 
@@ -32,7 +39,7 @@ export const getSession = cache(async () => {
   const { supabase, user } = await getAuth();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, avatar_url, last_workspace_id")
+    .select("id, email, full_name, avatar_url, last_workspace_id, settings")
     .eq("id", user.id)
     .single<Profile>();
 

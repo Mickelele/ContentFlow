@@ -5,6 +5,12 @@ Nie usuwamy starych wpisów. Gdy decyzja się zmienia, dodajemy nową i oznaczam
 
 ---
 
+### D-38 · Wygląd zapisany na koncie
+2026-11-10
+- **Decyzja:** styl, kolor akcentu i tryb (jasny / ciemny / systemowy) zapisują się w `profiles.settings.appearance`. Po wejściu do aplikacji `AppearanceSync` stosuje ustawienia z konta; każda zmiana zapisuje się na koncie (po 0,5 s, jeden zapis na serię kliknięć). localStorage zostaje jako szybki start dla skryptu w `<head>`. Zmienia część D-36 („zapamiętany na urządzeniu”).
+- **Dlaczego:** użytkownik zgłosił, że wybór „nie zapisuje się”: ustawienie z komputera nie było widoczne na telefonie ani w aplikacji zainstalowanej na ekranie początkowym (osobna pamięć przeglądarki).
+- **Skutek:** na nowym urządzeniu pierwsza strona może przez chwilę pokazać poprzedni wygląd, zanim zostanie zastosowany ten z konta. Bez migracji: `profiles.settings` istniało od Etapu 1.
+
 ### D-37 · Polityka prywatności i regulamin jako strony w aplikacji
 2026-11-10
 - **Decyzja:** dokumenty są publicznymi, statycznymi stronami aplikacji (`/polityka-prywatnosci`, `/regulamin`) po polsku. Administrator: Michał Czycza, kontakt: michal_czycza@wp.pl. Polityka wymienia każdy zakres Google i jego cel, zawiera oświadczenie o zgodności z Google API Services User Data Policy (Limited Use) oraz listę dostawców (Supabase, Vercel, Google, Anthropic, Trello, Slack, usługi push).

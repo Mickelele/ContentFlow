@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/shell/app-shell";
+import { AppearanceSync } from "@/components/shell/appearance-sync";
 import { getSession, getWorkspace, getWorkspaces } from "@/lib/workspace";
 
 export default async function WorkspaceLayout({ children, params }: LayoutProps<"/w/[slug]">) {
@@ -16,6 +17,7 @@ export default async function WorkspaceLayout({ children, params }: LayoutProps<
       workspaces={workspaces}
       user={{ name: profile?.full_name || email.split("@")[0], email, avatar: profile?.avatar_url ?? null }}
     >
+      <AppearanceSync userId={user.id} settings={profile?.settings ?? null} />
       {children}
     </AppShell>
   );

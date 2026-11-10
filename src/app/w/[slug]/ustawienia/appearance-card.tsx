@@ -41,7 +41,7 @@ export function AppearanceCard() {
   return (
     <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6" aria-label="Wygląd">
       <h2 className="text-lg">Wygląd</h2>
-      <p className="mt-0.5 text-sm text-ink-2">Styl i kolor zapamiętują się na tym urządzeniu. Kolory klientów się nie zmieniają.</p>
+      <p className="mt-0.5 text-sm text-ink-2">Styl, kolor i tryb zapisują się na Twoim koncie, więc są takie same na każdym urządzeniu. Kolory klientów się nie zmieniają.</p>
 
       <fieldset className="mt-5">
         <legend className="text-sm font-medium">Styl</legend>

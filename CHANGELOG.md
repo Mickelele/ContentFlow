@@ -4,6 +4,10 @@ Zmiany widoczne dla użytkownika, od najnowszych. Plan na przyszłość jest w [
 
 ## [Nieopublikowane]
 
+### Naprawiono
+- Wygląd (styl, kolor i tryb) zapisuje się na koncie i nie wraca do domyślnego na innym urządzeniu ani w aplikacji na telefonie.
+- Zdjęcie w kalendarzu nie jest przycinane: widać je w całości.
+
 ### Dodano
 - Kalendarz pokazuje zdjęcie wydarzenia: w widoku dnia i tygodnia pod tytułem wpisu, w widoku miesiąca jako małą miniaturę.
 - Publiczne strony „Polityka prywatności” (/polityka-prywatnosci) i „Regulamin” (/regulamin), z linkami na stronie logowania.

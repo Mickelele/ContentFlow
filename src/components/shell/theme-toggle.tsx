@@ -3,6 +3,7 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { cx } from "@/components/ui";
+import { persistAppearance, subscribeAppearance } from "@/lib/appearance";
 
 type Mode = "light" | "dark" | "system";
 const KEY = "cf-theme";
@@ -29,14 +30,17 @@ function write(mode: Mode) {
   } catch {}
   apply(mode);
   listeners.forEach((l) => l());
+  persistAppearance();
 }
 function subscribe(cb: () => void) {
   listeners.add(cb);
+  const offSaved = subscribeAppearance(cb);
   const mq = matchMedia("(prefers-color-scheme: dark)");
   const onSystem = () => read() === "system" && apply("system");
   mq.addEventListener("change", onSystem);
   return () => {
     listeners.delete(cb);
+    offSaved();
     mq.removeEventListener("change", onSystem);
   };
 }

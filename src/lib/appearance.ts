@@ -31,6 +31,50 @@ export const appearanceScript = `(function(){try{var d=document.documentElement;
 
 const listeners = new Set<() => void>();
 
+/** Wygląd zapisany na koncie (profiles.settings.appearance) — taki sam na każdym urządzeniu. */
+export type SavedAppearance = { style?: StyleKey; accent?: AccentKey; theme?: "light" | "dark" | "system" };
+
+// Zapis na koncie ustawia AppearanceSync (powłoka aplikacji); bez niego zmiany zostają tylko na urządzeniu.
+let persist: ((a: SavedAppearance) => void) | null = null;
+export function setAppearancePersist(fn: ((a: SavedAppearance) => void) | null) {
+  persist = fn;
+}
+
+function readTheme(): SavedAppearance["theme"] {
+  try {
+    const v = localStorage.getItem("cf-theme");
+    return v === "light" || v === "dark" ? v : "system";
+  } catch {
+    return "system";
+  }
+}
+
+/** Wywoływane po każdej zmianie stylu, koloru lub trybu: zapis na koncie. */
+export function persistAppearance() {
+  persist?.({ style: readStyle(), accent: readAccent(), theme: readTheme() });
+}
+
+/** Ustawienia z konta → urządzenie (localStorage i atrybuty <html>), bez ponownego zapisu na koncie. */
+export function applySavedAppearance(a: SavedAppearance) {
+  const d = document.documentElement;
+  try {
+    if (a.style && STYLES.some((s) => s.key === a.style)) {
+      localStorage.setItem(STYLE_KEY, a.style);
+      d.dataset.style = a.style;
+    }
+    if (a.accent && ACCENTS.some((x) => x.key === a.accent)) {
+      localStorage.setItem(ACCENT_KEY, a.accent);
+      d.dataset.accent = a.accent;
+    }
+    if (a.theme === "light" || a.theme === "dark" || a.theme === "system") {
+      localStorage.setItem("cf-theme", a.theme);
+      const dark = a.theme === "dark" || (a.theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+      d.dataset.theme = dark ? "dark" : "light";
+    }
+  } catch {}
+  listeners.forEach((l) => l());
+}
+
 function readKey<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
   try {
     const v = localStorage.getItem(key);
@@ -49,6 +93,7 @@ export function setStyle(style: StyleKey) {
   } catch {}
   document.documentElement.dataset.style = style;
   listeners.forEach((l) => l());
+  persistAppearance();
 }
 
 export function setAccent(accent: AccentKey) {
@@ -57,6 +102,7 @@ export function setAccent(accent: AccentKey) {
   } catch {}
   document.documentElement.dataset.accent = accent;
   listeners.forEach((l) => l());
+  persistAppearance();
 }
 
 export function subscribeAppearance(cb: () => void) {
